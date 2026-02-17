@@ -60,227 +60,251 @@ const chartData = {
 
 export default function DashboardScreen() {
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Welcome Card */}
-      <View style={styles.welcomeCard}>
-        <View>
-          <Text style={styles.welcomeText}>Welcome back,</Text>
-          <Text style={styles.userName}>Dr. Sarah Johnson</Text>
-        </View>
-        <View style={styles.iconContainer}>
-          <Ionicons name="medical" size={40} color="#0066CC" />
-        </View>
-      </View>
-
-      {/* Quick Actions */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.quickActions}>
+    <View style={styles.container}>
+      {/* Header with Notification Bell */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View>
+            <Text style={styles.headerTitle}>Dashboard</Text>
+            <Text style={styles.headerSubtitle}>Track your scans</Text>
+          </View>
           <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => router.push("/analysis/upload")}
+            style={styles.notificationButton}
+            onPress={() => router.push("/notifications")}
           >
-            <View style={[styles.actionIcon, styles.primaryBg]}>
-              <Ionicons name="add-circle" size={32} color="#FFFFFF" />
+            <Ionicons name="notifications" size={24} color="#0066CC" />
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>3</Text>
             </View>
-            <Text style={styles.actionText}>New Scan</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => router.push("/(tabs)/history")}
-          >
-            <View style={[styles.actionIcon, styles.secondaryBg]}>
-              <Ionicons name="time" size={32} color="#FFFFFF" />
-            </View>
-            <Text style={styles.actionText}>History</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => router.push("/(tabs)/(admin)/all-scans")}
-          >
-            <View style={[styles.actionIcon, styles.tertiaryBg]}>
-              <Ionicons name="analytics" size={32} color="#FFFFFF" />
-            </View>
-            <Text style={styles.actionText}>Analytics</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => router.push("/(tabs)/(admin)/users")}
-          >
-            <View style={[styles.actionIcon, styles.quaternaryBg]}>
-              <Ionicons name="people" size={32} color="#FFFFFF" />
-            </View>
-            <Text style={styles.actionText}>Users</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Statistics Grid */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Overview</Text>
-        <View style={styles.statsGrid}>
-          <View style={[styles.statCard, styles.totalCard]}>
-            <Ionicons name="document-text" size={24} color="#0066CC" />
-            <Text style={styles.statValue}>{stats.totalScans}</Text>
-            <Text style={styles.statLabel}>Total Scans</Text>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Welcome Card */}
+        <View style={styles.welcomeCard}>
+          <View>
+            <Text style={styles.welcomeText}>Welcome back,</Text>
+            <Text style={styles.userName}>Dr. Sarah Johnson</Text>
           </View>
-
-          <View style={[styles.statCard, styles.dangerCard]}>
-            <Ionicons name="warning" size={24} color="#D32F2F" />
-            <Text style={[styles.statValue, styles.dangerText]}>
-              {stats.pneumoniaDetected}
-            </Text>
-            <Text style={styles.statLabel}>Pneumonia</Text>
-          </View>
-
-          <View style={[styles.statCard, styles.safeCard]}>
-            <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
-            <Text style={[styles.statValue, styles.safeText]}>
-              {stats.normalScans}
-            </Text>
-            <Text style={styles.statLabel}>Normal</Text>
-          </View>
-
-          <View style={[styles.statCard, styles.accuracyCard]}>
-            <Ionicons name="star" size={24} color="#FF9800" />
-            <Text style={[styles.statValue, styles.accuracyText]}>
-              {stats.accuracy}%
-            </Text>
-            <Text style={styles.statLabel}>Accuracy</Text>
+          <View style={styles.iconContainer}>
+            <Ionicons name="medical" size={40} color="#0066CC" />
           </View>
         </View>
-      </View>
 
-      {/* Weekly Activity Chart */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Weekly Activity</Text>
-        <View style={styles.chartCard}>
-          <LineChart
-            data={chartData}
-            width={screenWidth - 48}
-            height={220}
-            chartConfig={{
-              backgroundColor: "#FFFFFF",
-              backgroundGradientFrom: "#FFFFFF",
-              backgroundGradientTo: "#FFFFFF",
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(0, 102, 204, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(28, 28, 30, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-              propsForDots: {
-                r: "6",
-                strokeWidth: "2",
-                stroke: "#0066CC",
-              },
-            }}
-            bezier
-            style={styles.chart}
-          />
-          <View style={styles.chartFooter}>
-            <View style={styles.chartLegend}>
-              <View style={styles.legendDot} />
-              <Text style={styles.legendText}>Scans per day</Text>
-            </View>
-            <Text style={styles.chartSubtext}>
-              ↑ {stats.weeklyGrowth}% vs last week
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Recent Scans */}
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recent Scans</Text>
-          <TouchableOpacity onPress={() => router.push("/(tabs)/history")}>
-            <Text style={styles.viewAllText}>View All</Text>
-          </TouchableOpacity>
-        </View>
-
-        {recentScans.map((scan) => (
-          <TouchableOpacity
-            key={scan.id}
-            style={styles.scanCard}
-            onPress={() =>
-              router.push({
-                pathname: "/report/[scanId]",
-                params: { scanId: scan.id },
-              })
-            }
-          >
-            <View style={styles.scanHeader}>
-              <View>
-                <Text style={styles.scanId}>{scan.id}</Text>
-                <Text style={styles.patientName}>{scan.patient}</Text>
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.quickActions}>
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push("/analysis/upload")}
+            >
+              <View style={[styles.actionIcon, styles.primaryBg]}>
+                <Ionicons name="add-circle" size={32} color="#FFFFFF" />
               </View>
-              <View
-                style={[
-                  styles.resultBadge,
-                  scan.result === "Pneumonia"
-                    ? styles.resultDanger
-                    : styles.resultSafe,
-                ]}
-              >
-                <Text
+              <Text style={styles.actionText}>New Scan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push("/(tabs)/history")}
+            >
+              <View style={[styles.actionIcon, styles.secondaryBg]}>
+                <Ionicons name="time" size={32} color="#FFFFFF" />
+              </View>
+              <Text style={styles.actionText}>History</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push("/(tabs)/(admin)/all-scans")}
+            >
+              <View style={[styles.actionIcon, styles.tertiaryBg]}>
+                <Ionicons name="analytics" size={32} color="#FFFFFF" />
+              </View>
+              <Text style={styles.actionText}>Analytics</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push("/(tabs)/(admin)/users")}
+            >
+              <View style={[styles.actionIcon, styles.quaternaryBg]}>
+                <Ionicons name="people" size={32} color="#FFFFFF" />
+              </View>
+              <Text style={styles.actionText}>Users</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Statistics Grid */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Overview</Text>
+          <View style={styles.statsGrid}>
+            <View style={[styles.statCard, styles.totalCard]}>
+              <Ionicons name="document-text" size={24} color="#0066CC" />
+              <Text style={styles.statValue}>{stats.totalScans}</Text>
+              <Text style={styles.statLabel}>Total Scans</Text>
+            </View>
+
+            <View style={[styles.statCard, styles.dangerCard]}>
+              <Ionicons name="warning" size={24} color="#D32F2F" />
+              <Text style={[styles.statValue, styles.dangerText]}>
+                {stats.pneumoniaDetected}
+              </Text>
+              <Text style={styles.statLabel}>Pneumonia</Text>
+            </View>
+
+            <View style={[styles.statCard, styles.safeCard]}>
+              <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+              <Text style={[styles.statValue, styles.safeText]}>
+                {stats.normalScans}
+              </Text>
+              <Text style={styles.statLabel}>Normal</Text>
+            </View>
+
+            <View style={[styles.statCard, styles.accuracyCard]}>
+              <Ionicons name="star" size={24} color="#FF9800" />
+              <Text style={[styles.statValue, styles.accuracyText]}>
+                {stats.accuracy}%
+              </Text>
+              <Text style={styles.statLabel}>Accuracy</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Weekly Activity Chart */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Weekly Activity</Text>
+          <View style={styles.chartCard}>
+            <LineChart
+              data={chartData}
+              width={screenWidth - 48}
+              height={220}
+              chartConfig={{
+                backgroundColor: "#FFFFFF",
+                backgroundGradientFrom: "#FFFFFF",
+                backgroundGradientTo: "#FFFFFF",
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(0, 102, 204, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(28, 28, 30, ${opacity})`,
+                style: {
+                  borderRadius: 16,
+                },
+                propsForDots: {
+                  r: "6",
+                  strokeWidth: "2",
+                  stroke: "#0066CC",
+                },
+              }}
+              bezier
+              style={styles.chart}
+            />
+            <View style={styles.chartFooter}>
+              <View style={styles.chartLegend}>
+                <View style={styles.legendDot} />
+                <Text style={styles.legendText}>Scans per day</Text>
+              </View>
+              <Text style={styles.chartSubtext}>
+                ↑ {stats.weeklyGrowth}% vs last week
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Recent Scans */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Recent Scans</Text>
+            <TouchableOpacity onPress={() => router.push("/(tabs)/history")}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          {recentScans.map((scan) => (
+            <TouchableOpacity
+              key={scan.id}
+              style={styles.scanCard}
+              onPress={() =>
+                router.push({
+                  pathname: "/report/[scanId]",
+                  params: { scanId: scan.id },
+                })
+              }
+            >
+              <View style={styles.scanHeader}>
+                <View>
+                  <Text style={styles.scanId}>{scan.id}</Text>
+                  <Text style={styles.patientName}>{scan.patient}</Text>
+                </View>
+                <View
                   style={[
-                    styles.resultText,
+                    styles.resultBadge,
                     scan.result === "Pneumonia"
-                      ? styles.resultTextDanger
-                      : styles.resultTextSafe,
+                      ? styles.resultDanger
+                      : styles.resultSafe,
                   ]}
                 >
-                  {scan.result}
+                  <Text
+                    style={[
+                      styles.resultText,
+                      scan.result === "Pneumonia"
+                        ? styles.resultTextDanger
+                        : styles.resultTextSafe,
+                    ]}
+                  >
+                    {scan.result}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.scanFooter}>
+                <Text style={styles.scanDate}>
+                  <Ionicons name="calendar-outline" size={12} color="#8E8E93" />{" "}
+                  {scan.date}
+                </Text>
+                <Text style={styles.scanConfidence}>
+                  {scan.confidence}% confidence
                 </Text>
               </View>
-            </View>
-            <View style={styles.scanFooter}>
-              <Text style={styles.scanDate}>
-                <Ionicons name="calendar-outline" size={12} color="#8E8E93" />{" "}
-                {scan.date}
-              </Text>
-              <Text style={styles.scanConfidence}>
-                {scan.confidence}% confidence
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      {/* System Status */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>System Status</Text>
-        <View style={styles.statusCard}>
-          <View style={styles.statusRow}>
-            <View style={styles.statusIndicator}>
-              <View style={[styles.statusDot, styles.statusActive]} />
-              <Text style={styles.statusText}>AI Model</Text>
+        {/* System Status */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>System Status</Text>
+          <View style={styles.statusCard}>
+            <View style={styles.statusRow}>
+              <View style={styles.statusIndicator}>
+                <View style={[styles.statusDot, styles.statusActive]} />
+                <Text style={styles.statusText}>AI Model</Text>
+              </View>
+              <Text style={styles.statusValue}>Operational</Text>
             </View>
-            <Text style={styles.statusValue}>Operational</Text>
-          </View>
-          <View style={styles.statusRow}>
-            <View style={styles.statusIndicator}>
-              <View style={[styles.statusDot, styles.statusActive]} />
-              <Text style={styles.statusText}>Database</Text>
+            <View style={styles.statusRow}>
+              <View style={styles.statusIndicator}>
+                <View style={[styles.statusDot, styles.statusActive]} />
+                <Text style={styles.statusText}>Database</Text>
+              </View>
+              <Text style={styles.statusValue}>Connected</Text>
             </View>
-            <Text style={styles.statusValue}>Connected</Text>
-          </View>
-          <View style={styles.statusRow}>
-            <View style={styles.statusIndicator}>
-              <View style={[styles.statusDot, styles.statusActive]} />
-              <Text style={styles.statusText}>Storage</Text>
+            <View style={styles.statusRow}>
+              <View style={styles.statusIndicator}>
+                <View style={[styles.statusDot, styles.statusActive]} />
+                <Text style={styles.statusText}>Storage</Text>
+              </View>
+              <Text style={styles.statusValue}>78% Used</Text>
             </View>
-            <Text style={styles.statusValue}>78% Used</Text>
           </View>
         </View>
-      </View>
 
-      <View style={styles.bottomSpacer} />
-    </ScrollView>
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </View>
   );
 }
 
@@ -288,7 +312,65 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F7",
+  },
+  header: {
+    backgroundColor: "#FFFFFF",
     paddingTop: 60,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  headerContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1C1C1E",
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#8E8E93",
+    marginTop: 2,
+  },
+  notificationButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#F5F5F7",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
+  badge: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    backgroundColor: "#D32F2F",
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 6,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+  badgeText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "bold",
+  },
+  scrollView: {
+    flex: 1,
   },
   welcomeCard: {
     flexDirection: "row",
@@ -296,6 +378,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#E3F2FD",
     margin: 16,
+    marginTop: 24,
     padding: 20,
     borderRadius: 16,
   },
