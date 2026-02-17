@@ -4,6 +4,10 @@ import React, { useState } from "react";
 import {
   Alert,
   FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -66,6 +70,16 @@ export default function UsersScreen() {
   const [filterRole, setFilterRole] = useState<"all" | "Clinician" | "Admin">(
     "all",
   );
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // Add User Form State
+  const [newUserName, setNewUserName] = useState("");
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserRole, setNewUserRole] = useState<"Clinician" | "Admin">(
+    "Clinician",
+  );
+  const [showPassword, setShowPassword] = useState(false);
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -101,6 +115,69 @@ export default function UsersScreen() {
           : u,
       ),
     );
+  };
+
+  const resetAddUserForm = () => {
+    setNewUserName("");
+    setNewUserEmail("");
+    setNewUserPassword("");
+    setNewUserRole("Clinician");
+    setShowPassword(false);
+  };
+
+  const handleAddUser = () => {
+    // Validation
+    if (!newUserName.trim()) {
+      Alert.alert("Error", "Please enter user's full name");
+      return;
+    }
+
+    if (!newUserEmail.trim()) {
+      Alert.alert("Error", "Please enter email address");
+      return;
+    }
+
+    // Simple email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newUserEmail)) {
+      Alert.alert("Error", "Please enter a valid email address");
+      return;
+    }
+
+    if (!newUserPassword) {
+      Alert.alert("Error", "Please enter a password");
+      return;
+    }
+
+    if (newUserPassword.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
+      return;
+    }
+
+    // Check if email already exists
+    if (
+      users.some((u) => u.email.toLowerCase() === newUserEmail.toLowerCase())
+    ) {
+      Alert.alert("Error", "A user with this email already exists");
+      return;
+    }
+
+    // Create new user
+    const newUser = {
+      id: (users.length + 1).toString(),
+      name: newUserName.trim(),
+      email: newUserEmail.trim().toLowerCase(),
+      role: newUserRole,
+      scansCount: 0,
+      lastActive: new Date().toISOString().split("T")[0],
+      status: "active",
+    };
+
+    setUsers([...users, newUser]);
+    setShowAddModal(false);
+    resetAddUserForm();
+
+    Alert.alert("Success", `${newUserName} has been added successfully!`);
   };
 
   const renderUserCard = ({ item }: { item: (typeof MOCK_USERS)[0] }) => (
@@ -205,7 +282,7 @@ export default function UsersScreen() {
           </View>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => Alert.alert("Add User", "Feature coming soon")}
+            onPress={() => setShowAddModal(true)}
           >
             <Ionicons name="person-add" size={24} color="#FFFFFF" />
           </TouchableOpacity>
@@ -302,6 +379,202 @@ export default function UsersScreen() {
           </View>
         }
       />
+
+      {/* Add User Modal */}
+      <Modal
+        visible={showAddModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => {
+          setShowAddModal(false);
+          resetAddUserForm();
+        }}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.modalContainer}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPress={() => {
+              setShowAddModal(false);
+              resetAddUserForm();
+            }}
+          />
+
+          <View style={styles.modalContent}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleContainer}>
+                <Ionicons name="person-add" size={24} color="#0066CC" />
+                <Text style={styles.modalTitle}>Add New User</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowAddModal(false);
+                  resetAddUserForm();
+                }}
+                style={styles.closeButton}
+              >
+                <Ionicons name="close" size={24} color="#8E8E93" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              style={styles.modalForm}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Full Name */}
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Full Name *</Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="person-outline" size={20} color="#8E8E93" />
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="Enter full name"
+                    placeholderTextColor="#8E8E93"
+                    value={newUserName}
+                    onChangeText={setNewUserName}
+                    autoCapitalize="words"
+                  />
+                </View>
+              </View>
+
+              {/* Email */}
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Email Address *</Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons name="mail-outline" size={20} color="#8E8E93" />
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="email@example.com"
+                    placeholderTextColor="#8E8E93"
+                    value={newUserEmail}
+                    onChangeText={setNewUserEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+              </View>
+
+              {/* Password */}
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Password *</Text>
+                <View style={styles.inputContainer}>
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={20}
+                    color="#8E8E93"
+                  />
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="Min. 6 characters"
+                    placeholderTextColor="#8E8E93"
+                    value={newUserPassword}
+                    onChangeText={setNewUserPassword}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-outline" : "eye-off-outline"}
+                      size={20}
+                      color="#8E8E93"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Role Selection */}
+              <View style={styles.formGroup}>
+                <Text style={styles.formLabel}>Role *</Text>
+                <View style={styles.roleSelection}>
+                  <TouchableOpacity
+                    style={[
+                      styles.roleOption,
+                      newUserRole === "Clinician" && styles.roleOptionActive,
+                    ]}
+                    onPress={() => setNewUserRole("Clinician")}
+                  >
+                    <Ionicons
+                      name="medical"
+                      size={20}
+                      color={
+                        newUserRole === "Clinician" ? "#FFFFFF" : "#0066CC"
+                      }
+                    />
+                    <Text
+                      style={[
+                        styles.roleOptionText,
+                        newUserRole === "Clinician" &&
+                          styles.roleOptionTextActive,
+                      ]}
+                    >
+                      Clinician
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.roleOption,
+                      newUserRole === "Admin" && styles.roleOptionActive,
+                    ]}
+                    onPress={() => setNewUserRole("Admin")}
+                  >
+                    <Ionicons
+                      name="shield-checkmark"
+                      size={20}
+                      color={newUserRole === "Admin" ? "#FFFFFF" : "#0066CC"}
+                    />
+                    <Text
+                      style={[
+                        styles.roleOptionText,
+                        newUserRole === "Admin" && styles.roleOptionTextActive,
+                      ]}
+                    >
+                      Admin
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Info Box */}
+              <View style={styles.infoBox}>
+                <Ionicons name="information-circle" size={20} color="#0066CC" />
+                <Text style={styles.infoText}>
+                  New users will be created with 'Active' status and can login
+                  immediately.
+                </Text>
+              </View>
+            </ScrollView>
+
+            {/* Modal Actions */}
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => {
+                  setShowAddModal(false);
+                  resetAddUserForm();
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleAddUser}
+              >
+                <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+                <Text style={styles.submitButtonText}>Add User</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -552,5 +825,159 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#8E8E93",
     marginTop: 16,
+  },
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: "90%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
+  },
+  modalTitleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1C1C1E",
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F5F5F7",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalForm: {
+    padding: 20,
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  formLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1C1C1E",
+    marginBottom: 8,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F7",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 56,
+    gap: 12,
+  },
+  modalInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#1C1C1E",
+  },
+  roleSelection: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  roleOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F5F5F7",
+    borderRadius: 12,
+    paddingVertical: 14,
+    gap: 8,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  roleOptionActive: {
+    backgroundColor: "#0066CC",
+    borderColor: "#0066CC",
+  },
+  roleOptionText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#0066CC",
+  },
+  roleOptionTextActive: {
+    color: "#FFFFFF",
+  },
+  infoBox: {
+    flexDirection: "row",
+    backgroundColor: "#E3F2FD",
+    borderRadius: 12,
+    padding: 12,
+    gap: 8,
+    marginTop: 4,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    color: "#0066CC",
+    lineHeight: 18,
+  },
+  modalActions: {
+    flexDirection: "row",
+    padding: 20,
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E5EA",
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: "#F5F5F7",
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#8E8E93",
+  },
+  submitButton: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#0066CC",
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    shadowColor: "#0066CC",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  submitButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
 });
