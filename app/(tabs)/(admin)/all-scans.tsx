@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
-  Image,
-  Alert,
-} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import React, { useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 // Mock scan data
 const MOCK_SCANS = [
@@ -89,7 +89,7 @@ export default function AllScansScreen() {
   });
 
   const pneumoniaCount = scans.filter(
-    (s) => s.prediction === "Pneumonia Detected"
+    (s) => s.prediction === "Pneumonia Detected",
   ).length;
   const normalCount = scans.filter((s) => s.prediction === "Normal").length;
 
@@ -107,11 +107,11 @@ export default function AllScansScreen() {
             Alert.alert("Success", "Scan deleted successfully");
           },
         },
-      ]
+      ],
     );
   };
 
-  const handleViewDetails = (scan: typeof MOCK_SCANS[0]) => {
+  const handleViewDetails = (scan: (typeof MOCK_SCANS)[0]) => {
     router.push({
       pathname: "/analysis/results/[scanId]",
       params: {
@@ -128,7 +128,7 @@ export default function AllScansScreen() {
     });
   };
 
-  const renderScanCard = ({ item }: { item: typeof MOCK_SCANS[0] }) => {
+  const renderScanCard = ({ item }: { item: (typeof MOCK_SCANS)[0] }) => {
     const isPneumonia = item.prediction === "Pneumonia Detected";
 
     return (
@@ -206,6 +206,28 @@ export default function AllScansScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>All Scans</Text>
+            <Text style={styles.headerSubtitle}>
+              {filteredScans.length}{" "}
+              {filteredScans.length === 1 ? "scan" : "scans"}
+            </Text>
+          </View>
+          <View style={styles.headerIcon}>
+            <Ionicons name="analytics-outline" size={24} color="#0066CC" />
+          </View>
+        </View>
+      </View>
+
       {/* Stats Cards */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
@@ -226,7 +248,12 @@ export default function AllScansScreen() {
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#8E8E93" style={styles.searchIcon} />
+        <Ionicons
+          name="search"
+          size={20}
+          color="#8E8E93"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Search scans..."
@@ -319,6 +346,54 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5F5F7",
   },
+  header: {
+    backgroundColor: "#FFFFFF",
+    paddingTop: 60,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F7",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTextContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1C1C1E",
+  },
+  headerSubtitle: {
+    fontSize: 12,
+    color: "#8E8E93",
+    marginTop: 2,
+  },
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#E3F2FD",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   statsContainer: {
     flexDirection: "row",
     padding: 16,
@@ -368,6 +443,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 50,
     marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   searchIcon: {
     marginRight: 12,

@@ -1,14 +1,15 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  TextInput,
   Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 // Mock user data
 const MOCK_USERS = [
@@ -62,7 +63,9 @@ const MOCK_USERS = [
 export default function UsersScreen() {
   const [users, setUsers] = useState(MOCK_USERS);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterRole, setFilterRole] = useState<"all" | "Clinician" | "Admin">("all");
+  const [filterRole, setFilterRole] = useState<"all" | "Clinician" | "Admin">(
+    "all",
+  );
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -86,7 +89,7 @@ export default function UsersScreen() {
             Alert.alert("Success", "User deleted successfully");
           },
         },
-      ]
+      ],
     );
   };
 
@@ -95,12 +98,12 @@ export default function UsersScreen() {
       users.map((u) =>
         u.id === userId
           ? { ...u, status: u.status === "active" ? "inactive" : "active" }
-          : u
-      )
+          : u,
+      ),
     );
   };
 
-  const renderUserCard = ({ item }: { item: typeof MOCK_USERS[0] }) => (
+  const renderUserCard = ({ item }: { item: (typeof MOCK_USERS)[0] }) => (
     <View style={styles.userCard}>
       {/* User Avatar & Info */}
       <View style={styles.userHeader}>
@@ -184,9 +187,39 @@ export default function UsersScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerTitle}>User Management</Text>
+            <Text style={styles.headerSubtitle}>
+              {filteredUsers.length}{" "}
+              {filteredUsers.length === 1 ? "user" : "users"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => Alert.alert("Add User", "Feature coming soon")}
+          >
+            <Ionicons name="person-add" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#8E8E93" style={styles.searchIcon} />
+        <Ionicons
+          name="search"
+          size={20}
+          color="#8E8E93"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Search users..."
@@ -204,7 +237,10 @@ export default function UsersScreen() {
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
-          style={[styles.filterButton, filterRole === "all" && styles.filterButtonActive]}
+          style={[
+            styles.filterButton,
+            filterRole === "all" && styles.filterButtonActive,
+          ]}
           onPress={() => setFilterRole("all")}
         >
           <Text
@@ -235,7 +271,10 @@ export default function UsersScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.filterButton, filterRole === "Admin" && styles.filterButtonActive]}
+          style={[
+            styles.filterButton,
+            filterRole === "Admin" && styles.filterButtonActive,
+          ]}
           onPress={() => setFilterRole("Admin")}
         >
           <Text
@@ -272,14 +311,73 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5F5F7",
   },
+  header: {
+    backgroundColor: "#FFFFFF",
+    paddingTop: 60,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5EA",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F5F5F7",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTextContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1C1C1E",
+  },
+  headerSubtitle: {
+    fontSize: 12,
+    color: "#8E8E93",
+    marginTop: 2,
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#0066CC",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#0066CC",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
+  },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
     margin: 16,
+    marginBottom: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     height: 50,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   searchIcon: {
     marginRight: 12,
