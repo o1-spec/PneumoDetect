@@ -6,7 +6,6 @@ import {
   Modal,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -15,52 +14,44 @@ import {
 
 export default function ProfileScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-  const [showLanguageModal, setShowLanguageModal] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
 
-  // Edit Profile State
   const [userName, setUserName] = useState("Dr. Sarah Johnson");
   const [userEmail, setUserEmail] = useState("sarah.johnson@hospital.com");
   const [userPhone, setUserPhone] = useState("+1 (555) 123-4567");
   const [userSpecialization, setUserSpecialization] = useState("Radiology");
 
-  // Notifications State
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [scanAlerts, setScanAlerts] = useState(true);
-  const [weeklyReports, setWeeklyReports] = useState(false);
-
-  // Language State
-  const [selectedLanguage, setSelectedLanguage] = useState("English");
-  const languages = [
-    "English",
-    "Spanish",
-    "French",
-    "German",
-    "Chinese",
-    "Arabic",
-  ];
-
-  const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: () => router.replace("/(auth)/login"),
-      },
-    ]);
+   const handleLogout = () => {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout from PneumoScan AI?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert(
+              "Logged Out",
+              "You have been successfully logged out. See you soon!",
+              [
+                {
+                  text: "OK",
+                  onPress: () => router.replace("/(auth)/login"),
+                },
+              ]
+            );
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
-
   const handleSaveProfile = () => {
     setShowEditModal(false);
     Alert.alert("Success", "Profile updated successfully!");
-  };
-
-  const handleSaveNotifications = () => {
-    setShowNotificationsModal(false);
-    Alert.alert("Success", "Notification preferences saved!");
   };
 
   const handleDownloadReports = () => {
@@ -73,48 +64,7 @@ export default function ProfileScreen() {
       },
     ]);
   };
-
-  const handlePrivacySecurity = () => {
-    Alert.alert("Privacy & Security", "Choose an option:", [
-      {
-        text: "Change Password",
-        onPress: () =>
-          Alert.alert(
-            "Change Password",
-            "Password reset link sent to your email",
-          ),
-      },
-      {
-        text: "Two-Factor Authentication",
-        onPress: () => Alert.alert("2FA", "Two-factor authentication enabled"),
-      },
-      {
-        text: "Privacy Settings",
-        onPress: () =>
-          Alert.alert("Privacy", "Your data is encrypted and secure"),
-      },
-      { text: "Cancel", style: "cancel" },
-    ]);
-  };
-
-  const handleHelpCenter = () => {
-    Alert.alert("Help Center", "What do you need help with?", [
-      {
-        text: "Getting Started",
-        onPress: () => Alert.alert("Tutorial", "View getting started guide"),
-      },
-      {
-        text: "User Guide",
-        onPress: () => Alert.alert("Guide", "Download user manual"),
-      },
-      {
-        text: "FAQ",
-        onPress: () => Alert.alert("FAQ", "View frequently asked questions"),
-      },
-      { text: "Cancel", style: "cancel" },
-    ]);
-  };
-
+  
   return (
     <>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -165,12 +115,12 @@ export default function ProfileScreen() {
               icon="notifications-outline"
               label="Notifications"
               badge="3"
-              onPress={() => setShowNotificationsModal(true)}
+              onPress={() => router.push("/profile/notifications")}
             />
             <MenuItem
               icon="lock-closed-outline"
               label="Privacy & Security"
-              onPress={handlePrivacySecurity}
+              onPress={() => router.push("/profile/privacy-security")}
             />
           </View>
         </View>
@@ -178,24 +128,6 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.menuCard}>
-            <View style={styles.menuItem}>
-              <View style={styles.menuLeft}>
-                <Ionicons name="moon-outline" size={22} color="#0066CC" />
-                <Text style={styles.menuLabel}>Dark Mode</Text>
-              </View>
-              <Switch
-                value={darkMode}
-                onValueChange={setDarkMode}
-                trackColor={{ false: "#E5E5EA", true: "#0066CC" }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
-            <MenuItem
-              icon="language-outline"
-              label="Language"
-              value={selectedLanguage}
-              onPress={() => setShowLanguageModal(true)}
-            />
             <MenuItem
               icon="download-outline"
               label="Download Reports"
@@ -210,27 +142,17 @@ export default function ProfileScreen() {
             <MenuItem
               icon="help-circle-outline"
               label="Help Center"
-              onPress={handleHelpCenter}
+              onPress={() => router.push("/profile/help-center")}
             />
             <MenuItem
               icon="mail-outline"
               label="Contact Support"
-              onPress={() =>
-                Alert.alert(
-                  "Contact Support",
-                  "Email: support@pneumoscan.ai\nPhone: +1 (800) 555-0100",
-                )
-              }
+              onPress={() => router.push("/profile/contact")}
             />
             <MenuItem
               icon="information-circle-outline"
               label="About"
-              onPress={() =>
-                Alert.alert(
-                  "PneumoScan AI",
-                  "Version 1.0.0\n\nAI-Powered Pneumonia Detection\n© 2024 All Rights Reserved",
-                )
-              }
+              onPress={() => router.push("/profile/about")}
             />
           </View>
         </View>
@@ -341,193 +263,6 @@ export default function ProfileScreen() {
                 <Text style={styles.submitButtonText}>Save Changes</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Notifications Modal */}
-      <Modal
-        visible={showNotificationsModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowNotificationsModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setShowNotificationsModal(false)}
-          />
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View style={styles.modalTitleContainer}>
-                <Ionicons
-                  name="notifications-outline"
-                  size={24}
-                  color="#0066CC"
-                />
-                <Text style={styles.modalTitle}>Notifications</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setShowNotificationsModal(false)}
-                style={styles.closeButton}
-              >
-                <Ionicons name="close" size={24} color="#8E8E93" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.modalForm}>
-              <View style={styles.settingItem}>
-                <View style={styles.settingLeft}>
-                  <Ionicons name="mail-outline" size={22} color="#0066CC" />
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>Email Notifications</Text>
-                    <Text style={styles.settingDescription}>
-                      Receive updates via email
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={emailNotifications}
-                  onValueChange={setEmailNotifications}
-                  trackColor={{ false: "#E5E5EA", true: "#0066CC" }}
-                />
-              </View>
-
-              <View style={styles.settingItem}>
-                <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="phone-portrait-outline"
-                    size={22}
-                    color="#0066CC"
-                  />
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>Push Notifications</Text>
-                    <Text style={styles.settingDescription}>
-                      Get alerts on your device
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={pushNotifications}
-                  onValueChange={setPushNotifications}
-                  trackColor={{ false: "#E5E5EA", true: "#0066CC" }}
-                />
-              </View>
-
-              <View style={styles.settingItem}>
-                <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="alert-circle-outline"
-                    size={22}
-                    color="#0066CC"
-                  />
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>Scan Alerts</Text>
-                    <Text style={styles.settingDescription}>
-                      Urgent scan notifications
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={scanAlerts}
-                  onValueChange={setScanAlerts}
-                  trackColor={{ false: "#E5E5EA", true: "#0066CC" }}
-                />
-              </View>
-
-              <View style={styles.settingItem}>
-                <View style={styles.settingLeft}>
-                  <Ionicons
-                    name="stats-chart-outline"
-                    size={22}
-                    color="#0066CC"
-                  />
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>Weekly Reports</Text>
-                    <Text style={styles.settingDescription}>
-                      Summary of your activity
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={weeklyReports}
-                  onValueChange={setWeeklyReports}
-                  trackColor={{ false: "#E5E5EA", true: "#0066CC" }}
-                />
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowNotificationsModal(false)}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleSaveNotifications}
-              >
-                <Text style={styles.submitButtonText}>Save</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Language Modal */}
-      <Modal
-        visible={showLanguageModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowLanguageModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setShowLanguageModal(false)}
-          />
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View style={styles.modalTitleContainer}>
-                <Ionicons name="language-outline" size={24} color="#0066CC" />
-                <Text style={styles.modalTitle}>Select Language</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setShowLanguageModal(false)}
-                style={styles.closeButton}
-              >
-                <Ionicons name="close" size={24} color="#8E8E93" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.modalForm}>
-              {languages.map((language) => (
-                <TouchableOpacity
-                  key={language}
-                  style={styles.languageOption}
-                  onPress={() => {
-                    setSelectedLanguage(language);
-                    setShowLanguageModal(false);
-                    Alert.alert(
-                      "Language Changed",
-                      `Language set to ${language}`,
-                    );
-                  }}
-                >
-                  <Text style={styles.languageText}>{language}</Text>
-                  {selectedLanguage === language && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={24}
-                      color="#0066CC"
-                    />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -829,45 +564,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#FFFFFF",
-  },
-  settingItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  settingLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  settingText: {
-    flex: 1,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 2,
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: "#8E8E93",
-  },
-  languageOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 16,
-    paddingHorizontal: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  languageText: {
-    fontSize: 16,
-    color: "#1C1C1E",
   },
 });
