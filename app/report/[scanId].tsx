@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Print from "expo-print";
+import { router, useLocalSearchParams } from "expo-router";
 import * as Sharing from "expo-sharing";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
- const mockScanData = {
+const mockScanData = {
   id: "SCAN-2024-001",
   patientId: "PT-12345",
   patientName: "John Doe",
@@ -23,7 +23,8 @@ import * as Sharing from "expo-sharing";
   scanDate: "2024-02-17",
   prediction: "Pneumonia Detected",
   confidence: 94.5,
-  imageUri: "https://via.placeholder.com/400x400/0066CC/FFFFFF?text=Chest+X-Ray",
+  imageUri:
+    "https://via.placeholder.com/400x400/0066CC/FFFFFF?text=Chest+X-Ray",
   heatmapUri: "https://via.placeholder.com/400x400/FF0000/FFFFFF?text=Heatmap",
   technician: "Dr. Sarah Johnson",
   notes: "Patient shows signs of bacterial pneumonia in lower right lobe.",
@@ -34,7 +35,7 @@ export default function ReportScreen() {
   const [loading, setLoading] = useState(false);
   const [pdfUri, setPdfUri] = useState<string | null>(null);
 
-  const scanData = mockScanData; // Replace with actual data lookup
+  const scanData = mockScanData;
 
   const generateHTMLReport = () => {
     return `
@@ -242,16 +243,13 @@ export default function ReportScreen() {
           </style>
         </head>
         <body>
-          <!-- Header -->
           <div class="header">
             <div class="logo">🫁 PneumoScan AI</div>
             <div class="subtitle">AI-Powered Pneumonia Detection System</div>
           </div>
 
-          <!-- Report Title -->
           <h1 class="report-title">Medical Diagnostic Report</h1>
 
-          <!-- Patient Information -->
           <div class="info-section">
             <div class="info-row">
               <span class="info-label">Scan ID:</span>
@@ -283,14 +281,12 @@ export default function ReportScreen() {
             </div>
           </div>
 
-          <!-- Prediction Result -->
           <div class="prediction-box">
             <div class="prediction-label">${scanData.prediction}</div>
             <div class="confidence-text">${scanData.confidence}%</div>
             <div class="confidence-label">Confidence Score</div>
           </div>
 
-          <!-- Images -->
           <div class="images-section">
             <h2 class="report-title">Medical Images</h2>
             <div class="image-grid">
@@ -305,13 +301,11 @@ export default function ReportScreen() {
             </div>
           </div>
 
-          <!-- Clinical Notes -->
           <div class="notes-section">
             <div class="notes-title">Clinical Notes</div>
             <div class="notes-content">${scanData.notes}</div>
           </div>
 
-          <!-- Disclaimer -->
           <div class="disclaimer">
             <div class="disclaimer-title">⚠️ Important Medical Disclaimer</div>
             <div class="disclaimer-text">
@@ -322,7 +316,6 @@ export default function ReportScreen() {
             </div>
           </div>
 
-          <!-- Signature Section -->
           <div class="signature-section">
             <div class="info-row">
               <span class="info-label">Report Generated:</span>
@@ -333,7 +326,6 @@ export default function ReportScreen() {
             </div>
           </div>
 
-          <!-- Footer -->
           <div class="footer">
             <p>PneumoScan AI - Advanced Medical Imaging Analysis System</p>
             <p>© 2024 All Rights Reserved | For Medical Professional Use Only</p>
@@ -366,7 +358,7 @@ export default function ReportScreen() {
             text: "Share",
             onPress: () => handleSharePDF(uri),
           },
-        ]
+        ],
       );
     } catch (error) {
       setLoading(false);
@@ -407,17 +399,10 @@ export default function ReportScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0066CC" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Medical Report</Text>
-        <View style={styles.placeholder} />
-      </View>
+      {/* Back Button */}
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={24} color="#0066CC" />
+      </TouchableOpacity>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Scan ID Badge */}
@@ -550,7 +535,6 @@ export default function ReportScreen() {
   );
 }
 
-// Info Row Component
 const InfoRow = ({ label, value }: { label: string; value: string }) => (
   <View style={styles.infoRow}>
     <Text style={styles.infoLabel}>{label}</Text>
@@ -563,31 +547,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5F5F7",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
   backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-  },
-  placeholder: {
-    width: 40,
+    position: "absolute",
+    top: 60,
+    left: 16,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   content: {
     flex: 1,
-    padding: 16,
+    paddingTop: 120,
+    paddingHorizontal: 16,
   },
   idBadge: {
     backgroundColor: "#0066CC",

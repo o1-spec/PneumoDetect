@@ -1,14 +1,14 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
   Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function ProfileScreen() {
   const handleLogout = () => {
@@ -24,6 +24,9 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Top Spacer */}
+      <View style={styles.topSpacer} />
+
       {/* Profile Header */}
       <View style={styles.profileHeader}>
         <View style={styles.avatarContainer}>
@@ -111,12 +114,14 @@ export default function ProfileScreen() {
           <MenuItem
             icon="mail-outline"
             label="Contact Support"
-            onPress={() => Alert.alert("Support", "Email: support@pneumoscan.ai")}
+            onPress={() =>
+              Alert.alert("Support", "Email: support@pneumoscan.ai")
+            }
           />
           <MenuItem
             icon="information-circle-outline"
             label="About"
-            onPress={() => Alert.alert("PneumoScan AI", "Version 1.0.0")}
+            onPress={() => Alert.alert("PneumoDetect AI", "Version 1.0.0")}
           />
         </View>
       </View>
@@ -151,7 +156,11 @@ const MenuItem = ({
       <Text style={styles.menuLabel}>{label}</Text>
     </View>
     <View style={styles.menuRight}>
-      {badge && <View style={styles.badge}><Text style={styles.badgeText}>{badge}</Text></View>}
+      {badge && (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{badge}</Text>
+        </View>
+      )}
       {value && <Text style={styles.menuValue}>{value}</Text>}
       <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
     </View>
@@ -162,6 +171,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F7",
+  },
+  topSpacer: {
+    height: 60,
   },
   profileHeader: {
     backgroundColor: "#FFFFFF",

@@ -1,15 +1,15 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
   FlatList,
-  TouchableOpacity,
-  TextInput,
   Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 // Mock history data
 const MOCK_HISTORY = [
@@ -81,7 +81,7 @@ export default function HistoryScreen() {
     return matchesSearch && matchesFilter;
   });
 
-  const renderHistoryItem = ({ item }: { item: typeof MOCK_HISTORY[0] }) => {
+  const renderHistoryItem = ({ item }: { item: (typeof MOCK_HISTORY)[0] }) => {
     const isPneumonia = item.prediction === "Pneumonia Detected";
 
     return (
@@ -134,6 +134,9 @@ export default function HistoryScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Top Spacer */}
+      <View style={styles.topSpacer} />
+
       {/* Stats Summary */}
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
@@ -142,7 +145,10 @@ export default function HistoryScreen() {
         </View>
         <View style={[styles.statBox, styles.dangerBox]}>
           <Text style={[styles.statValue, styles.dangerText]}>
-            {MOCK_HISTORY.filter((s) => s.prediction === "Pneumonia Detected").length}
+            {
+              MOCK_HISTORY.filter((s) => s.prediction === "Pneumonia Detected")
+                .length
+            }
           </Text>
           <Text style={styles.statLabel}>Pneumonia</Text>
         </View>
@@ -156,7 +162,12 @@ export default function HistoryScreen() {
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="#8E8E93" style={styles.searchIcon} />
+        <Ionicons
+          name="search"
+          size={20}
+          color="#8E8E93"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.searchInput}
           placeholder="Search scans..."
@@ -174,7 +185,10 @@ export default function HistoryScreen() {
       {/* Filter Tabs */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
-          style={[styles.filterTab, filterStatus === "all" && styles.filterTabActive]}
+          style={[
+            styles.filterTab,
+            filterStatus === "all" && styles.filterTabActive,
+          ]}
           onPress={() => setFilterStatus("all")}
         >
           <Text
@@ -244,6 +258,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F7",
+  },
+  topSpacer: {
+    height: 60,
   },
   statsContainer: {
     flexDirection: "row",
