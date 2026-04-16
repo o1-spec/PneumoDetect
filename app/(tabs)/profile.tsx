@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { MenuItem } from "../../components/MenuItem";
 
 export default function ProfileScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
@@ -20,7 +21,7 @@ export default function ProfileScreen() {
   const [userPhone, setUserPhone] = useState("+1 (555) 123-4567");
   const [userSpecialization, setUserSpecialization] = useState("Radiology");
 
-   const handleLogout = () => {
+  const handleLogout = () => {
     Alert.alert(
       "Logout",
       "Are you sure you want to logout from PneumoScan AI?",
@@ -41,12 +42,12 @@ export default function ProfileScreen() {
                   text: "OK",
                   onPress: () => router.replace("/(auth)/login"),
                 },
-              ]
+              ],
             );
           },
         },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
   const handleSaveProfile = () => {
@@ -64,7 +65,7 @@ export default function ProfileScreen() {
       },
     ]);
   };
-  
+
   return (
     <>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -270,36 +271,6 @@ export default function ProfileScreen() {
   );
 }
 
-const MenuItem = ({
-  icon,
-  label,
-  value,
-  badge,
-  onPress,
-}: {
-  icon: any;
-  label: string;
-  value?: string;
-  badge?: string;
-  onPress: () => void;
-}) => (
-  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
-    <View style={styles.menuLeft}>
-      <Ionicons name={icon} size={22} color="#0066CC" />
-      <Text style={styles.menuLabel}>{label}</Text>
-    </View>
-    <View style={styles.menuRight}>
-      {badge && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{badge}</Text>
-        </View>
-      )}
-      {value && <Text style={styles.menuValue}>{value}</Text>}
-      <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-    </View>
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -399,46 +370,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-  },
-  menuItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  menuLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  menuLabel: {
-    fontSize: 16,
-    color: "#1C1C1E",
-  },
-  menuRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  badge: {
-    backgroundColor: "#D32F2F",
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 6,
-  },
-  badgeText: {
-    color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "bold",
-  },
-  menuValue: {
-    fontSize: 14,
-    color: "#8E8E93",
   },
   logoutButton: {
     flexDirection: "row",

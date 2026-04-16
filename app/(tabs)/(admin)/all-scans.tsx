@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 // Mock scan data
@@ -20,7 +20,7 @@ const MOCK_SCANS = [
     patientId: "PT-12345",
     date: "2024-02-17",
     time: "14:30",
-    prediction: "Pneumonia Detected",
+    result: "PNEUMONIA",
     confidence: 94.5,
     clinician: "Dr. Sarah Johnson",
     imageUri: "https://via.placeholder.com/100x100/0066CC/FFFFFF?text=X-Ray",
@@ -31,7 +31,7 @@ const MOCK_SCANS = [
     patientId: "PT-12346",
     date: "2024-02-17",
     time: "13:15",
-    prediction: "Normal",
+    result: "NORMAL",
     confidence: 88.2,
     clinician: "Dr. Michael Chen",
     imageUri: "https://via.placeholder.com/100x100/4CAF50/FFFFFF?text=X-Ray",
@@ -42,7 +42,7 @@ const MOCK_SCANS = [
     patientId: "PT-12347",
     date: "2024-02-16",
     time: "16:45",
-    prediction: "Pneumonia Detected",
+    result: "PNEUMONIA",
     confidence: 91.8,
     clinician: "Dr. Emily Rodriguez",
     imageUri: "https://via.placeholder.com/100x100/0066CC/FFFFFF?text=X-Ray",
@@ -53,7 +53,7 @@ const MOCK_SCANS = [
     patientId: "PT-12348",
     date: "2024-02-16",
     time: "11:20",
-    prediction: "Normal",
+    result: "NORMAL",
     confidence: 92.4,
     clinician: "Dr. Sarah Johnson",
     imageUri: "https://via.placeholder.com/100x100/4CAF50/FFFFFF?text=X-Ray",
@@ -64,7 +64,7 @@ const MOCK_SCANS = [
     patientId: "PT-12349",
     date: "2024-02-15",
     time: "09:30",
-    prediction: "Pneumonia Detected",
+    result: "PNEUMONIA",
     confidence: 87.6,
     clinician: "Dr. James Wilson",
     imageUri: "https://via.placeholder.com/100x100/0066CC/FFFFFF?text=X-Ray",
@@ -75,7 +75,7 @@ export default function AllScansScreen() {
   const [scans, setScans] = useState(MOCK_SCANS);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
-    "all" | "Pneumonia Detected" | "Normal"
+    "all" | "PNEUMONIA" | "NORMAL"
   >("all");
 
   const filteredScans = scans.filter((scan) => {
@@ -84,14 +84,12 @@ export default function AllScansScreen() {
       scan.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       scan.id.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter =
-      filterStatus === "all" || scan.prediction === filterStatus;
+      filterStatus === "all" || scan.result === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const pneumoniaCount = scans.filter(
-    (s) => s.prediction === "Pneumonia Detected",
-  ).length;
-  const normalCount = scans.filter((s) => s.prediction === "Normal").length;
+  const pneumoniaCount = scans.filter((s) => s.result === "PNEUMONIA").length;
+  const normalCount = scans.filter((s) => s.result === "NORMAL").length;
 
   const handleDeleteScan = (scanId: string, patientName: string) => {
     Alert.alert(
@@ -122,14 +120,14 @@ export default function AllScansScreen() {
         age: "45",
         sex: "Male",
         scanDate: scan.date,
-        prediction: scan.prediction,
+        result: scan.result,
         confidence: scan.confidence.toString(),
       },
     });
   };
 
   const renderScanCard = ({ item }: { item: (typeof MOCK_SCANS)[0] }) => {
-    const isPneumonia = item.prediction === "Pneumonia Detected";
+    const isPneumonia = item.result === "PNEUMONIA";
 
     return (
       <TouchableOpacity
@@ -170,7 +168,7 @@ export default function AllScansScreen() {
               isPneumonia ? styles.textDanger : styles.textSafe,
             ]}
           >
-            {item.prediction}
+            {item.result === "PNEUMONIA" ? "Pneumonia Detected" : "Normal"}
           </Text>
           <Text style={styles.confidenceText}>
             {item.confidence.toFixed(1)}%
@@ -290,15 +288,14 @@ export default function AllScansScreen() {
         <TouchableOpacity
           style={[
             styles.filterButton,
-            filterStatus === "Pneumonia Detected" && styles.filterButtonActive,
+            filterStatus === "PNEUMONIA" && styles.filterButtonActive,
           ]}
-          onPress={() => setFilterStatus("Pneumonia Detected")}
+          onPress={() => setFilterStatus("PNEUMONIA")}
         >
           <Text
             style={[
               styles.filterButtonText,
-              filterStatus === "Pneumonia Detected" &&
-                styles.filterButtonTextActive,
+              filterStatus === "PNEUMONIA" && styles.filterButtonTextActive,
             ]}
           >
             Pneumonia ({pneumoniaCount})
@@ -308,14 +305,14 @@ export default function AllScansScreen() {
         <TouchableOpacity
           style={[
             styles.filterButton,
-            filterStatus === "Normal" && styles.filterButtonActive,
+            filterStatus === "NORMAL" && styles.filterButtonActive,
           ]}
-          onPress={() => setFilterStatus("Normal")}
+          onPress={() => setFilterStatus("NORMAL")}
         >
           <Text
             style={[
               styles.filterButtonText,
-              filterStatus === "Normal" && styles.filterButtonTextActive,
+              filterStatus === "NORMAL" && styles.filterButtonTextActive,
             ]}
           >
             Normal ({normalCount})

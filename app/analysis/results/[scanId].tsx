@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { InfoRow } from "../../../components/InfoRow";
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
@@ -169,13 +170,6 @@ export default function ResultsScreen() {
   );
 }
 
-const InfoRow = ({ label, value }: { label: string; value: string }) => (
-  <View style={styles.infoRow}>
-    <Text style={styles.infoLabel}>{label}</Text>
-    <Text style={styles.infoValue}>{value}</Text>
-  </View>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -313,22 +307,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1C1C1E",
     marginBottom: 16,
-  },
-  infoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  infoLabel: {
-    fontSize: 14,
-    color: "#636366",
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1C1C1E",
   },
   disclaimerBox: {
     backgroundColor: "#FFF3CD",
