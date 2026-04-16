@@ -1,25 +1,27 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function PatientInfoScreen() {
   const { imageUri } = useLocalSearchParams();
   const [patientId, setPatientId] = useState("");
   const [patientName, setPatientName] = useState("");
   const [age, setAge] = useState("");
-  const [sex, setSex] = useState<"Male" | "Female" | "">("");
-  const [scanDate, setScanDate] = useState(new Date().toISOString().split("T")[0]);
+  const [sex, setSex] = useState<"MALE" | "FEMALE" | "">("");
+  const [scanDate, setScanDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
 
   const handleAnalyze = () => {
     if (!patientId || !patientName || !age || !sex) {
@@ -152,19 +154,19 @@ export default function PatientInfoScreen() {
               <TouchableOpacity
                 style={[
                   styles.sexButton,
-                  sex === "Male" && styles.sexButtonActive,
+                  sex === "MALE" && styles.sexButtonActive,
                 ]}
-                onPress={() => setSex("Male")}
+                onPress={() => setSex("MALE")}
               >
                 <Ionicons
                   name="male"
                   size={20}
-                  color={sex === "Male" ? "#FFFFFF" : "#0066CC"}
+                  color={sex === "MALE" ? "#FFFFFF" : "#0066CC"}
                 />
                 <Text
                   style={[
                     styles.sexButtonText,
-                    sex === "Male" && styles.sexButtonTextActive,
+                    sex === "MALE" && styles.sexButtonTextActive,
                   ]}
                 >
                   Male
@@ -174,19 +176,19 @@ export default function PatientInfoScreen() {
               <TouchableOpacity
                 style={[
                   styles.sexButton,
-                  sex === "Female" && styles.sexButtonActive,
+                  sex === "FEMALE" && styles.sexButtonActive,
                 ]}
-                onPress={() => setSex("Female")}
+                onPress={() => setSex("FEMALE")}
               >
                 <Ionicons
                   name="female"
                   size={20}
-                  color={sex === "Female" ? "#FFFFFF" : "#0066CC"}
+                  color={sex === "FEMALE" ? "#FFFFFF" : "#0066CC"}
                 />
                 <Text
                   style={[
                     styles.sexButtonText,
-                    sex === "Female" && styles.sexButtonTextActive,
+                    sex === "FEMALE" && styles.sexButtonTextActive,
                   ]}
                 >
                   Female

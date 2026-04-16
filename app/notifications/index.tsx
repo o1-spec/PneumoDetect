@@ -1,19 +1,19 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 const NOTIFICATIONS_DATA = [
   {
     id: "1",
-    type: "scan",
+    type: "SCAN",
     icon: "medical",
     iconColor: "#D32F2F",
     iconBg: "#FFEBEE",
@@ -24,7 +24,7 @@ const NOTIFICATIONS_DATA = [
   },
   {
     id: "2",
-    type: "system",
+    type: "SYSTEM",
     icon: "checkmark-circle",
     iconColor: "#4CAF50",
     iconBg: "#E8F5E9",
@@ -35,7 +35,7 @@ const NOTIFICATIONS_DATA = [
   },
   {
     id: "3",
-    type: "user",
+    type: "USER",
     icon: "person-add",
     iconColor: "#0066CC",
     iconBg: "#E3F2FD",
@@ -46,7 +46,7 @@ const NOTIFICATIONS_DATA = [
   },
   {
     id: "4",
-    type: "report",
+    type: "SYSTEM",
     icon: "document-text",
     iconColor: "#FF9800",
     iconBg: "#FFF3E0",
@@ -57,7 +57,7 @@ const NOTIFICATIONS_DATA = [
   },
   {
     id: "5",
-    type: "system",
+    type: "SYSTEM",
     icon: "warning",
     iconColor: "#FF9800",
     iconBg: "#FFF3E0",
@@ -68,7 +68,7 @@ const NOTIFICATIONS_DATA = [
   },
   {
     id: "6",
-    type: "scan",
+    type: "SCAN",
     icon: "analytics",
     iconColor: "#9C27B0",
     iconBg: "#F3E5F5",
@@ -79,7 +79,7 @@ const NOTIFICATIONS_DATA = [
   },
   {
     id: "7",
-    type: "system",
+    type: "SYSTEM",
     icon: "shield-checkmark",
     iconColor: "#4CAF50",
     iconBg: "#E8F5E9",
@@ -90,7 +90,7 @@ const NOTIFICATIONS_DATA = [
   },
   {
     id: "8",
-    type: "info",
+    type: "SYSTEM",
     icon: "information-circle",
     iconColor: "#00BCD4",
     iconBg: "#E0F7FA",
@@ -107,7 +107,7 @@ export default function NotificationsScreen() {
 
   const handleMarkAsRead = (id: string) => {
     setNotifications((prev) =>
-      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif))
+      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
     );
   };
 
@@ -130,23 +130,25 @@ export default function NotificationsScreen() {
             Alert.alert("Success", "All notifications cleared");
           },
         },
-      ]
+      ],
     );
   };
 
-  const handleNotificationPress = (notification: typeof NOTIFICATIONS_DATA[0]) => {
+  const handleNotificationPress = (
+    notification: (typeof NOTIFICATIONS_DATA)[0],
+  ) => {
     handleMarkAsRead(notification.id);
 
     // Navigate based on notification type
     switch (notification.type) {
-      case "scan":
+      case "SCAN":
         router.push("/(tabs)/history");
         break;
-      case "user":
+      case "USER":
         router.push("/(tabs)/(admin)/users");
         break;
-      case "report":
-        Alert.alert("Report", "Generating your weekly report...");
+      case "SYSTEM":
+        Alert.alert(notification.title, notification.message);
         break;
       default:
         Alert.alert(notification.title, notification.message);
@@ -167,9 +169,7 @@ export default function NotificationsScreen() {
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Notifications</Text>
             {unreadCount > 0 && (
-              <Text style={styles.headerSubtitle}>
-                {unreadCount} unread
-              </Text>
+              <Text style={styles.headerSubtitle}>{unreadCount} unread</Text>
             )}
           </View>
           {notifications.length > 0 && (
@@ -256,7 +256,7 @@ const NotificationCard = ({
   notification,
   onPress,
 }: {
-  notification: typeof NOTIFICATIONS_DATA[0];
+  notification: (typeof NOTIFICATIONS_DATA)[0];
   onPress: () => void;
 }) => (
   <TouchableOpacity
@@ -264,7 +264,10 @@ const NotificationCard = ({
     onPress={onPress}
   >
     <View
-      style={[styles.notificationIcon, { backgroundColor: notification.iconBg }]}
+      style={[
+        styles.notificationIcon,
+        { backgroundColor: notification.iconBg },
+      ]}
     >
       <Ionicons
         name={notification.icon as any}

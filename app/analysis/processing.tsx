@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
 
 export default function ProcessingScreen() {
   const params = useLocalSearchParams();
@@ -23,7 +23,7 @@ export default function ProcessingScreen() {
           duration: 1000,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
 
     // Simulate AI processing steps
@@ -47,17 +47,21 @@ export default function ProcessingScreen() {
     setTimeout(() => {
       // Generate random diagnosis for demo
       const isPneumonia = Math.random() > 0.5;
-      const confidence = isPneumonia
-        ? 85 + Math.random() * 14 // 85-99%
-        : 70 + Math.random() * 25; // 70-95%
+      const confidence = (
+        isPneumonia
+          ? 85 + Math.random() * 14 // 85-99%
+          : 70 + Math.random() * 25
+      ) // 70-95%
+        .toFixed(1);
 
       router.replace({
         pathname: "/analysis/results/[scanId]",
         params: {
           ...params,
           scanId: `SCAN-${Date.now()}`,
-          prediction: isPneumonia ? "Pneumonia Detected" : "Normal",
-          confidence: confidence.toFixed(1),
+          result: isPneumonia ? "PNEUMONIA" : "NORMAL",
+          confidence: confidence,
+          status: "COMPLETED",
         },
       });
     }, 6000);
@@ -74,7 +78,9 @@ export default function ProcessingScreen() {
         </Animated.View>
 
         <Text style={styles.title}>Analyzing X-Ray</Text>
-        <Text style={styles.subtitle}>Please wait while our AI processes the image</Text>
+        <Text style={styles.subtitle}>
+          Please wait while our AI processes the image
+        </Text>
 
         {/* Progress Bar */}
         <View style={styles.progressContainer}>

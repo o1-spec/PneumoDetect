@@ -19,8 +19,9 @@ const MOCK_HISTORY = [
     patientId: "PT-12345",
     date: "2024-02-17",
     time: "14:30",
-    prediction: "Pneumonia Detected",
+    result: "PNEUMONIA",
     confidence: 94.5,
+    status: "COMPLETED",
     imageUri: "https://via.placeholder.com/80x80/0066CC/FFFFFF?text=X-Ray",
   },
   {
@@ -29,8 +30,9 @@ const MOCK_HISTORY = [
     patientId: "PT-12346",
     date: "2024-02-17",
     time: "13:15",
-    prediction: "Normal",
+    result: "NORMAL",
     confidence: 88.2,
+    status: "COMPLETED",
     imageUri: "https://via.placeholder.com/80x80/4CAF50/FFFFFF?text=X-Ray",
   },
   {
@@ -39,8 +41,9 @@ const MOCK_HISTORY = [
     patientId: "PT-12347",
     date: "2024-02-16",
     time: "16:45",
-    prediction: "Pneumonia Detected",
+    result: "PNEUMONIA",
     confidence: 91.8,
+    status: "COMPLETED",
     imageUri: "https://via.placeholder.com/80x80/0066CC/FFFFFF?text=X-Ray",
   },
   {
@@ -49,8 +52,9 @@ const MOCK_HISTORY = [
     patientId: "PT-12348",
     date: "2024-02-16",
     time: "11:20",
-    prediction: "Normal",
+    result: "NORMAL",
     confidence: 92.4,
+    status: "COMPLETED",
     imageUri: "https://via.placeholder.com/80x80/4CAF50/FFFFFF?text=X-Ray",
   },
   {
@@ -59,8 +63,9 @@ const MOCK_HISTORY = [
     patientId: "PT-12349",
     date: "2024-02-15",
     time: "09:30",
-    prediction: "Pneumonia Detected",
+    result: "PNEUMONIA",
     confidence: 87.6,
+    status: "COMPLETED",
     imageUri: "https://via.placeholder.com/80x80/0066CC/FFFFFF?text=X-Ray",
   },
 ];
@@ -68,7 +73,7 @@ const MOCK_HISTORY = [
 export default function HistoryScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
-    "all" | "Pneumonia Detected" | "Normal"
+    "all" | "PNEUMONIA" | "NORMAL"
   >("all");
 
   const filteredHistory = MOCK_HISTORY.filter((item) => {
@@ -77,12 +82,12 @@ export default function HistoryScreen() {
       item.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.id.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter =
-      filterStatus === "all" || item.prediction === filterStatus;
+      filterStatus === "all" || item.result === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
   const renderHistoryItem = ({ item }: { item: (typeof MOCK_HISTORY)[0] }) => {
-    const isPneumonia = item.prediction === "Pneumonia Detected";
+    const isPneumonia = item.result === "PNEUMONIA";
 
     return (
       <TouchableOpacity
@@ -145,16 +150,13 @@ export default function HistoryScreen() {
         </View>
         <View style={[styles.statBox, styles.dangerBox]}>
           <Text style={[styles.statValue, styles.dangerText]}>
-            {
-              MOCK_HISTORY.filter((s) => s.prediction === "Pneumonia Detected")
-                .length
-            }
+            {MOCK_HISTORY.filter((s) => s.result === "PNEUMONIA").length}
           </Text>
           <Text style={styles.statLabel}>Pneumonia</Text>
         </View>
         <View style={[styles.statBox, styles.safeBox]}>
           <Text style={[styles.statValue, styles.safeText]}>
-            {MOCK_HISTORY.filter((s) => s.prediction === "Normal").length}
+            {MOCK_HISTORY.filter((s) => s.result === "NORMAL").length}
           </Text>
           <Text style={styles.statLabel}>Normal</Text>
         </View>
@@ -204,14 +206,14 @@ export default function HistoryScreen() {
         <TouchableOpacity
           style={[
             styles.filterTab,
-            filterStatus === "Pneumonia Detected" && styles.filterTabActive,
+            filterStatus === "PNEUMONIA" && styles.filterTabActive,
           ]}
-          onPress={() => setFilterStatus("Pneumonia Detected")}
+          onPress={() => setFilterStatus("PNEUMONIA")}
         >
           <Text
             style={[
               styles.filterText,
-              filterStatus === "Pneumonia Detected" && styles.filterTextActive,
+              filterStatus === "PNEUMONIA" && styles.filterTextActive,
             ]}
           >
             Pneumonia
@@ -221,14 +223,14 @@ export default function HistoryScreen() {
         <TouchableOpacity
           style={[
             styles.filterTab,
-            filterStatus === "Normal" && styles.filterTabActive,
+            filterStatus === "NORMAL" && styles.filterTabActive,
           ]}
-          onPress={() => setFilterStatus("Normal")}
+          onPress={() => setFilterStatus("NORMAL")}
         >
           <Text
             style={[
               styles.filterText,
-              filterStatus === "Normal" && styles.filterTextActive,
+              filterStatus === "NORMAL" && styles.filterTextActive,
             ]}
           >
             Normal

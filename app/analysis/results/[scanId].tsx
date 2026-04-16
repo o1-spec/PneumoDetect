@@ -1,14 +1,14 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
@@ -20,11 +20,12 @@ export default function ResultsScreen() {
     age,
     sex,
     scanDate,
-    prediction,
+    result,
     confidence,
   } = params;
 
-  const isPneumonia = prediction === "Pneumonia Detected";
+  const isPneumonia = result === "PNEUMONIA";
+  const predictionText = isPneumonia ? "Pneumonia Detected" : "Normal";
   const confidenceNum = parseFloat(confidence as string);
 
   return (
@@ -41,13 +42,13 @@ export default function ResultsScreen() {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* X-Ray Preview */}
         <View style={styles.imageCard}>
-          <Image source={{ uri: imageUri as string }} style={styles.xrayImage} />
+          <Image
+            source={{ uri: imageUri as string }}
+            style={styles.xrayImage}
+          />
         </View>
 
         {/* Prediction Card */}
@@ -70,7 +71,7 @@ export default function ResultsScreen() {
               isPneumonia ? styles.textDanger : styles.textSafe,
             ]}
           >
-            {prediction}
+            {predictionText}
           </Text>
           <Text style={styles.predictionSubtext}>
             Based on AI analysis of chest X-ray
@@ -80,7 +81,9 @@ export default function ResultsScreen() {
         {/* Confidence Score */}
         <View style={styles.confidenceCard}>
           <Text style={styles.confidenceLabel}>Confidence Score</Text>
-          <Text style={styles.confidenceValue}>{confidenceNum.toFixed(1)}%</Text>
+          <Text style={styles.confidenceValue}>
+            {confidenceNum.toFixed(1)}%
+          </Text>
           <View style={styles.confidenceBar}>
             <View
               style={[
@@ -96,8 +99,8 @@ export default function ResultsScreen() {
             {confidenceNum > 90
               ? "Very High Confidence"
               : confidenceNum > 75
-              ? "High Confidence"
-              : "Moderate Confidence"}
+                ? "High Confidence"
+                : "Moderate Confidence"}
           </Text>
         </View>
 
@@ -131,7 +134,7 @@ export default function ResultsScreen() {
             onPress={() =>
               router.push({
                 pathname: "/analysis/results/explainable",
-                params: { scanId, imageUri, prediction, confidence },
+                params: { scanId, imageUri, result, confidence },
               })
             }
           >
