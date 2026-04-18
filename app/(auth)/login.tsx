@@ -1,36 +1,68 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { AuthContext } from "../../hooks/useAuth";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    return <Text>Auth context not available</Text>;
+  }
+
+  const { login } = authContext;
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill in all fields");
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await login({ email, password });
+      // Navigation is handled by Expo Router based on AuthContext state
+      router.replace("/(tabs)");
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      Alert.alert("Login Failed", errorMessage);
+      console.error("Login error:", error);
+    } finally {
       setIsLoading(false);
-      router.replace("/(tabs)"); // Use replace to prevent going back to login
-    }, 1500);
+    }
   };
 
   return (
@@ -65,52 +97,75 @@ export default function LoginScreen() {
         {/* Form */}
         <View style={styles.form}>
           {/* Email Input */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="mail-outline"
-              size={20}
-              color="#8E8E93"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email Address"
-              placeholderTextColor="#8E8E93"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+          <View style={styles.formGroup}>
+            <View
+              style={[styles.inputContainer, errors.email && styles.inputError]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color="#8E8E93"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                placeholderTextColor="#8E8E93"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (errors.email) setErrors({ ...errors, email: "" });
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
           </View>
 
           {/* Password Input */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed-outline"
-              size={20}
-              color="#8E8E93"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              placeholderTextColor="#8E8E93"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
+          <View style={styles.formGroup}>
+            <View
+              style={[
+                styles.inputContainer,
+                errors.password && styles.inputError,
+              ]}
             >
               <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                name="lock-closed-outline"
                 size={20}
                 color="#8E8E93"
+                style={styles.inputIcon}
               />
-            </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#8E8E93"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (errors.password) setErrors({ ...errors, password: "" });
+                }}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={20}
+                  color="#8E8E93"
+                />
+              </TouchableOpacity>
+            </View>
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </View>
 
           {/* Forgot Password */}
@@ -214,6 +269,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 16,
     height: 56,
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: "#D32F2F",
+    backgroundColor: "#FFEBEE",
+  },
+  formGroup: {
+    marginBottom: 12,
+  },
+  errorText: {
+    color: "#D32F2F",
+    fontSize: 12,
+    marginTop: 4,
+    marginHorizontal: 4,
+    marginBottom: 12,
   },
   inputIcon: {
     marginRight: 12,

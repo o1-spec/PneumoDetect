@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,41 +12,89 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { AuthContext } from "../../hooks/useAuth";
+import { RegisterRequest } from "../../types/api";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function SignUpScreen() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState<"clinician" | "admin">("clinician");
+  const [specialization, setSpecialization] = useState("");
+  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState<"CLINICIAN" | "ADMIN">("CLINICIAN");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    return <Text>Auth context not available</Text>;
+  }
+
+  const { register } = authContext;
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!fullName.trim()) {
+      newErrors.fullName = "Full name is required";
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (password !== confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSignUp = async () => {
-    if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert("Error", "Please fill in all fields");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert("Error", "Passwords do not match");
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
+    try {
+      const registerData: RegisterRequest = {
+        name: fullName,
+        email,
+        password,
+        role,
+        specialization: specialization || undefined,
+        phone: phone || undefined,
+      };
 
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
+      await register(registerData);
+
       Alert.alert("Success", "Account created successfully!", [
-        { text: "OK", onPress: () => router.replace("/(auth)/login") },
+        {
+          text: "OK",
+          onPress: () => router.replace("/(tabs)"),
+        },
       ]);
-    }, 1500);
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      Alert.alert("Registration Failed", errorMessage);
+      console.error("Signup error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -81,41 +129,64 @@ export default function SignUpScreen() {
         {/* Sign Up Form */}
         <View style={styles.form}>
           {/* Full Name */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="person-outline"
-              size={20}
-              color="#8E8E93"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Full Name"
-              placeholderTextColor="#8E8E93"
-              value={fullName}
-              onChangeText={setFullName}
-              autoCapitalize="words"
-            />
+          <View style={styles.formGroup}>
+            <View
+              style={[
+                styles.inputContainer,
+                errors.fullName && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="person-outline"
+                size={20}
+                color="#8E8E93"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Full Name"
+                placeholderTextColor="#8E8E93"
+                value={fullName}
+                onChangeText={(text) => {
+                  setFullName(text);
+                  if (errors.fullName) setErrors({ ...errors, fullName: "" });
+                }}
+                autoCapitalize="words"
+              />
+            </View>
+            {errors.fullName && (
+              <Text style={styles.errorText}>{errors.fullName}</Text>
+            )}
           </View>
 
           {/* Email */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="mail-outline"
-              size={20}
-              color="#8E8E93"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email Address"
-              placeholderTextColor="#8E8E93"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
+          <View style={styles.formGroup}>
+            <View
+              style={[styles.inputContainer, errors.email && styles.inputError]}
+            >
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color="#8E8E93"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email Address"
+                placeholderTextColor="#8E8E93"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (errors.email) setErrors({ ...errors, email: "" });
+                }}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+            </View>
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
           </View>
 
           {/* Role Selection */}
@@ -125,19 +196,19 @@ export default function SignUpScreen() {
               <TouchableOpacity
                 style={[
                   styles.roleButton,
-                  role === "clinician" && styles.roleButtonActive,
+                  role === "CLINICIAN" && styles.roleButtonActive,
                 ]}
-                onPress={() => setRole("clinician")}
+                onPress={() => setRole("CLINICIAN")}
               >
                 <Ionicons
                   name="medical"
                   size={20}
-                  color={role === "clinician" ? "#FFFFFF" : "#0066CC"}
+                  color={role === "CLINICIAN" ? "#FFFFFF" : "#0066CC"}
                 />
                 <Text
                   style={[
                     styles.roleButtonText,
-                    role === "clinician" && styles.roleButtonTextActive,
+                    role === "CLINICIAN" && styles.roleButtonTextActive,
                   ]}
                 >
                   Clinician
@@ -147,19 +218,19 @@ export default function SignUpScreen() {
               <TouchableOpacity
                 style={[
                   styles.roleButton,
-                  role === "admin" && styles.roleButtonActive,
+                  role === "ADMIN" && styles.roleButtonActive,
                 ]}
-                onPress={() => setRole("admin")}
+                onPress={() => setRole("ADMIN")}
               >
                 <Ionicons
                   name="shield-checkmark"
                   size={20}
-                  color={role === "admin" ? "#FFFFFF" : "#0066CC"}
+                  color={role === "ADMIN" ? "#FFFFFF" : "#0066CC"}
                 />
                 <Text
                   style={[
                     styles.roleButtonText,
-                    role === "admin" && styles.roleButtonTextActive,
+                    role === "ADMIN" && styles.roleButtonTextActive,
                   ]}
                 >
                   Admin
@@ -168,52 +239,117 @@ export default function SignUpScreen() {
             </View>
           </View>
 
-          {/* Password */}
+          {/* Specialization (optional for clinicians) */}
+          {role === "CLINICIAN" && (
+            <View style={styles.inputContainer}>
+              <Ionicons
+                name="briefcase-outline"
+                size={20}
+                color="#8E8E93"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Specialization (Optional)"
+                placeholderTextColor="#8E8E93"
+                value={specialization}
+                onChangeText={setSpecialization}
+                autoCapitalize="words"
+              />
+            </View>
+          )}
+
+          {/* Phone (optional) */}
           <View style={styles.inputContainer}>
             <Ionicons
-              name="lock-closed-outline"
+              name="call-outline"
               size={20}
               color="#8E8E93"
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
-              placeholder="Password"
+              placeholder="Phone (Optional)"
               placeholderTextColor="#8E8E93"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
+          </View>
+
+          {/* Password */}
+          <View style={styles.formGroup}>
+            <View
+              style={[
+                styles.inputContainer,
+                errors.password && styles.inputError,
+              ]}
             >
               <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
+                name="lock-closed-outline"
                 size={20}
                 color="#8E8E93"
+                style={styles.inputIcon}
               />
-            </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#8E8E93"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (errors.password) setErrors({ ...errors, password: "" });
+                }}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={20}
+                  color="#8E8E93"
+                />
+              </TouchableOpacity>
+            </View>
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </View>
 
           {/* Confirm Password */}
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="lock-closed-outline"
-              size={20}
-              color="#8E8E93"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              placeholderTextColor="#8E8E93"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-            />
+          <View style={styles.formGroup}>
+            <View
+              style={[
+                styles.inputContainer,
+                errors.confirmPassword && styles.inputError,
+              ]}
+            >
+              <Ionicons
+                name="lock-closed-outline"
+                size={20}
+                color="#8E8E93"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Confirm Password"
+                placeholderTextColor="#8E8E93"
+                value={confirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  if (errors.confirmPassword)
+                    setErrors({ ...errors, confirmPassword: "" });
+                }}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+            </View>
+            {errors.confirmPassword && (
+              <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+            )}
           </View>
 
           {/* Sign Up Button */}
@@ -311,6 +447,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 16,
     height: 56,
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: "#D32F2F",
+    backgroundColor: "#FFEBEE",
+  },
+  formGroup: {
+    marginBottom: 12,
+  },
+  errorText: {
+    color: "#D32F2F",
+    fontSize: 12,
+    marginTop: 4,
+    marginHorizontal: 4,
+    marginBottom: 12,
   },
   inputIcon: {
     marginRight: 12,
