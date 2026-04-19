@@ -14,9 +14,6 @@ import {
 } from "react-native";
 
 export default function PrivacySecurityScreen() {
-  const [biometricAuth, setBiometricAuth] = useState(true);
-  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState(true);
   const [dataEncryption, setDataEncryption] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
@@ -49,47 +46,6 @@ export default function PrivacySecurityScreen() {
     setNewPassword("");
     setConfirmPassword("");
     Alert.alert("Success", "Your password has been changed successfully!");
-  };
-
-  const handleEnable2FA = () => {
-    if (!twoFactorAuth) {
-      Alert.alert(
-        "Enable Two-Factor Authentication",
-        "You will receive a verification code via email to complete setup.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Enable",
-            onPress: () => {
-              setTwoFactorAuth(true);
-              Alert.alert(
-                "2FA Enabled",
-                "Two-factor authentication has been enabled. Check your email for the verification code.",
-              );
-            },
-          },
-        ],
-      );
-    } else {
-      Alert.alert(
-        "Disable Two-Factor Authentication",
-        "Are you sure you want to disable 2FA? This will make your account less secure.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Disable",
-            style: "destructive",
-            onPress: () => {
-              setTwoFactorAuth(false);
-              Alert.alert(
-                "2FA Disabled",
-                "Two-factor authentication has been disabled.",
-              );
-            },
-          },
-        ],
-      );
-    }
   };
 
   const handleViewActivityLog = () => {
@@ -176,82 +132,12 @@ export default function PrivacySecurityScreen() {
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
               </TouchableOpacity>
-
-              <View style={styles.settingRow}>
-                <View style={styles.settingLeft}>
-                  <View style={[styles.iconContainer, styles.twoFactorIcon]}>
-                    <Ionicons
-                      name="shield-checkmark"
-                      size={22}
-                      color="#4CAF50"
-                    />
-                  </View>
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>
-                      Two-Factor Authentication
-                    </Text>
-                    <Text style={styles.settingDescription}>
-                      {twoFactorAuth ? "Enabled" : "Add extra security"}
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={twoFactorAuth}
-                  onValueChange={handleEnable2FA}
-                  trackColor={{ false: "#E5E5EA", true: "#4CAF50" }}
-                  thumbColor="#FFFFFF"
-                />
-              </View>
-
-              <View style={styles.settingRow}>
-                <View style={styles.settingLeft}>
-                  <View style={[styles.iconContainer, styles.biometricIcon]}>
-                    <Ionicons name="finger-print" size={22} color="#0066CC" />
-                  </View>
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>
-                      Biometric Authentication
-                    </Text>
-                    <Text style={styles.settingDescription}>
-                      Use Face ID or Touch ID
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={biometricAuth}
-                  onValueChange={setBiometricAuth}
-                  trackColor={{ false: "#E5E5EA", true: "#0066CC" }}
-                  thumbColor="#FFFFFF"
-                />
-              </View>
             </View>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Security Settings</Text>
             <View style={styles.card}>
-              <View style={styles.settingRow}>
-                <View style={styles.settingLeft}>
-                  <View style={[styles.iconContainer, styles.sessionIcon]}>
-                    <Ionicons name="time" size={22} color="#9C27B0" />
-                  </View>
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>
-                      Auto Session Timeout
-                    </Text>
-                    <Text style={styles.settingDescription}>
-                      Logout after 30 minutes of inactivity
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={sessionTimeout}
-                  onValueChange={setSessionTimeout}
-                  trackColor={{ false: "#E5E5EA", true: "#9C27B0" }}
-                  thumbColor="#FFFFFF"
-                />
-              </View>
-
               <View style={styles.settingRow}>
                 <View style={styles.settingLeft}>
                   <View style={[styles.iconContainer, styles.encryptionIcon]}>

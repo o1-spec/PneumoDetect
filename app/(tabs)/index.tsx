@@ -8,11 +8,15 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { AuthContext } from "../../hooks/useAuth";
-import { analyticsAPI, scansAPI } from "../../services/api.client";
+import {
+  analyticsAPI,
+  notificationsAPI,
+  scansAPI,
+} from "../../services/api.client";
 import { AnalyticsStats, Scan } from "../../types/api";
 
 const screenWidth = Dimensions.get("window").width;
@@ -20,6 +24,7 @@ const screenWidth = Dimensions.get("window").width;
 export default function DashboardScreen() {
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [recentScans, setRecentScans] = useState<Scan[]>([]);
+  const [notificationCount, setNotificationCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -33,18 +38,25 @@ export default function DashboardScreen() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [analyticsData, scansData] = await Promise.all([
+      const [analyticsData, scansData, notificationsData] = await Promise.all([
         analyticsAPI.getStats(),
         scansAPI.getAll(),
+        notificationsAPI.getAll(),
       ]);
 
       setStats(analyticsData);
       const recent = Array.isArray(scansData) ? scansData.slice(0, 3) : [];
       setRecentScans(recent);
+
+      const unreadCount = Array.isArray(notificationsData)
+        ? notificationsData.filter((n) => !n.read).length
+        : 0;
+      setNotificationCount(unreadCount);
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
       setStats(null);
       setRecentScans([]);
+      setNotificationCount(0);
     } finally {
       setLoading(false);
     }
@@ -84,9 +96,11 @@ export default function DashboardScreen() {
               onPress={() => router.push("/notifications")}
             >
               <Ionicons name="notifications" size={24} color="#0066CC" />
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>3</Text>
-              </View>
+              {notificationCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{notificationCount}</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -110,9 +124,11 @@ export default function DashboardScreen() {
             onPress={() => router.push("/notifications")}
           >
             <Ionicons name="notifications" size={24} color="#0066CC" />
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>3</Text>
-            </View>
+            {notificationCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{notificationCount}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
       </View>

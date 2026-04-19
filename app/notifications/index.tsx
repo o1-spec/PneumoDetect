@@ -32,9 +32,10 @@ export default function NotificationsScreen() {
     try {
       setLoading(true);
       const data = await notificationsAPI.getAll();
-      setNotifications(data);
+      setNotifications(Array.isArray(data) ? data : []);
     } catch (err) {
       Alert.alert("Error", getErrorMessage(err));
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
@@ -44,7 +45,7 @@ export default function NotificationsScreen() {
     try {
       setRefreshing(true);
       const data = await notificationsAPI.getAll();
-      setNotifications(data);
+      setNotifications(Array.isArray(data) ? data : []);
     } catch (err) {
       Alert.alert("Error", getErrorMessage(err));
     } finally {

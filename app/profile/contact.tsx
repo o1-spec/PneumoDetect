@@ -11,43 +11,55 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { messagesAPI } from "../../services/api.client";
 
 export default function ContactScreen() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!subject.trim() || !message.trim()) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
-    Alert.alert(
-      "Message Sent",
-      "Thank you for contacting us. We'll get back to you within 24 hours.",
-      [
-        {
-          text: "OK",
-          onPress: () => {
-            setSubject("");
-            setMessage("");
-            router.back();
+    try {
+      setLoading(true);
+      await messagesAPI.send(subject.trim(), message.trim());
+
+      Alert.alert(
+        "Message Sent",
+        "Thank you for contacting us. We'll get back to you within 24 hours.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              setSubject("");
+              setMessage("");
+              router.back();
+            },
           },
-        },
-      ],
-    );
+        ],
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to send message. Please try again.");
+      console.error("Error sending message:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCall = () => {
-    Linking.openURL("tel:+18005550100");
+    Linking.openURL("tel:+2347058266972");
   };
 
   const handleEmail = () => {
-    Linking.openURL("mailto:support@pneumoscan.ai");
+    Linking.openURL("mailto:oluwafemionadokun@gmail.com");
   };
 
   const handleWebsite = () => {
-    Linking.openURL("https://pneumoscan.ai");
+    Linking.openURL("https://pneumoscan.vercel.app");
   };
 
   return (
@@ -79,7 +91,7 @@ export default function ContactScreen() {
                 </View>
                 <View style={styles.contactText}>
                   <Text style={styles.contactLabel}>Phone Support</Text>
-                  <Text style={styles.contactValue}>+1 (800) 555-0100</Text>
+                  <Text style={styles.contactValue}>+234 705 826 6972</Text>
                   <Text style={styles.contactHours}>Mon-Fri, 9AM-6PM EST</Text>
                 </View>
               </View>
@@ -96,7 +108,9 @@ export default function ContactScreen() {
                 </View>
                 <View style={styles.contactText}>
                   <Text style={styles.contactLabel}>Email Support</Text>
-                  <Text style={styles.contactValue}>support@pneumoscan.ai</Text>
+                  <Text style={styles.contactValue}>
+                    oluwafemionadokun@gmail.com
+                  </Text>
                   <Text style={styles.contactHours}>
                     Response within 24 hours
                   </Text>
@@ -153,34 +167,15 @@ export default function ContactScreen() {
             </View>
 
             <TouchableOpacity
-              style={styles.sendButton}
+              style={[styles.sendButton, loading && styles.sendButtonDisabled]}
               onPress={handleSendMessage}
+              disabled={loading}
             >
               <Ionicons name="send" size={20} color="#FFFFFF" />
-              <Text style={styles.sendButtonText}>Send Message</Text>
+              <Text style={styles.sendButtonText}>
+                {loading ? "Sending..." : "Send Message"}
+              </Text>
             </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Office Location</Text>
-          <View style={styles.card}>
-            <View style={styles.locationInfo}>
-              <View style={styles.locationIcon}>
-                <Ionicons name="location" size={32} color="#0066CC" />
-              </View>
-              <View style={styles.locationText}>
-                <Text style={styles.locationName}>
-                  PneumoScan AI Headquarters
-                </Text>
-                <Text style={styles.locationAddress}>
-                  123 Medical Innovation Drive{"\n"}
-                  Suite 400{"\n"}
-                  San Francisco, CA 94105{"\n"}
-                  United States
-                </Text>
-              </View>
-            </View>
           </View>
         </View>
 
@@ -362,6 +357,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
+  },
+  sendButtonDisabled: {
+    backgroundColor: "#A0A0A0",
+    shadowOpacity: 0.1,
   },
   sendButtonText: {
     fontSize: 16,

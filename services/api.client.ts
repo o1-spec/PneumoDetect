@@ -104,7 +104,7 @@ export const analyticsAPI = {
 export const notificationsAPI = {
   getAll: async (): Promise<Notification[]> => {
     const response = await api.get<Notification[]>("/notifications");
-    return response.data;
+    return Array.isArray(response.data) ? response.data : [];
   },
 
   getById: async (id: string): Promise<Notification> => {
@@ -127,7 +127,6 @@ export const notificationsAPI = {
     await api.post("/notifications/mark-all-read");
   },
 
-  // Delete notification
   delete: async (id: string): Promise<void> => {
     await api.delete(`/notifications/${id}`);
   },
@@ -158,5 +157,17 @@ export const adminAPI = {
   // Delete user
   deleteUser: async (id: string): Promise<void> => {
     await api.delete(`/admin/users/${id}`);
+  },
+};
+
+/**
+ * Messages API
+ */
+export const messagesAPI = {
+  send: async (subject: string, message: string): Promise<void> => {
+    await api.post("/messages/send", {
+      subject,
+      message,
+    });
   },
 };

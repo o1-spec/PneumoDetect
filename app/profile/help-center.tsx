@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
-    Alert,
     ScrollView,
     StyleSheet,
     Text,
@@ -38,36 +37,48 @@ const FAQ_DATA = [
   },
 ];
 
-const TUTORIAL_ITEMS = [
+const USER_GUIDE_SECTIONS = [
   {
     icon: "cloud-upload-outline",
     title: "Uploading X-Rays",
-    description: "Learn how to upload and analyze chest X-rays",
+    content:
+      "1. Tap 'New Scan' on the dashboard\n2. Select 'Upload Image' or 'Take Photo'\n3. Choose a clear chest X-ray image\n4. Review the image and tap 'Analyze'\n5. Wait for AI analysis to complete",
   },
   {
     icon: "analytics-outline",
     title: "Understanding Results",
-    description: "Interpret AI predictions and confidence scores",
+    content:
+      "• Confidence Score: How confident the AI is in its prediction\n• Status: Pneumonia detected or Normal\n• Heatmap: Shows areas of concern highlighted in red\n• Always consult a medical professional for final diagnosis",
   },
   {
     icon: "document-text-outline",
     title: "Generating Reports",
-    description: "Create and share professional PDF reports",
+    content:
+      "1. Go to any completed scan\n2. Tap the 'Generate PDF' button\n3. Review the report\n4. Share via email or save to device\n5. Reports include patient info, results, and heatmap",
   },
   {
     icon: "people-outline",
-    title: "User Management",
-    description: "Add and manage team members (Admin only)",
+    title: "User Management (Admin)",
+    content:
+      "1. Access Admin Dashboard\n2. Tap 'Manage Users'\n3. Add new users: Fill email, name, and role\n4. Edit: Tap user to modify details\n5. Remove: Swipe left and confirm deletion",
+  },
+  {
+    icon: "shield-checkmark-outline",
+    title: "Security & Privacy",
+    content:
+      "• All data is encrypted end-to-end\n• HIPAA and GDPR compliant\n• Change password in Privacy & Security settings\n• Activity logs available in profile\n• Never share your login credentials",
   },
 ];
 
 export default function HelpCenterScreen() {
-  const handleTutorial = (title: string) => {
-    Alert.alert(title, "Tutorial video will open here");
-  };
+  const [expandedGuide, setExpandedGuide] = React.useState<number | null>(null);
 
   const handleContactSupport = () => {
     router.push("/profile/contact");
+  };
+
+  const handleUserGuidePress = (index: number) => {
+    setExpandedGuide(expandedGuide === index ? null : index);
   };
 
   return (
@@ -82,7 +93,7 @@ export default function HelpCenterScreen() {
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Help Center</Text>
-            <Text style={styles.headerSubtitle}>Get support & tutorials</Text>
+            <Text style={styles.headerSubtitle}>Get support & resources</Text>
           </View>
           <View style={styles.placeholder} />
         </View>
@@ -99,42 +110,44 @@ export default function HelpCenterScreen() {
               <Ionicons name="mail-outline" size={24} color="#FFFFFF" />
               <Text style={styles.quickActionText}>Contact Support</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.quickActionButton, styles.secondaryAction]}
-              onPress={() => Alert.alert("User Guide", "Download user manual")}
-            >
-              <Ionicons name="book-outline" size={24} color="#0066CC" />
-              <Text style={styles.secondaryActionText}>User Guide</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Video Tutorials</Text>
+          <Text style={styles.sectionTitle}>User Guide</Text>
           <View style={styles.card}>
-            {TUTORIAL_ITEMS.map((item, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.tutorialItem}
-                onPress={() => handleTutorial(item.title)}
-              >
-                <View style={styles.tutorialLeft}>
-                  <View style={styles.tutorialIcon}>
-                    <Ionicons
-                      name={item.icon as any}
-                      size={24}
-                      color="#0066CC"
-                    />
+            {USER_GUIDE_SECTIONS.map((section, index) => (
+              <View key={index}>
+                <TouchableOpacity
+                  style={styles.guideItemHeader}
+                  onPress={() => handleUserGuidePress(index)}
+                >
+                  <View style={styles.guideItemLeft}>
+                    <View style={styles.guideIcon}>
+                      <Ionicons
+                        name={section.icon as any}
+                        size={24}
+                        color="#0066CC"
+                      />
+                    </View>
+                    <Text style={styles.guideItemTitle}>{section.title}</Text>
                   </View>
-                  <View style={styles.tutorialText}>
-                    <Text style={styles.tutorialTitle}>{item.title}</Text>
-                    <Text style={styles.tutorialDescription}>
-                      {item.description}
+                  <Ionicons
+                    name={
+                      expandedGuide === index ? "chevron-up" : "chevron-down"
+                    }
+                    size={24}
+                    color="#0066CC"
+                  />
+                </TouchableOpacity>
+                {expandedGuide === index && (
+                  <View style={styles.guideItemContent}>
+                    <Text style={styles.guideContentText}>
+                      {section.content}
                     </Text>
                   </View>
-                </View>
-                <Ionicons name="play-circle" size={32} color="#0066CC" />
-              </TouchableOpacity>
+                )}
+              </View>
             ))}
           </View>
         </View>
@@ -272,41 +285,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  tutorialItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  tutorialLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  tutorialIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#E3F2FD",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  tutorialText: {
-    flex: 1,
-  },
-  tutorialTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 4,
-  },
-  tutorialDescription: {
-    fontSize: 13,
-    color: "#8E8E93",
-  },
   faqItem: {
     padding: 16,
     borderBottomWidth: 1,
@@ -329,6 +307,44 @@ const styles = StyleSheet.create({
     color: "#636366",
     lineHeight: 20,
     marginLeft: 28,
+  },
+  guideItemHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F7",
+  },
+  guideItemLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  guideIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#E3F2FD",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  guideItemTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1C1C1E",
+    flex: 1,
+  },
+  guideItemContent: {
+    padding: 16,
+    paddingTop: 0,
+    backgroundColor: "#F9F9FB",
+  },
+  guideContentText: {
+    fontSize: 13,
+    color: "#636366",
+    lineHeight: 20,
   },
   bottomSpacer: {
     height: 40,

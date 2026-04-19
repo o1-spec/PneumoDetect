@@ -23,7 +23,7 @@ A comprehensive mobile application built with React Native and Expo that leverag
 - **Role-Based Access** - Support for Clinicians and Administrators
 - **Team Collaboration** - Add and manage multiple healthcare professionals
 - **Activity Tracking** - Monitor user activity and scan history
-- **Secure Authentication** - Biometric (Face ID/Touch ID) and 2FA support
+- **Secure Authentication** - Encrypted token-based authentication
 
 ### 📊 Analytics & Reporting
 
@@ -39,7 +39,6 @@ A comprehensive mobile application built with React Native and Expo that leverag
 - **GDPR Compliant** - European data privacy regulations
 - **End-to-End Encryption** - All patient data is encrypted
 - **Secure Storage** - Bank-level encryption for data at rest
-- **Two-Factor Authentication** - Optional 2FA for enhanced security
 
 ### 📱 Additional Features
 

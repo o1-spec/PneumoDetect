@@ -12,28 +12,10 @@ import {
 
 const TEAM_MEMBERS = [
   {
-    name: "Dr. Emily Chen",
-    role: "Chief Medical Officer",
-    icon: "medical",
-    color: "#4CAF50",
-  },
-  {
-    name: "Dr. Michael Rodriguez",
-    role: "AI Research Lead",
-    icon: "flask",
+    name: "Onadokun Oluwafemi",
+    role: "AI Lead, Product Manager, Lead Developer & Chief Medical Officer",
+    icon: "person-circle",
     color: "#0066CC",
-  },
-  {
-    name: "Sarah Johnson",
-    role: "Product Manager",
-    icon: "briefcase",
-    color: "#FF9800",
-  },
-  {
-    name: "David Kim",
-    role: "Lead Developer",
-    icon: "code-slash",
-    color: "#9C27B0",
   },
 ];
 
