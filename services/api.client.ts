@@ -1,36 +1,43 @@
 import api from "../services/api";
 import {
-    AnalyticsStats,
-    CreatePatientRequest,
-    Notification,
-    Patient,
-    Scan,
-    UpdateNotificationRequest,
+  AnalyticsStats,
+  CreatePatientRequest,
+  Notification,
+  Patient,
+  Scan,
+  UpdateNotificationRequest,
+  User,
 } from "../types/api";
+
+/**
+ * Users API
+ */
+export const usersAPI = {
+  getMe: async (): Promise<{ data: User }> => {
+    const response = await api.get<User>("/users/me");
+    return { data: response.data };
+  },
+};
 
 /**
  * Patients API
  */
 export const patientsAPI = {
-  // Get all patients
   getAll: async (): Promise<Patient[]> => {
     const response = await api.get<Patient[]>("/patients");
     return response.data;
   },
 
-  // Get single patient with scans
   getById: async (id: string): Promise<Patient> => {
     const response = await api.get<Patient>(`/patients/${id}`);
     return response.data;
   },
 
-  // Create new patient
   create: async (data: CreatePatientRequest): Promise<Patient> => {
     const response = await api.post<Patient>("/patients", data);
     return response.data;
   },
 
-  // Search patients by name or ID
   search: async (query: string): Promise<Patient[]> => {
     const response = await api.get<Patient[]>("/patients", {
       params: { search: query },
@@ -43,25 +50,21 @@ export const patientsAPI = {
  * Scans API
  */
 export const scansAPI = {
-  // Get all scans for current user
   getAll: async (): Promise<Scan[]> => {
     const response = await api.get<Scan[]>("/scans");
     return response.data;
   },
 
-  // Get scans for a specific patient
   getByPatientId: async (patientId: string): Promise<Scan[]> => {
     const response = await api.get<Scan[]>(`/scans/patient/${patientId}`);
     return response.data;
   },
 
-  // Get single scan
   getById: async (id: string): Promise<Scan> => {
     const response = await api.get<Scan>(`/scans/${id}`);
     return response.data;
   },
 
-  // Upload X-ray image
   upload: async (patientId: string, imageUri: string): Promise<Scan> => {
     const formData = new FormData();
     formData.append("patientId", patientId);
@@ -79,7 +82,6 @@ export const scansAPI = {
     return response.data;
   },
 
-  // Process scan with AI
   process: async (scanId: string): Promise<Scan> => {
     const response = await api.post<Scan>(`/scans/${scanId}/process`);
     return response.data;
@@ -90,7 +92,6 @@ export const scansAPI = {
  * Analytics API
  */
 export const analyticsAPI = {
-  // Get dashboard statistics
   getStats: async (): Promise<AnalyticsStats> => {
     const response = await api.get<AnalyticsStats>("/analytics/stats");
     return response.data;
@@ -101,19 +102,16 @@ export const analyticsAPI = {
  * Notifications API
  */
 export const notificationsAPI = {
-  // Get all notifications
   getAll: async (): Promise<Notification[]> => {
     const response = await api.get<Notification[]>("/notifications");
     return response.data;
   },
 
-  // Get single notification
   getById: async (id: string): Promise<Notification> => {
     const response = await api.get<Notification>(`/notifications/${id}`);
     return response.data;
   },
 
-  // Mark as read/unread
   update: async (
     id: string,
     data: UpdateNotificationRequest,
@@ -125,7 +123,6 @@ export const notificationsAPI = {
     return response.data;
   },
 
-  // Mark all as read
   markAllAsRead: async (): Promise<void> => {
     await api.post("/notifications/mark-all-read");
   },

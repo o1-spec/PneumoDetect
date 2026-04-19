@@ -2,20 +2,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Alert,
   Dimensions,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { AuthContext } from "../../hooks/useAuth";
 import { analyticsAPI, scansAPI } from "../../services/api.client";
 import { AnalyticsStats, Scan } from "../../types/api";
-import { getErrorMessage } from "../../utils/errorHandler";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -41,11 +39,12 @@ export default function DashboardScreen() {
       ]);
 
       setStats(analyticsData);
-      const recent = scansData.slice(0, 3);
+      const recent = Array.isArray(scansData) ? scansData.slice(0, 3) : [];
       setRecentScans(recent);
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
-      Alert.alert("Error", getErrorMessage(error));
+      setStats(null);
+      setRecentScans([]);
     } finally {
       setLoading(false);
     }

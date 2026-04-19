@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import api from "../services/api";
+import { usersAPI } from "../services/api.client";
 import {
   AuthResponse,
   LoginRequest,
@@ -61,10 +62,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const bootstrapAsync = async () => {
     try {
       const token = await getAccessToken();
-      const userData = await getUserData();
 
-      if (token && userData) {
-        setUser(userData);
+      if (token) {
+        try {
+          const response = await usersAPI.getMe();
+          const userData = response.data;
+          await storeUserData(userData);
+          setUser(userData);
+        } catch (error) {
+          console.warn("Failed to fetch user data from API:", error);
+          const storedUserData = await getUserData();
+          if (storedUserData) {
+            setUser(storedUserData);
+          }
+        }
       }
     } catch (e) {
       console.warn("Failed to restore session:", e);
@@ -160,7 +171,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const verifyOTP = useCallback(
     async (data: { email: string; otp: string }) => {
       try {
-        // Call backend to verify OTP
         const response = await api.post<AuthResponse>("/auth/verify-otp", data);
         const { accessToken, ...userData } = response.data;
 
