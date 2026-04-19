@@ -14,6 +14,7 @@ import {
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { hasSeenOnboarding } from "../../utils/secureStorage";
 
 export default function OTPVerificationScreen() {
   const router = useRouter();
@@ -70,7 +71,13 @@ export default function OTPVerificationScreen() {
     try {
       await verifyOTP({ email, otp });
       success("Email verified successfully!");
-      router.replace("/(onboarding)");
+
+      const seenOnboarding = await hasSeenOnboarding();
+      if (seenOnboarding) {
+        router.replace("/(tabs)");
+      } else {
+        router.replace("/(onboarding)");
+      }
     } catch (err) {
       const errorMessage = getErrorMessage(err);
       setError(errorMessage);

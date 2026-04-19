@@ -56,12 +56,9 @@ api.interceptors.response.use(
     const { response } = error;
 
     if (response?.status === 401) {
-      // Token expired or invalid - clear storage and emit logout event
       try {
         await clearAuthData();
 
-        // Emit a custom event that auth context can listen to
-        // This will trigger app-wide logout
         if (global.authLogoutEvent) {
           global.authLogoutEvent();
         }
@@ -70,7 +67,6 @@ api.interceptors.response.use(
       }
     }
 
-    // Re-throw error for component-level handling
     return Promise.reject(error);
   },
 );

@@ -30,6 +30,7 @@ export interface User {
   specialization?: string;
   phone?: string;
   avatarUrl?: string;
+  isVerified: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

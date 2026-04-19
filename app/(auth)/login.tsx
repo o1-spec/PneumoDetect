@@ -65,10 +65,19 @@ export default function LoginScreen() {
       await login({ email, password });
       success("Login successful!");
       router.replace("/(tabs)");
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = getErrorMessage(error);
-      showError(errorMessage);
-      console.error("Login error:", error);
+
+      if (error?.isNotVerified || errorMessage.includes("not verified")) {
+        router.push({
+          pathname: "/(auth)/otp-verification",
+          params: { email },
+        });
+        success("Please verify your email with OTP");
+      } else {
+        showError(errorMessage);
+        console.error("Login error:", error);
+      }
     } finally {
       setIsLoading(false);
     }

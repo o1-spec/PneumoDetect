@@ -29,7 +29,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   refreshUser: () => Promise<void>;
-  verifyOTP: (data: { email: string; otp: string }) => Promise<void>;
+  verifyOTP: (data: { email: string; otp: string }) => Promise<User>;
   resendOTP: (email: string) => Promise<void>;
 }
 
@@ -76,6 +76,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await api.post<AuthResponse>("/auth/login", credentials);
       const { accessToken, ...userData } = response.data;
 
+      if (!userData.isVerified) {
+        const error = new Error("Email not verified");
+        (error as any).isNotVerified = true;
+        throw error;
+      }
+
       if (!accessToken) {
         throw new Error("No access token received from server");
       }
@@ -93,16 +99,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = useCallback(async (data: RegisterRequest) => {
     try {
       const response = await api.post<AuthResponse>("/auth/register", data);
-      const { accessToken, ...userData } = response.data;
-
-      if (!accessToken) {
-        throw new Error("No access token received from server");
-      }
-
-      await storeAccessToken(accessToken);
-      await storeUserData(userData);
-
-      setUser(userData as User);
     } catch (error) {
       console.error("Registration failed:", error);
       throw error;
@@ -153,7 +149,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const verifyOTP = useCallback(
     async (data: { email: string; otp: string }) => {
       try {
-        await api.post("/auth/verify-otp", data);
+        // Call backend to verify OTP
+        const response = await api.post<AuthResponse>("/auth/verify-otp", data);
+        const { accessToken, ...userData } = response.data;
+
+        if (!accessToken) {
+          throw new Error("No access token received");
+        }
+
+        await storeAccessToken(accessToken);
+        await storeUserData(userData);
+        setUser(userData as User);
+
+        return userData;
       } catch (error) {
         console.error("OTP verification failed:", error);
         throw error;
