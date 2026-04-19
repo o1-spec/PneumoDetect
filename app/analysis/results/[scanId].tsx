@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
     Image,
     ScrollView,
@@ -10,9 +10,11 @@ import {
     View,
 } from "react-native";
 import { InfoRow } from "../../../components/InfoRow";
+import { useToast } from "../../../hooks/useToast";
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
+  const { info } = useToast();
   const {
     scanId,
     imageUri,
@@ -24,6 +26,10 @@ export default function ResultsScreen() {
     result,
     confidence,
   } = params;
+
+  useEffect(() => {
+    info("Analysis results ready");
+  }, []);
 
   const isPneumonia = result === "PNEUMONIA";
   const predictionText = isPneumonia ? "Pneumonia Detected" : "Normal";

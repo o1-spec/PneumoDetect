@@ -3,7 +3,6 @@ import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -12,10 +11,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useToast } from "../../../hooks/useToast";
 import { adminAPI } from "../../../services/api.client";
 import { getErrorMessage } from "../../../utils/errorHandler";
 
 export default function UsersScreen() {
+  const { success, error: showError } = useToast();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -38,7 +39,7 @@ export default function UsersScreen() {
       const data = await adminAPI.getAllUsers();
       setUsers(data);
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -49,8 +50,9 @@ export default function UsersScreen() {
       setRefreshing(true);
       const data = await adminAPI.getAllUsers();
       setUsers(data);
+      success("Users refreshed");
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     } finally {
       setRefreshing(false);
     }
@@ -66,54 +68,31 @@ export default function UsersScreen() {
 
   const handleToggleStatus = (userId: string, currentStatus: string) => {
     const newStatus = currentStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
-    Alert.alert(
-      "Change User Status",
-      `Are you sure you want to ${newStatus === "ACTIVE" ? "activate" : "suspend"} this user?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Confirm",
-          onPress: async () => {
-            try {
-              await adminAPI.toggleUserStatus(userId);
-              setUsers((prev) =>
-                prev.map((u) =>
-                  u.id === userId
-                    ? { ...u, isActive: newStatus === "ACTIVE" }
-                    : u,
-                ),
-              );
-              Alert.alert("Success", `User status changed to ${newStatus}`);
-            } catch (err) {
-              Alert.alert("Error", getErrorMessage(err));
-            }
-          },
-        },
-      ],
-    );
+    try {
+      (async () => {
+        await adminAPI.toggleUserStatus(userId);
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === userId ? { ...u, isActive: newStatus === "ACTIVE" } : u,
+          ),
+        );
+        success(`User status changed to ${newStatus}`);
+      })();
+    } catch (err) {
+      showError(getErrorMessage(err));
+    }
   };
 
   const handleDeleteUser = (userId: string, userName: string) => {
-    Alert.alert(
-      "Delete User",
-      `Are you sure you want to delete ${userName}? This action cannot be undone.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await adminAPI.deleteUser(userId);
-              setUsers((prev) => prev.filter((u) => u.id !== userId));
-              Alert.alert("Success", "User deleted successfully");
-            } catch (err) {
-              Alert.alert("Error", getErrorMessage(err));
-            }
-          },
-        },
-      ],
-    );
+    try {
+      (async () => {
+        await adminAPI.deleteUser(userId);
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+        success("User deleted successfully");
+      })();
+    } catch (err) {
+      showError(getErrorMessage(err));
+    }
   };
 
   const resetAddUserForm = () => {

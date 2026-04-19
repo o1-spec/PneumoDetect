@@ -1,13 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import {
+    Animated,
+    StyleSheet,
+    Text,
+    View
+} from "react-native";
+import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
 import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function ProcessingScreen() {
   const params = useLocalSearchParams();
   const { scanId } = params;
+  const { info, error: showError } = useToast();
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("Initializing...");
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +45,7 @@ export default function ProcessingScreen() {
     try {
       setStatusText("Starting AI analysis...");
       setProgress(10);
+      info("Processing your X-ray scan...");
 
       // Call the backend to process the scan
       const processedScan = await scansAPI.process(scanId as string);
@@ -56,6 +64,7 @@ export default function ProcessingScreen() {
           setProgress(100);
           setStatusText("Analysis complete!");
           polling = false;
+          info("Scan analysis completed!");
 
           // Navigate to results
           setTimeout(() => {
@@ -89,6 +98,7 @@ export default function ProcessingScreen() {
       setError(errorMsg);
       setStatusText("Error processing scan");
       setProgress(0);
+      showError(errorMsg);
     }
   };
 

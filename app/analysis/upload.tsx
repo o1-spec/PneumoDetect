@@ -3,7 +3,6 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
     Image,
     ScrollView,
     StyleSheet,
@@ -11,17 +10,16 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useToast } from "../../hooks/useToast";
 
 export default function UploadScreen() {
+  const { warning, error: showError, info } = useToast();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const requestPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permission Required",
-        "Please grant camera roll permissions to upload X-ray images.",
-      );
+      warning("Permission required to access photos");
       return false;
     }
     return true;
@@ -40,16 +38,14 @@ export default function UploadScreen() {
 
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
+      info("Image selected successfully");
     }
   };
 
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permission Required",
-        "Please grant camera permissions to take photos.",
-      );
+      warning("Permission required to access camera");
       return;
     }
 
@@ -61,12 +57,13 @@ export default function UploadScreen() {
 
     if (!result.canceled) {
       setSelectedImage(result.assets[0].uri);
+      info("Photo captured successfully");
     }
   };
 
   const handleContinue = () => {
     if (!selectedImage) {
-      Alert.alert("No Image", "Please select an X-ray image first.");
+      showError("Please select an X-ray image first");
       return;
     }
 

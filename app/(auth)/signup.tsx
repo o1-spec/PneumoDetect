@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -13,6 +12,7 @@ import {
     View,
 } from "react-native";
 import { AuthContext } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 import { RegisterRequest } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
@@ -27,6 +27,7 @@ export default function SignUpScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { success, error: showError } = useToast();
 
   const authContext = useContext(AuthContext);
   if (!authContext) {
@@ -94,15 +95,11 @@ export default function SignUpScreen() {
 
       await register(registerData);
 
-      Alert.alert("Success", "Account created successfully!", [
-        {
-          text: "OK",
-          onPress: () => router.replace("/(tabs)"),
-        },
-      ]);
+      success("Account created successfully!");
+      router.replace("/(tabs)");
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-      Alert.alert("Registration Failed", errorMessage);
+      showError(errorMessage);
       console.error("Signup error:", error);
     } finally {
       setLoading(false);

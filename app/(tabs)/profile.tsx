@@ -13,12 +13,14 @@ import {
 } from "react-native";
 import { MenuItem } from "../../components/MenuItem";
 import { AuthContext } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 import { analyticsAPI } from "../../services/api.client";
 import { AnalyticsStats } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function ProfileScreen() {
   const authContext = useContext(AuthContext);
+  const { success, error: showError, warning } = useToast();
   const [showEditModal, setShowEditModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
@@ -65,9 +67,10 @@ export default function ProfileScreen() {
           onPress: async () => {
             try {
               await authContext?.logout();
+              warning("Logged out successfully");
               router.replace("/(auth)/login");
             } catch (err) {
-              Alert.alert("Error", getErrorMessage(err));
+              showError(getErrorMessage(err));
             }
           },
         },
@@ -85,9 +88,9 @@ export default function ProfileScreen() {
         specialization: userSpecialization,
       });
       setShowEditModal(false);
-      Alert.alert("Success", "Profile updated successfully!");
+      success("Profile updated successfully!");
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -12,11 +11,13 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useToast } from "../../hooks/useToast";
 import { patientsAPI } from "../../services/api.client";
 import { CreatePatientRequest } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function CreatePatientScreen() {
+  const { success, error: showError } = useToast();
   const [formData, setFormData] = useState<CreatePatientRequest>({
     idNumber: "",
     name: "",
@@ -51,15 +52,10 @@ export default function CreatePatientScreen() {
     try {
       setLoading(true);
       await patientsAPI.create(formData);
-
-      Alert.alert("Success", "Patient created successfully!", [
-        {
-          text: "OK",
-          onPress: () => router.back(),
-        },
-      ]);
+      success("Patient created successfully!");
+      router.back();
     } catch (error) {
-      Alert.alert("Error", getErrorMessage(error));
+      showError(getErrorMessage(error));
       console.error("Failed to create patient:", error);
     } finally {
       setLoading(false);

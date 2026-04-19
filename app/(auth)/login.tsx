@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -13,6 +12,7 @@ import {
     View,
 } from "react-native";
 import { AuthContext } from "../../hooks/useAuth";
+import { useToast } from "../../hooks/useToast";
 import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function LoginScreen() {
@@ -21,6 +21,7 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { success, error: showError } = useToast();
 
   const authContext = useContext(AuthContext);
   if (!authContext) {
@@ -62,11 +63,11 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       await login({ email, password });
-      // Navigation is handled by Expo Router based on AuthContext state
+      success("Login successful!");
       router.replace("/(tabs)");
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-      Alert.alert("Login Failed", errorMessage);
+      showError(errorMessage);
       console.error("Login error:", error);
     } finally {
       setIsLoading(false);
