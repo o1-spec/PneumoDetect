@@ -83,3 +83,14 @@ export const hasSeenOnboarding = async (): Promise<boolean> => {
     return false;
   }
 };
+
+export const clearAllData = async (): Promise<void> => {
+  try {
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await SecureStore.deleteItemAsync(USER_DATA_KEY);
+    await SecureStore.deleteItemAsync(ONBOARDING_FLAG_KEY);
+  } catch (error) {
+    console.error("Failed to clear all data:", error);
+    throw error;
+  }
+};

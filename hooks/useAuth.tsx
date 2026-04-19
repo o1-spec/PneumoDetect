@@ -14,6 +14,7 @@ import {
 } from "../types/api";
 import {
   clearAuthData,
+  clearAllData,
   getAccessToken,
   getUserData,
   storeAccessToken,
@@ -27,6 +28,7 @@ interface AuthContextType {
   login: (credentials: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => Promise<void>;
+  clearSession: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   refreshUser: () => Promise<void>;
   verifyOTP: (data: { email: string; otp: string }) => Promise<User>;
@@ -116,6 +118,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  const clearSession = useCallback(async () => {
+    try {
+      await clearAllData();
+      setUser(null);
+    } catch (error) {
+      console.error("Failed to clear session:", error);
+    }
+  }, []);
+
   const handleLogoutEvent = useCallback(() => {
     logout();
   }, [logout]);
@@ -186,6 +197,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    clearSession,
     updateProfile,
     refreshUser,
     verifyOTP,
