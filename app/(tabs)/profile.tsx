@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useContext, useState } from "react";
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { MenuItem } from "../../components/MenuItem";
 import { AuthContext } from "../../hooks/useAuth";
@@ -240,10 +240,13 @@ export default function ProfileScreen() {
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.clearSessionButton} onPress={handleClearSession}>
+        {/* <TouchableOpacity
+          style={styles.clearSessionButton}
+          onPress={handleClearSession}
+        >
           <Ionicons name="trash-bin-outline" size={20} color="#FF9800" />
           <Text style={styles.clearSessionText}>Clear Session (Testing)</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
