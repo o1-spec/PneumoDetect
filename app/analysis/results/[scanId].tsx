@@ -31,7 +31,6 @@ export default function ResultsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -44,7 +43,6 @@ export default function ResultsScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* X-Ray Preview */}
         <View style={styles.imageCard}>
           <Image
             source={{ uri: imageUri as string }}
@@ -52,7 +50,6 @@ export default function ResultsScreen() {
           />
         </View>
 
-        {/* Prediction Card */}
         <View
           style={[
             styles.predictionCard,
@@ -79,7 +76,6 @@ export default function ResultsScreen() {
           </Text>
         </View>
 
-        {/* Confidence Score */}
         <View style={styles.confidenceCard}>
           <Text style={styles.confidenceLabel}>Confidence Score</Text>
           <Text style={styles.confidenceValue}>
@@ -105,7 +101,6 @@ export default function ResultsScreen() {
           </Text>
         </View>
 
-        {/* Patient Info */}
         <View style={styles.infoCard}>
           <Text style={styles.cardTitle}>Patient Information</Text>
           <InfoRow label="Patient ID" value={patientId as string} />
@@ -115,7 +110,6 @@ export default function ResultsScreen() {
           <InfoRow label="Scan Date" value={scanDate as string} />
         </View>
 
-        {/* Disclaimer */}
         <View style={styles.disclaimerBox}>
           <View style={styles.disclaimerHeader}>
             <Ionicons name="information-circle" size={20} color="#856404" />
@@ -128,7 +122,6 @@ export default function ResultsScreen() {
           </Text>
         </View>
 
-        {/* Action Buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={styles.primaryButton}

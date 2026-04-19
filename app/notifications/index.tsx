@@ -1,163 +1,136 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
-const NOTIFICATIONS_DATA = [
-  {
-    id: "1",
-    type: "SCAN",
-    icon: "medical",
-    iconColor: "#D32F2F",
-    iconBg: "#FFEBEE",
-    title: "High-Risk Scan Detected",
-    message: "Patient John Doe - Pneumonia detected with 94.5% confidence",
-    time: "5 minutes ago",
-    read: false,
-  },
-  {
-    id: "2",
-    type: "SYSTEM",
-    icon: "checkmark-circle",
-    iconColor: "#4CAF50",
-    iconBg: "#E8F5E9",
-    title: "Scan Completed",
-    message: "Analysis for Patient Jane Smith completed successfully",
-    time: "1 hour ago",
-    read: false,
-  },
-  {
-    id: "3",
-    type: "USER",
-    icon: "person-add",
-    iconColor: "#0066CC",
-    iconBg: "#E3F2FD",
-    title: "New User Added",
-    message: "Dr. Michael Chen has been added to your team",
-    time: "2 hours ago",
-    read: false,
-  },
-  {
-    id: "4",
-    type: "SYSTEM",
-    icon: "document-text",
-    iconColor: "#FF9800",
-    iconBg: "#FFF3E0",
-    title: "Weekly Report Ready",
-    message: "Your weekly performance report is now available",
-    time: "3 hours ago",
-    read: true,
-  },
-  {
-    id: "5",
-    type: "SYSTEM",
-    icon: "warning",
-    iconColor: "#FF9800",
-    iconBg: "#FFF3E0",
-    title: "Storage Warning",
-    message: "Storage usage is at 78%. Consider archiving old scans",
-    time: "5 hours ago",
-    read: true,
-  },
-  {
-    id: "6",
-    type: "SCAN",
-    icon: "analytics",
-    iconColor: "#9C27B0",
-    iconBg: "#F3E5F5",
-    title: "Monthly Statistics",
-    message: "You've analyzed 24 scans this month with 95% accuracy",
-    time: "1 day ago",
-    read: true,
-  },
-  {
-    id: "7",
-    type: "SYSTEM",
-    icon: "shield-checkmark",
-    iconColor: "#4CAF50",
-    iconBg: "#E8F5E9",
-    title: "Security Update",
-    message: "Two-factor authentication is now enabled for your account",
-    time: "2 days ago",
-    read: true,
-  },
-  {
-    id: "8",
-    type: "SYSTEM",
-    icon: "information-circle",
-    iconColor: "#00BCD4",
-    iconBg: "#E0F7FA",
-    title: "New Feature Available",
-    message: "Check out the new batch upload feature for multiple scans",
-    time: "3 days ago",
-    read: true,
-  },
-];
+import { notificationsAPI } from "../../services/api.client";
+import { Notification } from "../../types/api";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState(NOTIFICATIONS_DATA);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((notif) => (notif.id === id ? { ...notif, read: true } : notif)),
-    );
+  // Load notifications when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      loadNotifications();
+    }, []),
+  );
+
+  const loadNotifications = async () => {
+    try {
+      setLoading(true);
+      const data = await notificationsAPI.getAll();
+      setNotifications(data);
+    } catch (err) {
+      Alert.alert("Error", getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
-    Alert.alert("Success", "All notifications marked as read");
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      const data = await notificationsAPI.getAll();
+      setNotifications(data);
+    } catch (err) {
+      Alert.alert("Error", getErrorMessage(err));
+    } finally {
+      setRefreshing(false);
+    }
   };
 
-  const handleClearAll = () => {
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await notificationsAPI.update(id, { read: true });
+      setNotifications((prev) =>
+        prev.map((notif) =>
+          notif.id === id ? { ...notif, read: true } : notif,
+        ),
+      );
+    } catch (err) {
+      Alert.alert("Error", getErrorMessage(err));
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationsAPI.markAllAsRead();
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, isRead: true })),
+      );
+      Alert.alert("Success", "All notifications marked as read");
+    } catch (err) {
+      Alert.alert("Error", getErrorMessage(err));
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     Alert.alert(
-      "Clear All Notifications",
-      "Are you sure you want to clear all notifications? This action cannot be undone.",
+      "Delete Notification",
+      "Are you sure you want to delete this notification?",
       [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Clear All",
+          text: "Delete",
           style: "destructive",
-          onPress: () => {
-            setNotifications([]);
-            Alert.alert("Success", "All notifications cleared");
+          onPress: async () => {
+            try {
+              await notificationsAPI.delete(id);
+              setNotifications((prev) => prev.filter((n) => n.id !== id));
+            } catch (err) {
+              Alert.alert("Error", getErrorMessage(err));
+            }
           },
         },
       ],
     );
   };
 
-  const handleNotificationPress = (
-    notification: (typeof NOTIFICATIONS_DATA)[0],
-  ) => {
-    handleMarkAsRead(notification.id);
-
-    // Navigate based on notification type
-    switch (notification.type) {
-      case "SCAN":
-        router.push("/(tabs)/history");
-        break;
-      case "USER":
-        router.push("/(tabs)/(admin)/users");
-        break;
-      case "SYSTEM":
-        Alert.alert(notification.title, notification.message);
-        break;
-      default:
-        Alert.alert(notification.title, notification.message);
+  const handleClearAll = () => {
+    if (notifications.length === 0) {
+      Alert.alert("No Notifications", "There are no notifications to clear.");
+      return;
     }
+
+    Alert.alert(
+      "Clear All Notifications",
+      "Are you sure you want to delete all notifications? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Clear All",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await Promise.all(
+                notifications.map((n) => notificationsAPI.delete(n.id)),
+              );
+              setNotifications([]);
+              Alert.alert("Success", "All notifications cleared");
+            } catch (err) {
+              Alert.alert("Error", getErrorMessage(err));
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -196,7 +169,11 @@ export default function NotificationsScreen() {
         </View>
       </View>
 
-      {notifications.length === 0 ? (
+      {loading ? (
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color="#0066CC" />
+        </View>
+      ) : notifications.length === 0 ? (
         <View style={styles.emptyState}>
           <View style={styles.emptyIconContainer}>
             <Ionicons
@@ -212,8 +189,13 @@ export default function NotificationsScreen() {
           </Text>
         </View>
       ) : (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Unread Section */}
+        <ScrollView
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+        >
           {unreadCount > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>New</Text>
@@ -223,13 +205,13 @@ export default function NotificationsScreen() {
                   <NotificationCard
                     key={notification.id}
                     notification={notification}
-                    onPress={() => handleNotificationPress(notification)}
+                    onPress={() => handleMarkAsRead(notification.id)}
+                    onDelete={() => handleDelete(notification.id)}
                   />
                 ))}
             </View>
           )}
 
-          {/* Read Section */}
           {notifications.filter((n) => n.read).length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Earlier</Text>
@@ -239,7 +221,8 @@ export default function NotificationsScreen() {
                   <NotificationCard
                     key={notification.id}
                     notification={notification}
-                    onPress={() => handleNotificationPress(notification)}
+                    onPress={() => handleMarkAsRead(notification.id)}
+                    onDelete={() => handleDelete(notification.id)}
                   />
                 ))}
             </View>
@@ -255,44 +238,41 @@ export default function NotificationsScreen() {
 const NotificationCard = ({
   notification,
   onPress,
+  onDelete,
 }: {
-  notification: (typeof NOTIFICATIONS_DATA)[0];
+  notification: Notification;
   onPress: () => void;
+  onDelete: () => void;
 }) => (
-  <TouchableOpacity
+  <View
     style={[styles.notificationCard, !notification.read && styles.unreadCard]}
-    onPress={onPress}
   >
-    <View
-      style={[
-        styles.notificationIcon,
-        { backgroundColor: notification.iconBg },
-      ]}
-    >
-      <Ionicons
-        name={notification.icon as any}
-        size={24}
-        color={notification.iconColor}
-      />
-    </View>
-    <View style={styles.notificationContent}>
-      <View style={styles.notificationHeader}>
+    <TouchableOpacity style={styles.cardContent} onPress={onPress}>
+      <View style={styles.notificationIcon}>
+        <Ionicons name="notifications" size={24} color="#0066CC" />
+      </View>
+      <View style={styles.notificationContent}>
         <Text
           style={[
             styles.notificationTitle,
             !notification.read && styles.unreadTitle,
           ]}
+          numberOfLines={1}
         >
           {notification.title}
         </Text>
-        {!notification.read && <View style={styles.unreadDot} />}
+        <Text style={styles.notificationMessage} numberOfLines={2}>
+          {notification.message}
+        </Text>
+        <Text style={styles.notificationTime}>
+          {new Date(notification.createdAt).toLocaleDateString()}
+        </Text>
       </View>
-      <Text style={styles.notificationMessage} numberOfLines={2}>
-        {notification.message}
-      </Text>
-      <Text style={styles.notificationTime}>{notification.time}</Text>
-    </View>
-  </TouchableOpacity>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
+      <Ionicons name="trash-outline" size={20} color="#D32F2F" />
+    </TouchableOpacity>
+  </View>
 );
 
 const styles = StyleSheet.create({
@@ -451,5 +431,15 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 40,
+  },
+  cardContent: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  deleteButton: {
+    padding: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

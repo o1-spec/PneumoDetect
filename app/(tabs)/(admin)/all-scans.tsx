@@ -134,7 +134,6 @@ export default function AllScansScreen() {
         style={styles.scanCard}
         onPress={() => handleViewDetails(item)}
       >
-        {/* Image & Quick Info */}
         <View style={styles.scanHeader}>
           <Image source={{ uri: item.imageUri }} style={styles.thumbnail} />
           <View style={styles.scanInfo}>
@@ -150,7 +149,6 @@ export default function AllScansScreen() {
           </View>
         </View>
 
-        {/* Prediction Badge */}
         <View
           style={[
             styles.predictionBadge,
@@ -175,13 +173,11 @@ export default function AllScansScreen() {
           </Text>
         </View>
 
-        {/* Clinician Info */}
         <View style={styles.clinicianRow}>
           <Ionicons name="person-circle-outline" size={16} color="#8E8E93" />
           <Text style={styles.clinicianText}>Analyzed by {item.clinician}</Text>
         </View>
 
-        {/* Action Buttons */}
         <View style={styles.actionRow}>
           <TouchableOpacity
             style={styles.viewButton}
@@ -204,7 +200,6 @@ export default function AllScansScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -226,7 +221,6 @@ export default function AllScansScreen() {
         </View>
       </View>
 
-      {/* Stats Cards */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statValue}>{scans.length}</Text>
@@ -244,7 +238,6 @@ export default function AllScansScreen() {
         </View>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
@@ -266,7 +259,6 @@ export default function AllScansScreen() {
         )}
       </View>
 
-      {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[
@@ -320,7 +312,6 @@ export default function AllScansScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Scans List */}
       <FlatList
         data={filteredScans}
         renderItem={renderScanCard}

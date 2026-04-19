@@ -2,15 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { AuthContext } from "../../hooks/useAuth";
 import { RegisterRequest } from "../../types/api";
@@ -64,6 +64,18 @@ export default function SignUpScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const isFormValid = (): boolean => {
+    return (
+      fullName.trim() !== "" &&
+      email.trim() !== "" &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+      password !== "" &&
+      password.length >= 6 &&
+      confirmPassword !== "" &&
+      password === confirmPassword
+    );
+  };
+
   const handleSignUp = async () => {
     if (!validateForm()) {
       return;
@@ -107,7 +119,6 @@ export default function SignUpScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() =>
@@ -117,7 +128,6 @@ export default function SignUpScreen() {
           <Ionicons name="arrow-back" size={24} color="#0066CC" />
         </TouchableOpacity>
 
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.iconCircle}>
             <Ionicons name="person-add" size={48} color="#0066CC" />
@@ -126,9 +136,7 @@ export default function SignUpScreen() {
           <Text style={styles.subtitle}>Join PneumoDetect AI</Text>
         </View>
 
-        {/* Sign Up Form */}
         <View style={styles.form}>
-          {/* Full Name */}
           <View style={styles.formGroup}>
             <View
               style={[
@@ -159,7 +167,6 @@ export default function SignUpScreen() {
             )}
           </View>
 
-          {/* Email */}
           <View style={styles.formGroup}>
             <View
               style={[styles.inputContainer, errors.email && styles.inputError]}
@@ -189,7 +196,6 @@ export default function SignUpScreen() {
             )}
           </View>
 
-          {/* Role Selection */}
           <View style={styles.roleContainer}>
             <Text style={styles.roleLabel}>Account Type</Text>
             <View style={styles.roleButtons}>
@@ -239,7 +245,6 @@ export default function SignUpScreen() {
             </View>
           </View>
 
-          {/* Specialization (optional for clinicians) */}
           {role === "CLINICIAN" && (
             <View style={styles.inputContainer}>
               <Ionicons
@@ -259,7 +264,6 @@ export default function SignUpScreen() {
             </View>
           )}
 
-          {/* Phone (optional) */}
           <View style={styles.inputContainer}>
             <Ionicons
               name="call-outline"
@@ -277,7 +281,6 @@ export default function SignUpScreen() {
             />
           </View>
 
-          {/* Password */}
           <View style={styles.formGroup}>
             <View
               style={[
@@ -319,7 +322,6 @@ export default function SignUpScreen() {
             )}
           </View>
 
-          {/* Confirm Password */}
           <View style={styles.formGroup}>
             <View
               style={[
@@ -352,21 +354,19 @@ export default function SignUpScreen() {
             )}
           </View>
 
-          {/* Sign Up Button */}
           <TouchableOpacity
             style={[
               styles.signUpButton,
-              loading && styles.signUpButtonDisabled,
+              (loading || !isFormValid()) && styles.signUpButtonDisabled,
             ]}
             onPress={handleSignUp}
-            disabled={loading}
+            disabled={loading || !isFormValid()}
           >
             <Text style={styles.signUpButtonText}>
               {loading ? "Creating Account..." : "Create Account"}
             </Text>
           </TouchableOpacity>
 
-          {/* Login Link */}
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
             <Link href="/(auth)/login" asChild>
@@ -526,7 +526,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   signUpButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
+    backgroundColor: "#CCCCCC",
   },
   signUpButtonText: {
     color: "#FFFFFF",

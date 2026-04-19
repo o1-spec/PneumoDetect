@@ -1,17 +1,17 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
-  Alert,
-  TextInput,
-  Modal,
+    Alert,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function PrivacySecurityScreen() {
   const [biometricAuth, setBiometricAuth] = useState(true);
@@ -64,11 +64,11 @@ export default function PrivacySecurityScreen() {
               setTwoFactorAuth(true);
               Alert.alert(
                 "2FA Enabled",
-                "Two-factor authentication has been enabled. Check your email for the verification code."
+                "Two-factor authentication has been enabled. Check your email for the verification code.",
               );
             },
           },
-        ]
+        ],
       );
     } else {
       Alert.alert(
@@ -81,10 +81,13 @@ export default function PrivacySecurityScreen() {
             style: "destructive",
             onPress: () => {
               setTwoFactorAuth(false);
-              Alert.alert("2FA Disabled", "Two-factor authentication has been disabled.");
+              Alert.alert(
+                "2FA Disabled",
+                "Two-factor authentication has been disabled.",
+              );
             },
           },
-        ]
+        ],
       );
     }
   };
@@ -92,7 +95,7 @@ export default function PrivacySecurityScreen() {
   const handleViewActivityLog = () => {
     Alert.alert(
       "Recent Activity",
-      "Last Login: Today at 9:23 AM\nLocation: San Francisco, CA\nDevice: iPhone 15 Pro\n\nPrevious Login: Yesterday at 3:45 PM\nLocation: San Francisco, CA\nDevice: MacBook Pro"
+      "Last Login: Today at 9:23 AM\nLocation: San Francisco, CA\nDevice: iPhone 15 Pro\n\nPrevious Login: Yesterday at 3:45 PM\nLocation: San Francisco, CA\nDevice: MacBook Pro",
     );
   };
 
@@ -108,10 +111,10 @@ export default function PrivacySecurityScreen() {
           onPress: () =>
             Alert.alert(
               "Confirmation Required",
-              "We've sent a confirmation email to verify this request."
+              "We've sent a confirmation email to verify this request.",
             ),
         },
-      ]
+      ],
     );
   };
 
@@ -124,16 +127,18 @@ export default function PrivacySecurityScreen() {
         {
           text: "Request Download",
           onPress: () =>
-            Alert.alert("Request Sent", "You'll receive an email when your data is ready."),
+            Alert.alert(
+              "Request Sent",
+              "You'll receive an email when your data is ready.",
+            ),
         },
-      ]
+      ],
     );
   };
 
   return (
     <>
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <TouchableOpacity
@@ -151,7 +156,6 @@ export default function PrivacySecurityScreen() {
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* Password & Authentication */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Password & Authentication</Text>
             <View style={styles.card}>
@@ -176,10 +180,16 @@ export default function PrivacySecurityScreen() {
               <View style={styles.settingRow}>
                 <View style={styles.settingLeft}>
                   <View style={[styles.iconContainer, styles.twoFactorIcon]}>
-                    <Ionicons name="shield-checkmark" size={22} color="#4CAF50" />
+                    <Ionicons
+                      name="shield-checkmark"
+                      size={22}
+                      color="#4CAF50"
+                    />
                   </View>
                   <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>Two-Factor Authentication</Text>
+                    <Text style={styles.settingLabel}>
+                      Two-Factor Authentication
+                    </Text>
                     <Text style={styles.settingDescription}>
                       {twoFactorAuth ? "Enabled" : "Add extra security"}
                     </Text>
@@ -199,7 +209,9 @@ export default function PrivacySecurityScreen() {
                     <Ionicons name="finger-print" size={22} color="#0066CC" />
                   </View>
                   <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>Biometric Authentication</Text>
+                    <Text style={styles.settingLabel}>
+                      Biometric Authentication
+                    </Text>
                     <Text style={styles.settingDescription}>
                       Use Face ID or Touch ID
                     </Text>
@@ -215,7 +227,6 @@ export default function PrivacySecurityScreen() {
             </View>
           </View>
 
-          {/* Security Settings */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Security Settings</Text>
             <View style={styles.card}>
@@ -225,7 +236,9 @@ export default function PrivacySecurityScreen() {
                     <Ionicons name="time" size={22} color="#9C27B0" />
                   </View>
                   <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>Auto Session Timeout</Text>
+                    <Text style={styles.settingLabel}>
+                      Auto Session Timeout
+                    </Text>
                     <Text style={styles.settingDescription}>
                       Logout after 30 minutes of inactivity
                     </Text>
@@ -245,7 +258,9 @@ export default function PrivacySecurityScreen() {
                     <Ionicons name="lock-closed" size={22} color="#D32F2F" />
                   </View>
                   <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>End-to-End Encryption</Text>
+                    <Text style={styles.settingLabel}>
+                      End-to-End Encryption
+                    </Text>
                     <Text style={styles.settingDescription}>
                       All data is encrypted (Always On)
                     </Text>
@@ -280,7 +295,6 @@ export default function PrivacySecurityScreen() {
             </View>
           </View>
 
-          {/* Privacy & Data */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Privacy & Data</Text>
             <View style={styles.card}>
@@ -324,14 +338,17 @@ export default function PrivacySecurityScreen() {
             </View>
           </View>
 
-          {/* Compliance Info */}
           <View style={styles.complianceCard}>
-            <Ionicons name="shield-checkmark-outline" size={32} color="#0066CC" />
+            <Ionicons
+              name="shield-checkmark-outline"
+              size={32}
+              color="#0066CC"
+            />
             <Text style={styles.complianceTitle}>HIPAA & GDPR Compliant</Text>
             <Text style={styles.complianceText}>
-              Your data is protected with bank-level encryption and stored in secure,
-              HIPAA-compliant servers. We follow strict GDPR guidelines to protect
-              your privacy.
+              Your data is protected with bank-level encryption and stored in
+              secure, HIPAA-compliant servers. We follow strict GDPR guidelines
+              to protect your privacy.
             </Text>
           </View>
 
@@ -339,7 +356,6 @@ export default function PrivacySecurityScreen() {
         </ScrollView>
       </View>
 
-      {/* Change Password Modal */}
       <Modal
         visible={showPasswordModal}
         animationType="slide"
@@ -367,11 +383,14 @@ export default function PrivacySecurityScreen() {
             </View>
 
             <ScrollView style={styles.modalForm}>
-              {/* Current Password */}
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Current Password</Text>
                 <View style={styles.inputContainer}>
-                  <Ionicons name="lock-closed-outline" size={20} color="#8E8E93" />
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={20}
+                    color="#8E8E93"
+                  />
                   <TextInput
                     style={styles.modalInput}
                     value={currentPassword}
@@ -385,7 +404,9 @@ export default function PrivacySecurityScreen() {
                     onPress={() => setShowCurrentPassword(!showCurrentPassword)}
                   >
                     <Ionicons
-                      name={showCurrentPassword ? "eye-outline" : "eye-off-outline"}
+                      name={
+                        showCurrentPassword ? "eye-outline" : "eye-off-outline"
+                      }
                       size={20}
                       color="#8E8E93"
                     />
@@ -393,11 +414,14 @@ export default function PrivacySecurityScreen() {
                 </View>
               </View>
 
-              {/* New Password */}
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>New Password</Text>
                 <View style={styles.inputContainer}>
-                  <Ionicons name="lock-closed-outline" size={20} color="#8E8E93" />
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={20}
+                    color="#8E8E93"
+                  />
                   <TextInput
                     style={styles.modalInput}
                     value={newPassword}
@@ -419,11 +443,14 @@ export default function PrivacySecurityScreen() {
                 </View>
               </View>
 
-              {/* Confirm Password */}
               <View style={styles.formGroup}>
                 <Text style={styles.formLabel}>Confirm New Password</Text>
                 <View style={styles.inputContainer}>
-                  <Ionicons name="lock-closed-outline" size={20} color="#8E8E93" />
+                  <Ionicons
+                    name="lock-closed-outline"
+                    size={20}
+                    color="#8E8E93"
+                  />
                   <TextInput
                     style={styles.modalInput}
                     value={confirmPassword}
@@ -437,7 +464,9 @@ export default function PrivacySecurityScreen() {
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     <Ionicons
-                      name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
+                      name={
+                        showConfirmPassword ? "eye-outline" : "eye-off-outline"
+                      }
                       size={20}
                       color="#8E8E93"
                     />
@@ -445,14 +474,19 @@ export default function PrivacySecurityScreen() {
                 </View>
               </View>
 
-              {/* Password Requirements */}
               <View style={styles.requirementsBox}>
-                <Text style={styles.requirementsTitle}>Password Requirements:</Text>
-                <Text style={styles.requirementText}>• At least 8 characters</Text>
+                <Text style={styles.requirementsTitle}>
+                  Password Requirements:
+                </Text>
+                <Text style={styles.requirementText}>
+                  • At least 8 characters
+                </Text>
                 <Text style={styles.requirementText}>
                   • Mix of uppercase and lowercase
                 </Text>
-                <Text style={styles.requirementText}>• At least one number</Text>
+                <Text style={styles.requirementText}>
+                  • At least one number
+                </Text>
                 <Text style={styles.requirementText}>
                   • At least one special character
                 </Text>

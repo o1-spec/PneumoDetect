@@ -26,7 +26,6 @@ export default function WelcomeScreen() {
       colors={["#0066CC", "#004C99", "#003366"]}
       style={styles.container}
     >
-      {/* Logo/Icon Section */}
       <View style={styles.logoContainer}>
         <View style={styles.logoCircle}>
           <Ionicons name="medical" size={80} color="#0066CC" />
@@ -35,7 +34,6 @@ export default function WelcomeScreen() {
         <Text style={styles.tagline}>AI-Powered Pneumonia Detection</Text>
       </View>
 
-      {/* Features Section */}
       <View style={styles.featuresContainer}>
         <FeatureItem
           icon="flash"
@@ -54,7 +52,6 @@ export default function WelcomeScreen() {
         />
       </View>
 
-      {/* CTA Buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.primaryButton}
@@ -69,7 +66,6 @@ export default function WelcomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <Ionicons
           name="shield-checkmark-outline"

@@ -2,11 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
+import { scansAPI } from "../../services/api.client";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function ProcessingScreen() {
   const params = useLocalSearchParams();
+  const { scanId } = params;
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("Initializing...");
+  const [error, setError] = useState<string | null>(null);
   const pulseAnim = new Animated.Value(1);
 
   useEffect(() => {
@@ -26,105 +30,133 @@ export default function ProcessingScreen() {
       ]),
     ).start();
 
-    // Simulate AI processing steps
-    const steps = [
-      { delay: 500, progress: 20, text: "Loading X-ray image..." },
-      { delay: 1500, progress: 40, text: "Preprocessing image data..." },
-      { delay: 2500, progress: 60, text: "Running AI model..." },
-      { delay: 3500, progress: 80, text: "Analyzing patterns..." },
-      { delay: 4500, progress: 95, text: "Generating heatmap..." },
-      { delay: 5500, progress: 100, text: "Complete!" },
-    ];
-
-    steps.forEach((step) => {
-      setTimeout(() => {
-        setProgress(step.progress);
-        setStatusText(step.text);
-      }, step.delay);
-    });
-
-    // Navigate to results after processing
-    setTimeout(() => {
-      // Generate random diagnosis for demo
-      const isPneumonia = Math.random() > 0.5;
-      const confidence = (
-        isPneumonia
-          ? 85 + Math.random() * 14 // 85-99%
-          : 70 + Math.random() * 25
-      ) // 70-95%
-        .toFixed(1);
-
-      router.replace({
-        pathname: "/analysis/results/[scanId]",
-        params: {
-          ...params,
-          scanId: `SCAN-${Date.now()}`,
-          result: isPneumonia ? "PNEUMONIA" : "NORMAL",
-          confidence: confidence,
-          status: "COMPLETED",
-        },
-      });
-    }, 6000);
+    // Start processing the scan
+    processScan();
   }, []);
+
+  const processScan = async () => {
+    try {
+      setStatusText("Starting AI analysis...");
+      setProgress(10);
+
+      // Call the backend to process the scan
+      const processedScan = await scansAPI.process(scanId as string);
+
+      // Poll for completion
+      let polling = true;
+      let pollCount = 0;
+      const maxPolls = 30; // Max 30 polls (5 minutes with 10s interval)
+
+      while (polling && pollCount < maxPolls) {
+        // Update progress based on status
+        if (processedScan.status === "PROCESSING") {
+          setProgress(Math.min(80, 10 + pollCount * 2));
+          setStatusText("AI model running...");
+        } else if (processedScan.status === "COMPLETED") {
+          setProgress(100);
+          setStatusText("Analysis complete!");
+          polling = false;
+
+          // Navigate to results
+          setTimeout(() => {
+            router.replace({
+              pathname: "/analysis/results/[scanId]",
+              params: {
+                scanId: processedScan.id,
+                imageUri: processedScan.imageUrl,
+                result: processedScan.result,
+                confidence: String(processedScan.confidence || 0),
+                heatmapUrl: processedScan.heatmapUrl,
+              },
+            });
+          }, 500);
+        } else if (processedScan.status === "FAILED") {
+          throw new Error("Processing failed. Please try again.");
+        }
+
+        if (polling) {
+          // Wait before polling again
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          pollCount++;
+        }
+      }
+
+      if (polling) {
+        throw new Error("Processing timeout. Please try again.");
+      }
+    } catch (err) {
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      setStatusText("Error processing scan");
+      setProgress(0);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
-        {/* Animated Icon */}
-        <Animated.View
-          style={[styles.iconContainer, { transform: [{ scale: pulseAnim }] }]}
-        >
-          <Ionicons name="analytics" size={80} color="#0066CC" />
-        </Animated.View>
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={64} color="#D32F2F" />
+          <Text style={styles.errorTitle}>Processing Error</Text>
+          <Text style={styles.errorMessage}>{error}</Text>
+        </View>
+      ) : (
+        <View style={styles.content}>
+          <Animated.View
+            style={[
+              styles.iconContainer,
+              { transform: [{ scale: pulseAnim }] },
+            ]}
+          >
+            <Ionicons name="analytics" size={80} color="#0066CC" />
+          </Animated.View>
 
-        <Text style={styles.title}>Analyzing X-Ray</Text>
-        <Text style={styles.subtitle}>
-          Please wait while our AI processes the image
-        </Text>
+          <Text style={styles.title}>Analyzing X-Ray</Text>
+          <Text style={styles.subtitle}>
+            Please wait while our AI processes the image
+          </Text>
 
-        {/* Progress Bar */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progress}%` }]} />
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${progress}%` }]} />
+            </View>
+            <Text style={styles.progressText}>{progress}%</Text>
           </View>
-          <Text style={styles.progressText}>{progress}%</Text>
-        </View>
 
-        {/* Status Text */}
-        <View style={styles.statusContainer}>
-          <View style={styles.statusDot} />
-          <Text style={styles.statusText}>{statusText}</Text>
-        </View>
+          <View style={styles.statusContainer}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusText}>{statusText}</Text>
+          </View>
 
-        {/* Steps */}
-        <View style={styles.stepsContainer}>
-          <StepItem
-            icon="image-outline"
-            label="Image Upload"
-            completed={progress >= 20}
-          />
-          <StepItem
-            icon="construct-outline"
-            label="Preprocessing"
-            completed={progress >= 40}
-          />
-          <StepItem
-            icon="brain-outline"
-            label="AI Analysis"
-            completed={progress >= 60}
-          />
-          <StepItem
-            icon="analytics-outline"
-            label="Pattern Detection"
-            completed={progress >= 80}
-          />
-          <StepItem
-            icon="color-palette-outline"
-            label="Heatmap"
-            completed={progress >= 95}
-          />
+          <View style={styles.stepsContainer}>
+            <StepItem
+              icon="image-outline"
+              label="Image Upload"
+              completed={progress >= 20}
+            />
+            <StepItem
+              icon="construct-outline"
+              label="Preprocessing"
+              completed={progress >= 40}
+            />
+            <StepItem
+              icon="brain-outline"
+              label="AI Analysis"
+              completed={progress >= 60}
+            />
+            <StepItem
+              icon="analytics-outline"
+              label="Pattern Detection"
+              completed={progress >= 80}
+            />
+            <StepItem
+              icon="color-palette-outline"
+              label="Heatmap"
+              completed={progress >= 95}
+            />
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }
@@ -263,5 +295,25 @@ const styles = StyleSheet.create({
   stepLabelCompleted: {
     color: "#1C1C1E",
     fontWeight: "600",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 24,
+    backgroundColor: "#F5F5F7",
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#D32F2F",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: "#636366",
+    textAlign: "center",
+    marginTop: 8,
   },
 });

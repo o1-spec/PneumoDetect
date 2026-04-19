@@ -29,6 +29,14 @@ export default function LoginScreen() {
 
   const { login } = authContext;
 
+  const isFormValid = (): boolean => {
+    return (
+      email.trim() !== "" &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+      password !== ""
+    );
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -75,7 +83,6 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() =>
@@ -85,7 +92,6 @@ export default function LoginScreen() {
           <Ionicons name="arrow-back" size={24} color="#0066CC" />
         </TouchableOpacity>
 
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.iconCircle}>
             <Ionicons name="log-in" size={48} color="#0066CC" />
@@ -94,9 +100,7 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>Sign in to continue</Text>
         </View>
 
-        {/* Form */}
         <View style={styles.form}>
-          {/* Email Input */}
           <View style={styles.formGroup}>
             <View
               style={[styles.inputContainer, errors.email && styles.inputError]}
@@ -126,7 +130,6 @@ export default function LoginScreen() {
             )}
           </View>
 
-          {/* Password Input */}
           <View style={styles.formGroup}>
             <View
               style={[
@@ -168,7 +171,6 @@ export default function LoginScreen() {
             )}
           </View>
 
-          {/* Forgot Password */}
           <TouchableOpacity
             onPress={() => router.push("/(auth)/forgot-password")}
             style={styles.forgotPasswordContainer}
@@ -176,21 +178,19 @@ export default function LoginScreen() {
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
           </TouchableOpacity>
 
-          {/* Login Button */}
           <TouchableOpacity
             style={[
               styles.loginButton,
-              isLoading && styles.loginButtonDisabled,
+              (isLoading || !isFormValid()) && styles.loginButtonDisabled,
             ]}
             onPress={handleLogin}
-            disabled={isLoading}
+            disabled={isLoading || !isFormValid()}
           >
             <Text style={styles.loginButtonText}>
               {isLoading ? "Signing In..." : "Sign In"}
             </Text>
           </TouchableOpacity>
 
-          {/* Sign Up Link */}
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
@@ -319,7 +319,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   loginButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
+    backgroundColor: "#CCCCCC",
   },
   loginButtonText: {
     color: "#FFFFFF",

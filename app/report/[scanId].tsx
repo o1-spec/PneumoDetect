@@ -4,14 +4,14 @@ import { router, useLocalSearchParams } from "expo-router";
 import * as Sharing from "expo-sharing";
 import React, { useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const mockScanData = {
@@ -399,18 +399,15 @@ export default function ReportScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={24} color="#0066CC" />
       </TouchableOpacity>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Scan ID Badge */}
         <View style={styles.idBadge}>
           <Text style={styles.idText}>{scanData.id}</Text>
         </View>
 
-        {/* Patient Info Card */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Patient Information</Text>
           <View style={styles.infoGrid}>
@@ -423,7 +420,6 @@ export default function ReportScreen() {
           </View>
         </View>
 
-        {/* Prediction Card */}
         <View
           style={[
             styles.predictionCard,
@@ -451,7 +447,6 @@ export default function ReportScreen() {
           </View>
         </View>
 
-        {/* Images */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Medical Images</Text>
           <View style={styles.imageGrid}>
@@ -472,13 +467,11 @@ export default function ReportScreen() {
           </View>
         </View>
 
-        {/* Clinical Notes */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Clinical Notes</Text>
           <Text style={styles.notesText}>{scanData.notes}</Text>
         </View>
 
-        {/* Disclaimer */}
         <View style={styles.disclaimerBox}>
           <View style={styles.disclaimerHeader}>
             <Ionicons name="warning" size={20} color="#856404" />
@@ -491,7 +484,6 @@ export default function ReportScreen() {
           </Text>
         </View>
 
-        {/* Action Buttons */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={styles.primaryButton}

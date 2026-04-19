@@ -1,16 +1,16 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  Linking,
+    Alert,
+    Linking,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function ContactScreen() {
   const [subject, setSubject] = useState("");
@@ -34,7 +34,7 @@ export default function ContactScreen() {
             router.back();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -52,7 +52,6 @@ export default function ContactScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -70,7 +69,6 @@ export default function ContactScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Contact Methods */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Get in Touch</Text>
           <View style={styles.card}>
@@ -88,7 +86,10 @@ export default function ContactScreen() {
               <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.contactMethod} onPress={handleEmail}>
+            <TouchableOpacity
+              style={styles.contactMethod}
+              onPress={handleEmail}
+            >
               <View style={styles.contactLeft}>
                 <View style={[styles.iconContainer, styles.emailIcon]}>
                   <Ionicons name="mail" size={24} color="#0066CC" />
@@ -96,7 +97,9 @@ export default function ContactScreen() {
                 <View style={styles.contactText}>
                   <Text style={styles.contactLabel}>Email Support</Text>
                   <Text style={styles.contactValue}>support@pneumoscan.ai</Text>
-                  <Text style={styles.contactHours}>Response within 24 hours</Text>
+                  <Text style={styles.contactHours}>
+                    Response within 24 hours
+                  </Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
@@ -121,7 +124,6 @@ export default function ContactScreen() {
           </View>
         </View>
 
-        {/* Send Message Form */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Send Us a Message</Text>
           <View style={styles.card}>
@@ -160,7 +162,6 @@ export default function ContactScreen() {
           </View>
         </View>
 
-        {/* Office Location */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Office Location</Text>
           <View style={styles.card}>
@@ -169,7 +170,9 @@ export default function ContactScreen() {
                 <Ionicons name="location" size={32} color="#0066CC" />
               </View>
               <View style={styles.locationText}>
-                <Text style={styles.locationName}>PneumoScan AI Headquarters</Text>
+                <Text style={styles.locationName}>
+                  PneumoScan AI Headquarters
+                </Text>
                 <Text style={styles.locationAddress}>
                   123 Medical Innovation Drive{"\n"}
                   Suite 400{"\n"}
@@ -181,7 +184,6 @@ export default function ContactScreen() {
           </View>
         </View>
 
-        {/* Social Media */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Follow Us</Text>
           <View style={styles.socialContainer}>

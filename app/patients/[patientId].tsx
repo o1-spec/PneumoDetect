@@ -223,7 +223,6 @@ export default function PatientDetailScreen() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <>
-            {/* Patient Info Card */}
             <View style={styles.patientCard}>
               <View style={styles.patientHeader}>
                 <View style={styles.patientAvatar}>
@@ -260,7 +259,6 @@ export default function PatientDetailScreen() {
               </View>
             </View>
 
-            {/* Scan Stats */}
             <View style={styles.statsContainer}>
               <View style={styles.statBox}>
                 <Text style={styles.statNumber}>{scans.length}</Text>
@@ -285,7 +283,6 @@ export default function PatientDetailScreen() {
               </View>
             </View>
 
-            {/* Upload Button */}
             <TouchableOpacity
               style={styles.uploadButton}
               onPress={handleUploadScan}
@@ -294,7 +291,6 @@ export default function PatientDetailScreen() {
               <Text style={styles.uploadButtonText}>Upload New Scan</Text>
             </TouchableOpacity>
 
-            {/* Scan History Header */}
             {scans.length > 0 && (
               <Text style={styles.sectionTitle}>Scan History</Text>
             )}

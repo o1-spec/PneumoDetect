@@ -1,93 +1,97 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
+  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-
-// Mock user data
-const MOCK_USERS = [
-  {
-    id: "1",
-    name: "Dr. Sarah Johnson",
-    email: "sarah.johnson@hospital.com",
-    role: "Clinician",
-    scansCount: 24,
-    lastActive: "2024-02-17",
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Dr. Michael Chen",
-    email: "michael.chen@hospital.com",
-    role: "Clinician",
-    scansCount: 18,
-    lastActive: "2024-02-16",
-    status: "active",
-  },
-  {
-    id: "3",
-    name: "Admin User",
-    email: "admin@pneumoscan.ai",
-    role: "Admin",
-    scansCount: 156,
-    lastActive: "2024-02-17",
-    status: "active",
-  },
-  {
-    id: "4",
-    name: "Dr. Emily Rodriguez",
-    email: "emily.r@hospital.com",
-    role: "Clinician",
-    scansCount: 42,
-    lastActive: "2024-02-15",
-    status: "active",
-  },
-  {
-    id: "5",
-    name: "Dr. James Wilson",
-    email: "j.wilson@hospital.com",
-    role: "Clinician",
-    scansCount: 8,
-    lastActive: "2024-02-10",
-    status: "inactive",
-  },
-];
+import { adminAPI } from "../../../services/api.client";
+import { getErrorMessage } from "../../../utils/errorHandler";
 
 export default function UsersScreen() {
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterRole, setFilterRole] = useState<"all" | "Clinician" | "Admin">(
+  const [filterRole, setFilterRole] = useState<"all" | "CLINICIAN" | "ADMIN">(
     "all",
   );
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // Add User Form State
-  const [newUserName, setNewUserName] = useState("");
-  const [newUserEmail, setNewUserEmail] = useState("");
-  const [newUserPassword, setNewUserPassword] = useState("");
-  const [newUserRole, setNewUserRole] = useState<"Clinician" | "Admin">(
-    "Clinician",
+  // Load users when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      loadUsers();
+    }, []),
   );
-  const [showPassword, setShowPassword] = useState(false);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await adminAPI.getAllUsers();
+      setUsers(data);
+    } catch (err) {
+      Alert.alert("Error", getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      const data = await adminAPI.getAllUsers();
+      setUsers(data);
+    } catch (err) {
+      Alert.alert("Error", getErrorMessage(err));
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = filterRole === "all" || user.role === filterRole;
     return matchesSearch && matchesRole;
   });
+
+  const handleToggleStatus = (userId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
+    Alert.alert(
+      "Change User Status",
+      `Are you sure you want to ${newStatus === "ACTIVE" ? "activate" : "suspend"} this user?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Confirm",
+          onPress: async () => {
+            try {
+              await adminAPI.toggleUserStatus(userId);
+              setUsers((prev) =>
+                prev.map((u) =>
+                  u.id === userId
+                    ? { ...u, isActive: newStatus === "ACTIVE" }
+                    : u,
+                ),
+              );
+              Alert.alert("Success", `User status changed to ${newStatus}`);
+            } catch (err) {
+              Alert.alert("Error", getErrorMessage(err));
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const handleDeleteUser = (userId: string, userName: string) => {
     Alert.alert(
@@ -98,91 +102,26 @@ export default function UsersScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            setUsers(users.filter((u) => u.id !== userId));
-            Alert.alert("Success", "User deleted successfully");
+          onPress: async () => {
+            try {
+              await adminAPI.deleteUser(userId);
+              setUsers((prev) => prev.filter((u) => u.id !== userId));
+              Alert.alert("Success", "User deleted successfully");
+            } catch (err) {
+              Alert.alert("Error", getErrorMessage(err));
+            }
           },
         },
       ],
     );
   };
 
-  const handleToggleStatus = (userId: string) => {
-    setUsers(
-      users.map((u) =>
-        u.id === userId
-          ? { ...u, status: u.status === "active" ? "inactive" : "active" }
-          : u,
-      ),
-    );
-  };
-
   const resetAddUserForm = () => {
-    setNewUserName("");
-    setNewUserEmail("");
-    setNewUserPassword("");
-    setNewUserRole("Clinician");
-    setShowPassword(false);
-  };
-
-  const handleAddUser = () => {
-    // Validation
-    if (!newUserName.trim()) {
-      Alert.alert("Error", "Please enter user's full name");
-      return;
-    }
-
-    if (!newUserEmail.trim()) {
-      Alert.alert("Error", "Please enter email address");
-      return;
-    }
-
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newUserEmail)) {
-      Alert.alert("Error", "Please enter a valid email address");
-      return;
-    }
-
-    if (!newUserPassword) {
-      Alert.alert("Error", "Please enter a password");
-      return;
-    }
-
-    if (newUserPassword.length < 6) {
-      Alert.alert("Error", "Password must be at least 6 characters");
-      return;
-    }
-
-    // Check if email already exists
-    if (
-      users.some((u) => u.email.toLowerCase() === newUserEmail.toLowerCase())
-    ) {
-      Alert.alert("Error", "A user with this email already exists");
-      return;
-    }
-
-    // Create new user
-    const newUser = {
-      id: (users.length + 1).toString(),
-      name: newUserName.trim(),
-      email: newUserEmail.trim().toLowerCase(),
-      role: newUserRole,
-      scansCount: 0,
-      lastActive: new Date().toISOString().split("T")[0],
-      status: "active",
-    };
-
-    setUsers([...users, newUser]);
     setShowAddModal(false);
-    resetAddUserForm();
-
-    Alert.alert("Success", `${newUserName} has been added successfully!`);
   };
 
-  const renderUserCard = ({ item }: { item: (typeof MOCK_USERS)[0] }) => (
+  const renderUserCard = ({ item }: { item: any }) => (
     <View style={styles.userCard}>
-      {/* User Avatar & Info */}
       <View style={styles.userHeader}>
         <View style={styles.avatarContainer}>
           <Ionicons name="person" size={32} color="#0066CC" />
@@ -193,61 +132,49 @@ export default function UsersScreen() {
             <View
               style={[
                 styles.statusBadge,
-                item.status === "active"
-                  ? styles.statusActive
-                  : styles.statusInactive,
+                item.isActive ? styles.statusActive : styles.statusInactive,
               ]}
             >
               <Text
                 style={[
                   styles.statusText,
-                  item.status === "active"
+                  item.isActive
                     ? styles.statusTextActive
                     : styles.statusTextInactive,
                 ]}
               >
-                {item.status}
+                {item.isActive ? "ACTIVE" : "SUSPENDED"}
               </Text>
             </View>
           </View>
           <Text style={styles.userEmail}>{item.email}</Text>
           <View style={styles.roleContainer}>
             <Ionicons
-              name={item.role === "Admin" ? "shield-checkmark" : "medical"}
+              name={item.role === "ADMIN" ? "shield-checkmark" : "medical"}
               size={14}
               color="#0066CC"
             />
-            <Text style={styles.roleText}>{item.role}</Text>
+            <Text style={styles.roleText}>
+              {item.role === "ADMIN" ? "Administrator" : "Clinician"}
+            </Text>
           </View>
         </View>
       </View>
 
-      {/* Stats */}
-      <View style={styles.statsRow}>
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{item.scansCount}</Text>
-          <Text style={styles.statLabel}>Scans</Text>
-        </View>
-        <View style={styles.statDivider} />
-        <View style={styles.statItem}>
-          <Text style={styles.statValue}>{item.lastActive}</Text>
-          <Text style={styles.statLabel}>Last Active</Text>
-        </View>
-      </View>
-
-      {/* Actions */}
       <View style={styles.actionButtons}>
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => handleToggleStatus(item.id)}
+          onPress={() =>
+            handleToggleStatus(item.id, item.isActive ? "ACTIVE" : "SUSPENDED")
+          }
         >
           <Ionicons
-            name={item.status === "active" ? "pause-circle" : "play-circle"}
+            name={item.isActive ? "pause-circle" : "play-circle"}
             size={20}
             color="#0066CC"
           />
           <Text style={styles.actionButtonText}>
-            {item.status === "active" ? "Deactivate" : "Activate"}
+            {item.isActive ? "Suspend" : "Activate"}
           </Text>
         </TouchableOpacity>
 
@@ -264,7 +191,6 @@ export default function UsersScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -280,16 +206,10 @@ export default function UsersScreen() {
               {filteredUsers.length === 1 ? "user" : "users"}
             </Text>
           </View>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setShowAddModal(true)}
-          >
-            <Ionicons name="person-add" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View style={styles.addButton} />
         </View>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
@@ -311,7 +231,6 @@ export default function UsersScreen() {
         )}
       </View>
 
-      {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[
@@ -333,248 +252,60 @@ export default function UsersScreen() {
         <TouchableOpacity
           style={[
             styles.filterButton,
-            filterRole === "Clinician" && styles.filterButtonActive,
+            filterRole === "CLINICIAN" && styles.filterButtonActive,
           ]}
-          onPress={() => setFilterRole("Clinician")}
+          onPress={() => setFilterRole("CLINICIAN")}
         >
           <Text
             style={[
               styles.filterButtonText,
-              filterRole === "Clinician" && styles.filterButtonTextActive,
+              filterRole === "CLINICIAN" && styles.filterButtonTextActive,
             ]}
           >
-            Clinicians ({users.filter((u) => u.role === "Clinician").length})
+            Clinicians ({users.filter((u) => u.role === "CLINICIAN").length})
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
             styles.filterButton,
-            filterRole === "Admin" && styles.filterButtonActive,
+            filterRole === "ADMIN" && styles.filterButtonActive,
           ]}
-          onPress={() => setFilterRole("Admin")}
+          onPress={() => setFilterRole("ADMIN")}
         >
           <Text
             style={[
               styles.filterButtonText,
-              filterRole === "Admin" && styles.filterButtonTextActive,
+              filterRole === "ADMIN" && styles.filterButtonTextActive,
             ]}
           >
-            Admins ({users.filter((u) => u.role === "Admin").length})
+            Admins ({users.filter((u) => u.role === "ADMIN").length})
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* User List */}
-      <FlatList
-        data={filteredUsers}
-        renderItem={renderUserCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="people-outline" size={64} color="#C7C7CC" />
-            <Text style={styles.emptyText}>No users found</Text>
-          </View>
-        }
-      />
-
-      {/* Add User Modal */}
-      <Modal
-        visible={showAddModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => {
-          setShowAddModal(false);
-          resetAddUserForm();
-        }}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.modalContainer}
-        >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => {
-              setShowAddModal(false);
-              resetAddUserForm();
-            }}
-          />
-
-          <View style={styles.modalContent}>
-            {/* Modal Header */}
-            <View style={styles.modalHeader}>
-              <View style={styles.modalTitleContainer}>
-                <Ionicons name="person-add" size={24} color="#0066CC" />
-                <Text style={styles.modalTitle}>Add New User</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => {
-                  setShowAddModal(false);
-                  resetAddUserForm();
-                }}
-                style={styles.closeButton}
-              >
-                <Ionicons name="close" size={24} color="#8E8E93" />
-              </TouchableOpacity>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0066CC" />
+        </View>
+      ) : (
+        <FlatList
+          data={filteredUsers}
+          renderItem={renderUserCard}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="people-outline" size={64} color="#C7C7CC" />
+              <Text style={styles.emptyText}>No users found</Text>
             </View>
-
-            <ScrollView
-              style={styles.modalForm}
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Full Name */}
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Full Name *</Text>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="person-outline" size={20} color="#8E8E93" />
-                  <TextInput
-                    style={styles.modalInput}
-                    placeholder="Enter full name"
-                    placeholderTextColor="#8E8E93"
-                    value={newUserName}
-                    onChangeText={setNewUserName}
-                    autoCapitalize="words"
-                  />
-                </View>
-              </View>
-
-              {/* Email */}
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Email Address *</Text>
-                <View style={styles.inputContainer}>
-                  <Ionicons name="mail-outline" size={20} color="#8E8E93" />
-                  <TextInput
-                    style={styles.modalInput}
-                    placeholder="email@example.com"
-                    placeholderTextColor="#8E8E93"
-                    value={newUserEmail}
-                    onChangeText={setNewUserEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                  />
-                </View>
-              </View>
-
-              {/* Password */}
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Password *</Text>
-                <View style={styles.inputContainer}>
-                  <Ionicons
-                    name="lock-closed-outline"
-                    size={20}
-                    color="#8E8E93"
-                  />
-                  <TextInput
-                    style={styles.modalInput}
-                    placeholder="Min. 6 characters"
-                    placeholderTextColor="#8E8E93"
-                    value={newUserPassword}
-                    onChangeText={setNewUserPassword}
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                  />
-                  <TouchableOpacity
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    <Ionicons
-                      name={showPassword ? "eye-outline" : "eye-off-outline"}
-                      size={20}
-                      color="#8E8E93"
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Role Selection */}
-              <View style={styles.formGroup}>
-                <Text style={styles.formLabel}>Role *</Text>
-                <View style={styles.roleSelection}>
-                  <TouchableOpacity
-                    style={[
-                      styles.roleOption,
-                      newUserRole === "Clinician" && styles.roleOptionActive,
-                    ]}
-                    onPress={() => setNewUserRole("Clinician")}
-                  >
-                    <Ionicons
-                      name="medical"
-                      size={20}
-                      color={
-                        newUserRole === "Clinician" ? "#FFFFFF" : "#0066CC"
-                      }
-                    />
-                    <Text
-                      style={[
-                        styles.roleOptionText,
-                        newUserRole === "Clinician" &&
-                          styles.roleOptionTextActive,
-                      ]}
-                    >
-                      Clinician
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.roleOption,
-                      newUserRole === "Admin" && styles.roleOptionActive,
-                    ]}
-                    onPress={() => setNewUserRole("Admin")}
-                  >
-                    <Ionicons
-                      name="shield-checkmark"
-                      size={20}
-                      color={newUserRole === "Admin" ? "#FFFFFF" : "#0066CC"}
-                    />
-                    <Text
-                      style={[
-                        styles.roleOptionText,
-                        newUserRole === "Admin" && styles.roleOptionTextActive,
-                      ]}
-                    >
-                      Admin
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Info Box */}
-              <View style={styles.infoBox}>
-                <Ionicons name="information-circle" size={20} color="#0066CC" />
-                <Text style={styles.infoText}>
-                  New users will be created with 'Active' status and can login
-                  immediately.
-                </Text>
-              </View>
-            </ScrollView>
-
-            {/* Modal Actions */}
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => {
-                  setShowAddModal(false);
-                  resetAddUserForm();
-                }}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleAddUser}
-              >
-                <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-                <Text style={styles.submitButtonText}>Add User</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -979,5 +710,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#FFFFFF",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

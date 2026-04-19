@@ -1,14 +1,14 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Linking,
+    Linking,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 const TEAM_MEMBERS = [
   {
@@ -75,7 +75,6 @@ export default function AboutScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -93,7 +92,6 @@ export default function AboutScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* App Info */}
         <View style={styles.appInfoSection}>
           <View style={styles.appIcon}>
             <Ionicons name="medical" size={48} color="#0066CC" />
@@ -105,7 +103,6 @@ export default function AboutScreen() {
           </Text>
         </View>
 
-        {/* Mission Statement */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Our Mission</Text>
           <View style={styles.card}>
@@ -118,7 +115,6 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Key Features */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Key Features</Text>
           <View style={styles.card}>
@@ -148,7 +144,6 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Team */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Our Team</Text>
           <View style={styles.teamGrid}>
@@ -173,7 +168,6 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Statistics */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Our Impact</Text>
           <View style={styles.statsGrid}>
@@ -196,7 +190,6 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Legal */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Legal & Compliance</Text>
           <View style={styles.card}>
@@ -204,7 +197,11 @@ export default function AboutScreen() {
               style={styles.legalItem}
               onPress={handlePrivacyPolicy}
             >
-              <Ionicons name="document-text-outline" size={20} color="#0066CC" />
+              <Ionicons
+                name="document-text-outline"
+                size={20}
+                color="#0066CC"
+              />
               <Text style={styles.legalText}>Privacy Policy</Text>
               <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
             </TouchableOpacity>
@@ -223,7 +220,6 @@ export default function AboutScreen() {
           </View>
         </View>
 
-        {/* Copyright */}
         <View style={styles.copyright}>
           <Text style={styles.copyrightText}>
             © 2024 PneumoScan AI. All rights reserved.

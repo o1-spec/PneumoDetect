@@ -1,17 +1,17 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
@@ -37,7 +37,7 @@ export default function ForgotPasswordScreen() {
       Alert.alert(
         "Success",
         "Password reset link has been sent to your email.",
-        [{ text: "OK", onPress: () => router.back() }]
+        [{ text: "OK", onPress: () => router.back() }],
       );
     }, 1500);
   };
@@ -51,7 +51,6 @@ export default function ForgotPasswordScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.iconContainer}>
             <Ionicons name="key-outline" size={48} color="#0066CC" />
@@ -63,9 +62,7 @@ export default function ForgotPasswordScreen() {
           </Text>
         </View>
 
-        {/* Form */}
         <View style={styles.form}>
-          {/* Email Input */}
           <View style={styles.inputContainer}>
             <Ionicons
               name="mail-outline"
@@ -85,7 +82,6 @@ export default function ForgotPasswordScreen() {
             />
           </View>
 
-          {/* Reset Button */}
           <TouchableOpacity
             style={[styles.resetButton, loading && styles.resetButtonDisabled]}
             onPress={handleResetPassword}
@@ -96,7 +92,6 @@ export default function ForgotPasswordScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* Back to Login */}
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -106,7 +101,6 @@ export default function ForgotPasswordScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Info Box */}
         <View style={styles.infoBox}>
           <Ionicons name="information-circle" size={20} color="#0066CC" />
           <Text style={styles.infoText}>

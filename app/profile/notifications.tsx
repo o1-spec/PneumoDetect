@@ -1,15 +1,15 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
-  Alert,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function NotificationsScreen() {
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -25,7 +25,6 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -43,7 +42,6 @@ export default function NotificationsScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Email Notifications */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Email Notifications</Text>
           <View style={styles.card}>
@@ -71,7 +69,6 @@ export default function NotificationsScreen() {
           </View>
         </View>
 
-        {/* Push Notifications */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Push Notifications</Text>
           <View style={styles.card}>
@@ -99,7 +96,6 @@ export default function NotificationsScreen() {
           </View>
         </View>
 
-        {/* Save Button */}
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
           <Text style={styles.saveButtonText}>Save Preferences</Text>

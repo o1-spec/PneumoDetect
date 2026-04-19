@@ -88,15 +88,12 @@ export default function CreatePatientScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Info Card */}
         <View style={styles.infoCard}>
           <Ionicons name="person-add" size={24} color="#0066CC" />
           <Text style={styles.infoText}>Add a new patient to the system</Text>
         </View>
 
-        {/* Form */}
         <View style={styles.form}>
-          {/* Patient ID */}
           <View style={styles.formGroup}>
             <Text style={styles.label}>
               Patient ID <Text style={styles.required}>*</Text>
@@ -129,7 +126,6 @@ export default function CreatePatientScreen() {
             )}
           </View>
 
-          {/* Full Name */}
           <View style={styles.formGroup}>
             <Text style={styles.label}>
               Full Name <Text style={styles.required}>*</Text>
@@ -157,9 +153,7 @@ export default function CreatePatientScreen() {
             {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
           </View>
 
-          {/* Age and Gender Row */}
           <View style={styles.row}>
-            {/* Age */}
             <View style={[styles.formGroup, { flex: 1 }]}>
               <Text style={styles.label}>
                 Age <Text style={styles.required}>*</Text>
@@ -192,7 +186,6 @@ export default function CreatePatientScreen() {
               {errors.age && <Text style={styles.errorText}>{errors.age}</Text>}
             </View>
 
-            {/* Gender */}
             <View style={[styles.formGroup, { flex: 1, marginLeft: 12 }]}>
               <Text style={styles.label}>Gender</Text>
               <View style={styles.genderButtons}>
@@ -246,7 +239,6 @@ export default function CreatePatientScreen() {
           </View>
         </View>
 
-        {/* Create Button */}
         <TouchableOpacity
           style={[styles.createButton, loading && styles.createButtonDisabled]}
           onPress={handleCreate}

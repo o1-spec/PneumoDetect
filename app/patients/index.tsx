@@ -73,12 +73,10 @@ export default function PatientsScreen() {
         })
       }
     >
-      {/* Patient Avatar */}
       <View style={styles.avatarContainer}>
         <Ionicons name="person-circle" size={50} color="#0066CC" />
       </View>
 
-      {/* Patient Info */}
       <View style={styles.patientInfo}>
         <Text style={styles.patientName}>{item.name}</Text>
         <Text style={styles.patientId}>ID: {item.idNumber}</Text>
@@ -89,7 +87,6 @@ export default function PatientsScreen() {
         </View>
       </View>
 
-      {/* Scan Count Badge */}
       {item.scans && item.scans.length > 0 && (
         <View style={styles.scanBadge}>
           <Text style={styles.scanBadgeText}>{item.scans.length}</Text>
@@ -97,7 +94,6 @@ export default function PatientsScreen() {
         </View>
       )}
 
-      {/* Chevron */}
       <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
     </TouchableOpacity>
   );
@@ -116,7 +112,6 @@ export default function PatientsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -141,7 +136,6 @@ export default function PatientsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
@@ -163,7 +157,6 @@ export default function PatientsScreen() {
         )}
       </View>
 
-      {/* Patients List */}
       <FlatList
         data={filteredPatients}
         renderItem={renderPatientCard}
@@ -176,7 +169,6 @@ export default function PatientsScreen() {
         }
       />
 
-      {/* Loading Overlay */}
       {loading && !refreshing && (
         <View style={styles.loadingOverlay}>
           <View style={styles.loadingBox}>

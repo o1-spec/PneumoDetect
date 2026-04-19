@@ -1,30 +1,59 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useContext, useState } from "react";
 import {
-  Alert,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { MenuItem } from "../../components/MenuItem";
+import { AuthContext } from "../../hooks/useAuth";
+import { analyticsAPI } from "../../services/api.client";
+import { AnalyticsStats } from "../../types/api";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function ProfileScreen() {
+  const authContext = useContext(AuthContext);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<AnalyticsStats | null>(null);
 
-  const [userName, setUserName] = useState("Dr. Sarah Johnson");
-  const [userEmail, setUserEmail] = useState("sarah.johnson@hospital.com");
-  const [userPhone, setUserPhone] = useState("+1 (555) 123-4567");
-  const [userSpecialization, setUserSpecialization] = useState("Radiology");
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPhone, setUserPhone] = useState("");
+  const [userSpecialization, setUserSpecialization] = useState("");
+
+  // Initialize form with user data from context
+  useFocusEffect(
+    useCallback(() => {
+      if (authContext?.user) {
+        setUserName(authContext.user.name || "");
+        setUserEmail(authContext.user.email || "");
+        setUserPhone(authContext.user.phone || "");
+        setUserSpecialization(authContext.user.specialization || "");
+      }
+      loadStats();
+    }, [authContext?.user]),
+  );
+
+  const loadStats = async () => {
+    try {
+      const data = await analyticsAPI.getStats();
+      setStats(data);
+    } catch (err) {
+      // Silent fail for stats
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
       "Logout",
-      "Are you sure you want to logout from PneumoScan AI?",
+      "Are you sure you want to logout from PneumoDetect?",
       [
         {
           text: "Cancel",
@@ -33,26 +62,35 @@ export default function ProfileScreen() {
         {
           text: "Logout",
           style: "destructive",
-          onPress: () => {
-            Alert.alert(
-              "Logged Out",
-              "You have been successfully logged out. See you soon!",
-              [
-                {
-                  text: "OK",
-                  onPress: () => router.replace("/(auth)/login"),
-                },
-              ],
-            );
+          onPress: async () => {
+            try {
+              await authContext?.logout();
+              router.replace("/(auth)/login");
+            } catch (err) {
+              Alert.alert("Error", getErrorMessage(err));
+            }
           },
         },
       ],
       { cancelable: true },
     );
   };
-  const handleSaveProfile = () => {
-    setShowEditModal(false);
-    Alert.alert("Success", "Profile updated successfully!");
+
+  const handleSaveProfile = async () => {
+    try {
+      setLoading(true);
+      await authContext?.updateProfile({
+        name: userName,
+        phone: userPhone,
+        specialization: userSpecialization,
+      });
+      setShowEditModal(false);
+      Alert.alert("Success", "Profile updated successfully!");
+    } catch (err) {
+      Alert.alert("Error", getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDownloadReports = () => {
@@ -69,41 +107,50 @@ export default function ProfileScreen() {
   return (
     <>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        {/* Top Spacer */}
         <View style={styles.topSpacer} />
 
-        {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
             <Ionicons name="person" size={60} color="#0066CC" />
           </View>
-          <Text style={styles.userName}>{userName}</Text>
-          <Text style={styles.userEmail}>{userEmail}</Text>
-          <View style={styles.roleBadge}>
-            <Ionicons name="shield-checkmark" size={14} color="#0066CC" />
-            <Text style={styles.roleText}>Admin</Text>
-          </View>
+          <Text style={styles.userName}>
+            {authContext?.user?.name || "User"}
+          </Text>
+          <Text style={styles.userEmail}>{authContext?.user?.email || ""}</Text>
+          {authContext?.user?.role && (
+            <View style={styles.roleBadge}>
+              <Ionicons name="shield-checkmark" size={14} color="#0066CC" />
+              <Text style={styles.roleText}>
+                {authContext.user.role === "ADMIN"
+                  ? "Administrator"
+                  : "Clinician"}
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>156</Text>
+            <Text style={styles.statValue}>{stats?.totalScans || 0}</Text>
             <Text style={styles.statLabel}>Total Scans</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>94.5%</Text>
-            <Text style={styles.statLabel}>Accuracy</Text>
+            <Text style={styles.statValue}>
+              {stats?.averageConfidence
+                ? Math.round(stats.averageConfidence)
+                : 0}
+              %
+            </Text>
+            <Text style={styles.statLabel}>Avg Confidence</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>24</Text>
-            <Text style={styles.statLabel}>This Month</Text>
+            <Text style={styles.statValue}>{stats?.completedScans || 0}</Text>
+            <Text style={styles.statLabel}>Completed</Text>
           </View>
         </View>
 
-        {/* Menu Sections */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
           <View style={styles.menuCard}>
@@ -158,7 +205,6 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#D32F2F" />
           <Text style={styles.logoutText}>Logout</Text>
@@ -167,7 +213,6 @@ export default function ProfileScreen() {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* Edit Profile Modal */}
       <Modal
         visible={showEditModal}
         animationType="slide"

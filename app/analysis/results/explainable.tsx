@@ -26,7 +26,6 @@ export default function ExplainableAIScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -39,7 +38,6 @@ export default function ExplainableAIScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Info Card */}
         <View style={styles.infoCard}>
           <Ionicons name="bulb" size={24} color="#0066CC" />
           <View style={styles.infoTextContainer}>
@@ -51,15 +49,12 @@ export default function ExplainableAIScreen() {
           </View>
         </View>
 
-        {/* Image Viewer */}
         <View style={styles.imageContainer}>
-          {/* Original X-Ray */}
           <Image
             source={{ uri: imageUri as string }}
             style={styles.baseImage}
           />
 
-          {/* Heatmap Overlay */}
           {showHeatmap && (
             <Image
               source={{ uri: heatmapUri }}
@@ -68,11 +63,9 @@ export default function ExplainableAIScreen() {
           )}
         </View>
 
-        {/* Controls */}
         <View style={styles.controlsCard}>
           <Text style={styles.controlsTitle}>Visualization Controls</Text>
 
-          {/* Toggle Heatmap */}
           <View style={styles.controlRow}>
             <View style={styles.controlLabel}>
               <Ionicons name="eye-outline" size={20} color="#636366" />
@@ -86,7 +79,6 @@ export default function ExplainableAIScreen() {
             />
           </View>
 
-          {/* Opacity Slider */}
           {showHeatmap && (
             <View style={styles.sliderContainer}>
               <View style={styles.sliderHeader}>
@@ -109,7 +101,6 @@ export default function ExplainableAIScreen() {
           )}
         </View>
 
-        {/* Prediction Summary */}
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>AI Analysis Summary</Text>
           <View style={styles.summaryRow}>
@@ -129,7 +120,6 @@ export default function ExplainableAIScreen() {
           </View>
         </View>
 
-        {/* Explanation */}
         <View style={styles.explanationCard}>
           <Text style={styles.explanationTitle}>📋 Interpretation Guide</Text>
           <View style={styles.explanationItem}>
@@ -155,7 +145,6 @@ export default function ExplainableAIScreen() {
           </View>
         </View>
 
-        {/* Clinical Note */}
         {isPneumonia && (
           <View style={styles.clinicalNote}>
             <Ionicons name="medical" size={20} color="#D32F2F" />

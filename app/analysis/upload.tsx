@@ -3,13 +3,13 @@ import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 export default function UploadScreen() {
@@ -82,7 +82,6 @@ export default function UploadScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Enhanced Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -103,7 +102,6 @@ export default function UploadScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Instructions */}
         <View style={styles.instructionsCard}>
           <View style={styles.instructionsHeader}>
             <Ionicons name="information-circle" size={24} color="#0066CC" />
@@ -137,7 +135,6 @@ export default function UploadScreen() {
           </View>
         </View>
 
-        {/* Image Preview */}
         <View style={styles.previewCard}>
           {selectedImage ? (
             <View style={styles.imagePreviewContainer}>
@@ -169,7 +166,6 @@ export default function UploadScreen() {
           )}
         </View>
 
-        {/* Upload Options */}
         <View style={styles.uploadOptions}>
           <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
             <Ionicons name="folder-open-outline" size={24} color="#FFFFFF" />
@@ -191,7 +187,6 @@ export default function UploadScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Sample Images Info */}
         <View style={styles.sampleCard}>
           <View style={styles.sampleHeader}>
             <Text style={styles.sampleIcon}>📷</Text>
@@ -203,7 +198,6 @@ export default function UploadScreen() {
           </Text>
         </View>
 
-        {/* Continue Button */}
         <TouchableOpacity
           style={[
             styles.continueButton,

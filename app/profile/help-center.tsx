@@ -1,14 +1,14 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 const FAQ_DATA = [
   {
@@ -72,7 +72,6 @@ export default function HelpCenterScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -90,7 +89,6 @@ export default function HelpCenterScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActions}>
@@ -111,7 +109,6 @@ export default function HelpCenterScreen() {
           </View>
         </View>
 
-        {/* Video Tutorials */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Video Tutorials</Text>
           <View style={styles.card}>
@@ -123,7 +120,11 @@ export default function HelpCenterScreen() {
               >
                 <View style={styles.tutorialLeft}>
                   <View style={styles.tutorialIcon}>
-                    <Ionicons name={item.icon as any} size={24} color="#0066CC" />
+                    <Ionicons
+                      name={item.icon as any}
+                      size={24}
+                      color="#0066CC"
+                    />
                   </View>
                   <View style={styles.tutorialText}>
                     <Text style={styles.tutorialTitle}>{item.title}</Text>
@@ -138,7 +139,6 @@ export default function HelpCenterScreen() {
           </View>
         </View>
 
-        {/* FAQ */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
           <View style={styles.card}>

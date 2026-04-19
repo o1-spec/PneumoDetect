@@ -1,7 +1,18 @@
-import React, { createContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../services/api';
-import { User, LoginRequest, RegisterRequest, AuthResponse } from '../types/api';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {
+    createContext,
+    ReactNode,
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
+import api from "../services/api";
+import {
+    AuthResponse,
+    LoginRequest,
+    RegisterRequest,
+    User,
+} from "../types/api";
 
 interface AuthContextType {
   user: User | null;
@@ -14,7 +25,9 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(
+  undefined,
+);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -24,12 +37,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state on app start
   useEffect(() => {
     bootstrapAsync();
   }, []);
 
-  // Set up global logout event handler
   useEffect(() => {
     global.authLogoutEvent = handleLogoutEvent;
     return () => {
@@ -39,15 +50,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const bootstrapAsync = async () => {
     try {
-      // Try to restore token and fetch user data
-      const token = await AsyncStorage.getItem('authToken');
-      const userData = await AsyncStorage.getItem('userData');
+      const token = await AsyncStorage.getItem("authToken");
+      const userData = await AsyncStorage.getItem("userData");
 
       if (token && userData) {
         setUser(JSON.parse(userData));
       }
     } catch (e) {
-      console.warn('Failed to restore session:', e);
+      console.warn("Failed to restore session:", e);
     } finally {
       setIsLoading(false);
     }
@@ -55,46 +65,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = useCallback(async (credentials: LoginRequest) => {
     try {
-      const response = await api.post<AuthResponse>('/auth/login', credentials);
+      const response = await api.post<AuthResponse>("/auth/login", credentials);
       const { access_token, user: userData } = response.data;
 
-      // Store token and user data
-      await AsyncStorage.setItem('authToken', access_token);
-      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      await AsyncStorage.setItem("authToken", access_token);
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
 
       setUser(userData);
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error("Login failed:", error);
       throw error;
     }
   }, []);
 
   const register = useCallback(async (data: RegisterRequest) => {
     try {
-      const response = await api.post<AuthResponse>('/auth/register', data);
+      const response = await api.post<AuthResponse>("/auth/register", data);
       const { access_token, user: userData } = response.data;
 
-      // Store token and user data
-      await AsyncStorage.setItem('authToken', access_token);
-      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      await AsyncStorage.setItem("authToken", access_token);
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
 
       setUser(userData);
     } catch (error) {
-      console.error('Registration failed:', error);
+      console.error("Registration failed:", error);
       throw error;
     }
   }, []);
 
   const logout = useCallback(async () => {
     try {
-      // Call logout endpoint
-      await api.post('/auth/logout');
+      await api.post("/auth/logout");
     } catch (error) {
-      console.warn('Logout API call failed:', error);
+      console.warn("Logout API call failed:", error);
     } finally {
-      // Clear local storage regardless of API call result
-      await AsyncStorage.removeItem('authToken');
-      await AsyncStorage.removeItem('userData');
+      await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem("userData");
       setUser(null);
     }
   }, []);
@@ -105,27 +111,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateProfile = useCallback(async (data: Partial<User>) => {
     try {
-      const response = await api.patch<User>('/users/profile', data);
+      const response = await api.patch<User>("/users/profile", data);
       const updatedUser = response.data;
 
-      // Update state and storage
       setUser(updatedUser);
-      await AsyncStorage.setItem('userData', JSON.stringify(updatedUser));
+      await AsyncStorage.setItem("userData", JSON.stringify(updatedUser));
     } catch (error) {
-      console.error('Profile update failed:', error);
+      console.error("Profile update failed:", error);
       throw error;
     }
   }, []);
 
   const refreshUser = useCallback(async () => {
     try {
-      const response = await api.get<User>('/users/me');
+      const response = await api.get<User>("/users/me");
       const userData = response.data;
 
       setUser(userData);
-      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      await AsyncStorage.setItem("userData", JSON.stringify(userData));
     } catch (error) {
-      console.error('Failed to refresh user:', error);
+      console.error("Failed to refresh user:", error);
       throw error;
     }
   }, []);
@@ -150,7 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 export const useAuth = () => {
   const context = React.useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

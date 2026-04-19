@@ -1,8 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
+  Alert,
   Dimensions,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,58 +12,94 @@ import {
   View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { AuthContext } from "../../hooks/useAuth";
+import { analyticsAPI, scansAPI } from "../../services/api.client";
+import { AnalyticsStats, Scan } from "../../types/api";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 const screenWidth = Dimensions.get("window").width;
 
-// Mock statistics
-const stats = {
-  totalScans: 156,
-  pneumoniaDetected: 42,
-  normalScans: 114,
-  accuracy: 94.5,
-  todayScans: 8,
-  weeklyGrowth: 12.5,
-};
-
-const recentScans = [
-  {
-    id: "SCAN-2024-001",
-    patient: "John Doe",
-    date: "2024-02-17",
-    result: "Pneumonia",
-    confidence: 94.5,
-  },
-  {
-    id: "SCAN-2024-002",
-    patient: "Jane Smith",
-    date: "2024-02-17",
-    result: "Normal",
-    confidence: 88.2,
-  },
-  {
-    id: "SCAN-2024-003",
-    patient: "Robert Lee",
-    date: "2024-02-16",
-    result: "Pneumonia",
-    confidence: 91.8,
-  },
-];
-
-const chartData = {
-  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-  datasets: [
-    {
-      data: [12, 15, 18, 14, 20, 16, 8],
-      color: (opacity = 1) => `rgba(0, 102, 204, ${opacity})`,
-      strokeWidth: 2,
-    },
-  ],
-};
-
 export default function DashboardScreen() {
+  const [stats, setStats] = useState<AnalyticsStats | null>(null);
+  const [recentScans, setRecentScans] = useState<Scan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const authContext = useContext(AuthContext);
+  const userDisplayName = authContext?.user?.name || "Doctor";
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [analyticsData, scansData] = await Promise.all([
+        analyticsAPI.getStats(),
+        scansAPI.getAll(),
+      ]);
+
+      setStats(analyticsData);
+      const recent = scansData.slice(0, 3);
+      setRecentScans(recent);
+    } catch (error) {
+      console.error("Failed to load dashboard data:", error);
+      Alert.alert("Error", getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await loadDashboardData();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const chartData = {
+    labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    datasets: [
+      {
+        data: [12, 15, 18, 14, 20, 16, 8],
+        color: (opacity = 1) => `rgba(0, 102, 204, ${opacity})`,
+        strokeWidth: 2,
+      },
+    ],
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <View>
+              <Text style={styles.headerTitle}>Dashboard</Text>
+              <Text style={styles.headerSubtitle}>Track your scans</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => router.push("/notifications")}
+            >
+              <Ionicons name="notifications" size={24} color="#0066CC" />
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>3</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading dashboard...</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {/* Header with Notification Bell */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
@@ -83,19 +121,20 @@ export default function DashboardScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
       >
-        {/* Welcome Card */}
         <View style={styles.welcomeCard}>
           <View>
             <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.userName}>Dr. Sarah Johnson</Text>
+            <Text style={styles.userName}>{userDisplayName}</Text>
           </View>
           <View style={styles.iconContainer}>
             <Ionicons name="medical" size={40} color="#0066CC" />
           </View>
         </View>
 
-        {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.quickActions}>
@@ -141,43 +180,41 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Statistics Grid */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Overview</Text>
           <View style={styles.statsGrid}>
             <View style={[styles.statCard, styles.totalCard]}>
               <Ionicons name="document-text" size={24} color="#0066CC" />
-              <Text style={styles.statValue}>{stats.totalScans}</Text>
+              <Text style={styles.statValue}>{stats?.totalScans || 0}</Text>
               <Text style={styles.statLabel}>Total Scans</Text>
             </View>
 
             <View style={[styles.statCard, styles.dangerCard]}>
               <Ionicons name="warning" size={24} color="#D32F2F" />
               <Text style={[styles.statValue, styles.dangerText]}>
-                {stats.pneumoniaDetected}
+                {stats?.failedScans || 0}
               </Text>
-              <Text style={styles.statLabel}>Pneumonia</Text>
+              <Text style={styles.statLabel}>Failed</Text>
             </View>
 
             <View style={[styles.statCard, styles.safeCard]}>
               <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
               <Text style={[styles.statValue, styles.safeText]}>
-                {stats.normalScans}
+                {stats?.completedScans || 0}
               </Text>
-              <Text style={styles.statLabel}>Normal</Text>
+              <Text style={styles.statLabel}>Completed</Text>
             </View>
 
             <View style={[styles.statCard, styles.accuracyCard]}>
-              <Ionicons name="star" size={24} color="#FF9800" />
+              <Ionicons name="time" size={24} color="#FF9800" />
               <Text style={[styles.statValue, styles.accuracyText]}>
-                {stats.accuracy}%
+                {stats?.processingScans || 0}
               </Text>
-              <Text style={styles.statLabel}>Accuracy</Text>
+              <Text style={styles.statLabel}>Processing</Text>
             </View>
           </View>
         </View>
 
-        {/* Weekly Activity Chart */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Weekly Activity</Text>
           <View style={styles.chartCard}>
@@ -209,14 +246,11 @@ export default function DashboardScreen() {
                 <View style={styles.legendDot} />
                 <Text style={styles.legendText}>Scans per day</Text>
               </View>
-              <Text style={styles.chartSubtext}>
-                ↑ {stats.weeklyGrowth}% vs last week
-              </Text>
+              <Text style={styles.chartSubtext}>↑ 12.5% vs last week</Text>
             </View>
           </View>
         </View>
 
-        {/* Recent Scans */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Scans</Text>
@@ -239,12 +273,14 @@ export default function DashboardScreen() {
               <View style={styles.scanHeader}>
                 <View>
                   <Text style={styles.scanId}>{scan.id}</Text>
-                  <Text style={styles.patientName}>{scan.patient}</Text>
+                  <Text style={styles.patientName}>
+                    {scan.patient?.name || "Unknown Patient"}
+                  </Text>
                 </View>
                 <View
                   style={[
                     styles.resultBadge,
-                    scan.result === "Pneumonia"
+                    scan.result === "PNEUMONIA"
                       ? styles.resultDanger
                       : styles.resultSafe,
                   ]}
@@ -252,29 +288,28 @@ export default function DashboardScreen() {
                   <Text
                     style={[
                       styles.resultText,
-                      scan.result === "Pneumonia"
+                      scan.result === "PNEUMONIA"
                         ? styles.resultTextDanger
                         : styles.resultTextSafe,
                     ]}
                   >
-                    {scan.result}
+                    {scan.result === "PNEUMONIA" ? "POSITIVE" : "NEGATIVE"}
                   </Text>
                 </View>
               </View>
               <View style={styles.scanFooter}>
                 <Text style={styles.scanDate}>
                   <Ionicons name="calendar-outline" size={12} color="#8E8E93" />{" "}
-                  {scan.date}
+                  {new Date(scan.createdAt).toLocaleDateString()}
                 </Text>
                 <Text style={styles.scanConfidence}>
-                  {scan.confidence}% confidence
+                  {scan.confidence || 0}% confidence
                 </Text>
               </View>
             </TouchableOpacity>
           ))}
         </View>
 
-        {/* System Status */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>System Status</Text>
           <View style={styles.statusCard}>
@@ -659,5 +694,15 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#8E8E93",
+    marginTop: 8,
   },
 });

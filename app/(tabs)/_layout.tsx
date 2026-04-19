@@ -24,7 +24,6 @@ export default function TabLayout() {
         headerShown: false,
       }}
     >
-      {/* Dashboard Tab */}
       <Tabs.Screen
         name="index"
         options={{
@@ -35,7 +34,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* New Scan Tab */}
       <Tabs.Screen
         name="scan"
         options={{
@@ -46,7 +44,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* History Tab */}
       <Tabs.Screen
         name="history"
         options={{
@@ -57,7 +54,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Profile Tab */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -68,7 +64,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Admin Screens (hidden from tab bar) */}
       <Tabs.Screen
         name="(admin)"
         options={{

@@ -1,27 +1,23 @@
-import { Link, Stack } from "expo-router";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Link, Stack } from "expo-router";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function NotFoundScreen() {
   return (
     <>
       <Stack.Screen options={{ title: "Oops! Page Not Found" }} />
       <View style={styles.container}>
-        {/* 404 Icon */}
         <View style={styles.iconContainer}>
           <Ionicons name="alert-circle-outline" size={120} color="#0066CC" />
         </View>
 
-        {/* Error Code */}
         <Text style={styles.errorCode}>404</Text>
 
-        {/* Error Message */}
         <Text style={styles.title}>Page Not Found</Text>
         <Text style={styles.description}>
           The page you're looking for doesn't exist or has been moved.
         </Text>
 
-        {/* Action Buttons */}
         <View style={styles.buttonContainer}>
           <Link href="/(tabs)" asChild>
             <TouchableOpacity style={styles.primaryButton}>
@@ -38,7 +34,6 @@ export default function NotFoundScreen() {
           </Link>
         </View>
 
-        {/* Help Text */}
         <View style={styles.helpContainer}>
           <Ionicons name="information-circle" size={16} color="#8E8E93" />
           <Text style={styles.helpText}>
