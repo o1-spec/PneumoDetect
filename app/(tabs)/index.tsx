@@ -30,6 +30,7 @@ export default function DashboardScreen() {
 
   const authContext = useContext(AuthContext);
   const userDisplayName = authContext?.user?.name || "Doctor";
+  const isAdmin = authContext?.user?.role === "ADMIN";
 
   useEffect(() => {
     loadDashboardData();
@@ -183,15 +184,17 @@ export default function DashboardScreen() {
               <Text style={styles.actionText}>Analytics</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.actionCard}
-              onPress={() => router.push("/(tabs)/(admin)/users")}
-            >
-              <View style={[styles.actionIcon, styles.quaternaryBg]}>
-                <Ionicons name="people" size={32} color="#FFFFFF" />
-              </View>
-              <Text style={styles.actionText}>Users</Text>
-            </TouchableOpacity>
+            {isAdmin && (
+              <TouchableOpacity
+                style={styles.actionCard}
+                onPress={() => router.push("/(tabs)/(admin)/users")}
+              >
+                <View style={[styles.actionIcon, styles.quaternaryBg]}>
+                  <Ionicons name="people" size={32} color="#FFFFFF" />
+                </View>
+                <Text style={styles.actionText}>Users</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 

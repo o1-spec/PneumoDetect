@@ -1,12 +1,20 @@
 import api from "../services/api";
 import {
-  AnalyticsStats,
-  CreatePatientRequest,
-  Notification,
-  Patient,
-  Scan,
-  UpdateNotificationRequest,
-  User,
+    ActivityTimeline,
+    AnalyticsStats,
+    CreatePatientRequest,
+    DashboardMetrics,
+    DoctorAnalytics,
+    LoginRecord,
+    ModelPerformance,
+    Notification,
+    Patient,
+    PatientAnalytics,
+    Scan,
+    ScanResultStatistics,
+    UpdateNotificationRequest,
+    User,
+    UserActivity,
 } from "../types/api";
 
 /**
@@ -96,6 +104,57 @@ export const analyticsAPI = {
     const response = await api.get<AnalyticsStats>("/analytics/stats");
     return response.data;
   },
+
+  getDashboard: async (): Promise<DashboardMetrics> => {
+    const response = await api.get<DashboardMetrics>("/analytics/dashboard");
+    return response.data;
+  },
+
+  getScanResults: async (params?: {
+    dateFrom?: string;
+    dateTo?: string;
+    groupBy?: "day" | "week" | "month";
+  }): Promise<ScanResultStatistics> => {
+    const response = await api.get<ScanResultStatistics>(
+      "/analytics/scans/results",
+      {
+        params,
+      },
+    );
+    return response.data;
+  },
+
+  getPatientAnalytics: async (): Promise<PatientAnalytics> => {
+    const response = await api.get<PatientAnalytics>("/analytics/patients");
+    return response.data;
+  },
+
+  getDoctorAnalytics: async (): Promise<DoctorAnalytics> => {
+    const response = await api.get<DoctorAnalytics>("/analytics/doctors");
+    return response.data;
+  },
+
+  getModelPerformance: async (): Promise<ModelPerformance> => {
+    const response = await api.get<ModelPerformance>(
+      "/analytics/model-performance",
+    );
+    return response.data;
+  },
+
+  getActivityTimeline: async (params?: {
+    userId?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    type?: string;
+  }): Promise<ActivityTimeline> => {
+    const response = await api.get<ActivityTimeline>(
+      "/analytics/activity-timeline",
+      {
+        params,
+      },
+    );
+    return response.data;
+  },
 };
 
 /**
@@ -169,5 +228,20 @@ export const messagesAPI = {
       subject,
       message,
     });
+  },
+};
+
+/**
+ * Activity API
+ */
+export const activityAPI = {
+  getHistory: async (): Promise<UserActivity> => {
+    const response = await api.get<UserActivity>("/users/activity");
+    return response.data;
+  },
+
+  getLoginHistory: async (): Promise<LoginRecord[]> => {
+    const response = await api.get<LoginRecord[]>("/users/activity/login");
+    return Array.isArray(response.data) ? response.data : [];
   },
 };

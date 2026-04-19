@@ -1,92 +1,79 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
-// Mock history data
-const MOCK_HISTORY = [
-  {
-    id: "SCAN-2024-001",
-    patientName: "John Doe",
-    patientId: "PT-12345",
-    date: "2024-02-17",
-    time: "14:30",
-    result: "PNEUMONIA",
-    confidence: 94.5,
-    status: "COMPLETED",
-    imageUri: "https://via.placeholder.com/80x80/0066CC/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-002",
-    patientName: "Jane Smith",
-    patientId: "PT-12346",
-    date: "2024-02-17",
-    time: "13:15",
-    result: "NORMAL",
-    confidence: 88.2,
-    status: "COMPLETED",
-    imageUri: "https://via.placeholder.com/80x80/4CAF50/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-003",
-    patientName: "Robert Johnson",
-    patientId: "PT-12347",
-    date: "2024-02-16",
-    time: "16:45",
-    result: "PNEUMONIA",
-    confidence: 91.8,
-    status: "COMPLETED",
-    imageUri: "https://via.placeholder.com/80x80/0066CC/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-004",
-    patientName: "Maria Garcia",
-    patientId: "PT-12348",
-    date: "2024-02-16",
-    time: "11:20",
-    result: "NORMAL",
-    confidence: 92.4,
-    status: "COMPLETED",
-    imageUri: "https://via.placeholder.com/80x80/4CAF50/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-005",
-    patientName: "David Lee",
-    patientId: "PT-12349",
-    date: "2024-02-15",
-    time: "09:30",
-    result: "PNEUMONIA",
-    confidence: 87.6,
-    status: "COMPLETED",
-    imageUri: "https://via.placeholder.com/80x80/0066CC/FFFFFF?text=X-Ray",
-  },
-];
+import { scansAPI } from "../../services/api.client";
+import { Scan } from "../../types/api";
+import { formatDate, formatTime } from "../../utils/dateFormatter";
 
 export default function HistoryScreen() {
+  const [scans, setScans] = useState<Scan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "PNEUMONIA" | "NORMAL"
   >("all");
 
-  const filteredHistory = MOCK_HISTORY.filter((item) => {
+  useFocusEffect(
+    useCallback(() => {
+      loadScans();
+    }, []),
+  );
+
+  const loadScans = async () => {
+    try {
+      setLoading(true);
+      const data = await scansAPI.getAll();
+      setScans(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error loading scans:", error);
+      Alert.alert("Error", "Failed to load scan history");
+      setScans([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      const data = await scansAPI.getAll();
+      setScans(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Error refreshing scans:", error);
+      Alert.alert("Error", "Failed to refresh scan history");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const filteredHistory = scans.filter((scan) => {
     const matchesSearch =
-      item.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.id.toLowerCase().includes(searchQuery.toLowerCase());
+      (scan.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ??
+        false) ||
+      (scan.patient?.idNumber
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ??
+        false) ||
+      scan.id.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter =
-      filterStatus === "all" || item.result === filterStatus;
+      filterStatus === "all" || scan.result === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const renderHistoryItem = ({ item }: { item: (typeof MOCK_HISTORY)[0] }) => {
+  const renderHistoryItem = ({ item }: { item: Scan }) => {
     const isPneumonia = item.result === "PNEUMONIA";
 
     return (
@@ -99,7 +86,7 @@ export default function HistoryScreen() {
           })
         }
       >
-        <Image source={{ uri: item.imageUri }} style={styles.thumbnail} />
+        <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />
 
         <View style={styles.historyInfo}>
           <View style={styles.historyHeader}>
@@ -118,17 +105,23 @@ export default function HistoryScreen() {
             </View>
           </View>
 
-          <Text style={styles.patientName}>{item.patientName}</Text>
-          <Text style={styles.patientId}>ID: {item.patientId}</Text>
+          <Text style={styles.patientName}>
+            {item.patient?.name || "Unknown"}
+          </Text>
+          <Text style={styles.patientId}>
+            ID: {item.patient?.idNumber || "N/A"}
+          </Text>
 
           <View style={styles.historyFooter}>
             <View style={styles.dateTime}>
               <Ionicons name="calendar-outline" size={12} color="#8E8E93" />
-              <Text style={styles.dateText}>{item.date}</Text>
+              <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
               <Ionicons name="time-outline" size={12} color="#8E8E93" />
-              <Text style={styles.timeText}>{item.time}</Text>
+              <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
             </View>
-            <Text style={styles.confidence}>{item.confidence}%</Text>
+            <Text style={styles.confidence}>
+              {item.confidence?.toFixed(1)}%
+            </Text>
           </View>
         </View>
 
@@ -137,24 +130,32 @@ export default function HistoryScreen() {
     );
   };
 
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#0066CC" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.topSpacer} />
 
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
-          <Text style={styles.statValue}>{MOCK_HISTORY.length}</Text>
+          <Text style={styles.statValue}>{scans.length}</Text>
           <Text style={styles.statLabel}>Total</Text>
         </View>
         <View style={[styles.statBox, styles.dangerBox]}>
           <Text style={[styles.statValue, styles.dangerText]}>
-            {MOCK_HISTORY.filter((s) => s.result === "PNEUMONIA").length}
+            {scans.filter((s) => s.result === "PNEUMONIA").length}
           </Text>
           <Text style={styles.statLabel}>Pneumonia</Text>
         </View>
         <View style={[styles.statBox, styles.safeBox]}>
           <Text style={[styles.statValue, styles.safeText]}>
-            {MOCK_HISTORY.filter((s) => s.result === "NORMAL").length}
+            {scans.filter((s) => s.result === "NORMAL").length}
           </Text>
           <Text style={styles.statLabel}>Normal</Text>
         </View>
@@ -240,6 +241,9 @@ export default function HistoryScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="folder-open-outline" size={64} color="#C7C7CC" />
@@ -255,6 +259,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5F5F7",
+  },
+  centerContent: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   topSpacer: {
     height: 60,

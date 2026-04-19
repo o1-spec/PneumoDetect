@@ -1,95 +1,81 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Image,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
-// Mock scan data
-const MOCK_SCANS = [
-  {
-    id: "SCAN-2024-001",
-    patientName: "John Doe",
-    patientId: "PT-12345",
-    date: "2024-02-17",
-    time: "14:30",
-    result: "PNEUMONIA",
-    confidence: 94.5,
-    clinician: "Dr. Sarah Johnson",
-    imageUri: "https://via.placeholder.com/100x100/0066CC/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-002",
-    patientName: "Jane Smith",
-    patientId: "PT-12346",
-    date: "2024-02-17",
-    time: "13:15",
-    result: "NORMAL",
-    confidence: 88.2,
-    clinician: "Dr. Michael Chen",
-    imageUri: "https://via.placeholder.com/100x100/4CAF50/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-003",
-    patientName: "Robert Johnson",
-    patientId: "PT-12347",
-    date: "2024-02-16",
-    time: "16:45",
-    result: "PNEUMONIA",
-    confidence: 91.8,
-    clinician: "Dr. Emily Rodriguez",
-    imageUri: "https://via.placeholder.com/100x100/0066CC/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-004",
-    patientName: "Maria Garcia",
-    patientId: "PT-12348",
-    date: "2024-02-16",
-    time: "11:20",
-    result: "NORMAL",
-    confidence: 92.4,
-    clinician: "Dr. Sarah Johnson",
-    imageUri: "https://via.placeholder.com/100x100/4CAF50/FFFFFF?text=X-Ray",
-  },
-  {
-    id: "SCAN-2024-005",
-    patientName: "David Lee",
-    patientId: "PT-12349",
-    date: "2024-02-15",
-    time: "09:30",
-    result: "PNEUMONIA",
-    confidence: 87.6,
-    clinician: "Dr. James Wilson",
-    imageUri: "https://via.placeholder.com/100x100/0066CC/FFFFFF?text=X-Ray",
-  },
-];
+import { useToast } from "../../../hooks/useToast";
+import { scansAPI } from "../../../services/api.client";
+import { Scan } from "../../../types/api";
+import { formatDate, formatTime } from "../../../utils/dateFormatter";
+import { getErrorMessage } from "../../../utils/errorHandler";
 
 export default function AllScansScreen() {
-  const [scans, setScans] = useState(MOCK_SCANS);
+  const { success, error: showError } = useToast();
+  const [scans, setScans] = useState<Scan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "PNEUMONIA" | "NORMAL"
   >("all");
 
-  const filteredScans = scans.filter((scan) => {
+  useFocusEffect(
+    useCallback(() => {
+      loadScans();
+    }, []),
+  );
+
+  const loadScans = async () => {
+    try {
+      setLoading(true);
+      const data = await scansAPI.getAll();
+      setScans(Array.isArray(data) ? data : []);
+    } catch (err) {
+      showError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    try {
+      setRefreshing(true);
+      const data = await scansAPI.getAll();
+      setScans(Array.isArray(data) ? data : []);
+      success("Scans refreshed");
+    } catch (err) {
+      showError(getErrorMessage(err));
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const filteredScans = scans.filter((scan: Scan) => {
     const matchesSearch =
-      scan.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      scan.patientId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      scan.id.toLowerCase().includes(searchQuery.toLowerCase());
+      scan.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      scan.patient?.idNumber
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      scan.id?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter =
       filterStatus === "all" || scan.result === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const pneumoniaCount = scans.filter((s) => s.result === "PNEUMONIA").length;
-  const normalCount = scans.filter((s) => s.result === "NORMAL").length;
+  const pneumoniaCount = scans.filter(
+    (s: Scan) => s.result === "PNEUMONIA",
+  ).length;
+  const normalCount = scans.filter((s: Scan) => s.result === "NORMAL").length;
 
   const handleDeleteScan = (scanId: string, patientName: string) => {
     Alert.alert(
@@ -100,33 +86,39 @@ export default function AllScansScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            setScans(scans.filter((s) => s.id !== scanId));
-            Alert.alert("Success", "Scan deleted successfully");
+          onPress: async () => {
+            try {
+              // TODO: Implement delete endpoint on backend
+              // await scansAPI.deleteScan(scanId);
+              setScans((prev) => prev.filter((s) => s.id !== scanId));
+              success("Scan deleted successfully");
+            } catch (err) {
+              showError(getErrorMessage(err));
+            }
           },
         },
       ],
     );
   };
 
-  const handleViewDetails = (scan: (typeof MOCK_SCANS)[0]) => {
+  const handleViewDetails = (scan: Scan) => {
     router.push({
       pathname: "/analysis/results/[scanId]",
       params: {
         scanId: scan.id,
-        imageUri: scan.imageUri,
+        imageUri: scan.imageUrl,
         patientId: scan.patientId,
-        patientName: scan.patientName,
-        age: "45",
-        sex: "Male",
-        scanDate: scan.date,
-        result: scan.result,
-        confidence: scan.confidence.toString(),
+        patientName: scan.patient?.name || "Unknown",
+        age: scan.patient?.age?.toString() || "Unknown",
+        sex: scan.patient?.gender || "Unknown",
+        scanDate: formatDate(scan.createdAt),
+        result: scan.result || "UNKNOWN",
+        confidence: scan.confidence?.toString() || "0",
       },
     });
   };
 
-  const renderScanCard = ({ item }: { item: (typeof MOCK_SCANS)[0] }) => {
+  const renderScanCard = ({ item }: { item: Scan }) => {
     const isPneumonia = item.result === "PNEUMONIA";
 
     return (
@@ -135,16 +127,20 @@ export default function AllScansScreen() {
         onPress={() => handleViewDetails(item)}
       >
         <View style={styles.scanHeader}>
-          <Image source={{ uri: item.imageUri }} style={styles.thumbnail} />
+          <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />
           <View style={styles.scanInfo}>
             <Text style={styles.scanId}>{item.id}</Text>
-            <Text style={styles.patientName}>{item.patientName}</Text>
-            <Text style={styles.patientId}>ID: {item.patientId}</Text>
+            <Text style={styles.patientName}>
+              {item.patient?.name || "Unknown"}
+            </Text>
+            <Text style={styles.patientId}>
+              ID: {item.patient?.idNumber || item.patientId}
+            </Text>
             <View style={styles.dateTimeRow}>
               <Ionicons name="calendar-outline" size={12} color="#8E8E93" />
-              <Text style={styles.dateText}>{item.date}</Text>
+              <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
               <Ionicons name="time-outline" size={12} color="#8E8E93" />
-              <Text style={styles.timeText}>{item.time}</Text>
+              <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
             </View>
           </View>
         </View>
@@ -169,13 +165,15 @@ export default function AllScansScreen() {
             {item.result === "PNEUMONIA" ? "Pneumonia Detected" : "Normal"}
           </Text>
           <Text style={styles.confidenceText}>
-            {item.confidence.toFixed(1)}%
+            {item.confidence ? item.confidence.toFixed(1) : "0"}%
           </Text>
         </View>
 
         <View style={styles.clinicianRow}>
           <Ionicons name="person-circle-outline" size={16} color="#8E8E93" />
-          <Text style={styles.clinicianText}>Analyzed by {item.clinician}</Text>
+          <Text style={styles.clinicianText}>
+            Analyzed by {item.doctor?.name || "Unknown"}
+          </Text>
         </View>
 
         <View style={styles.actionRow}>
@@ -189,7 +187,9 @@ export default function AllScansScreen() {
 
           <TouchableOpacity
             style={styles.deleteIconButton}
-            onPress={() => handleDeleteScan(item.id, item.patientName)}
+            onPress={() =>
+              handleDeleteScan(item.id, item.patient?.name || "Unknown")
+            }
           >
             <Ionicons name="trash-outline" size={18} color="#D32F2F" />
           </TouchableOpacity>
@@ -312,19 +312,28 @@ export default function AllScansScreen() {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={filteredScans}
-        renderItem={renderScanCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="document-outline" size={64} color="#C7C7CC" />
-            <Text style={styles.emptyText}>No scans found</Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#0066CC" />
+        </View>
+      ) : (
+        <FlatList
+          data={filteredScans}
+          renderItem={renderScanCard}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="document-outline" size={64} color="#C7C7CC" />
+              <Text style={styles.emptyText}>No scans found</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -467,6 +476,11 @@ const styles = StyleSheet.create({
   },
   filterButtonTextActive: {
     color: "#FFFFFF",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   listContent: {
     padding: 16,

@@ -12,10 +12,18 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { activityAPI } from "../../services/api.client";
+import { LoginRecord } from "../../types/api";
+import {
+    extractBrowserInfo,
+    formatDateTime,
+    formatIPAddress,
+} from "../../utils/dateFormatter";
 
 export default function PrivacySecurityScreen() {
   const [dataEncryption, setDataEncryption] = useState(true);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [loadingActivity, setLoadingActivity] = useState(false);
 
   // Password Change State
   const [currentPassword, setCurrentPassword] = useState("");
@@ -48,11 +56,40 @@ export default function PrivacySecurityScreen() {
     Alert.alert("Success", "Your password has been changed successfully!");
   };
 
-  const handleViewActivityLog = () => {
-    Alert.alert(
-      "Recent Activity",
-      "Last Login: Today at 9:23 AM\nLocation: San Francisco, CA\nDevice: iPhone 15 Pro\n\nPrevious Login: Yesterday at 3:45 PM\nLocation: San Francisco, CA\nDevice: MacBook Pro",
-    );
+  const handleViewActivityLog = async () => {
+    try {
+      setLoadingActivity(true);
+      const activity = await activityAPI.getHistory();
+      const loginHistory = activity.loginHistory || [];
+
+      if (loginHistory.length === 0) {
+        Alert.alert("No Activity", "No login history found.");
+        return;
+      }
+
+      const recentLogins = loginHistory.slice(0, 5);
+      const activityText = recentLogins
+        .map((login: LoginRecord) => {
+          const date = formatDateTime(login.loginAt);
+          const device = extractBrowserInfo(login.userAgent);
+          const ip = formatIPAddress(login.ipAddress);
+          const status = login.logoutAt
+            ? `(Logged out at ${formatDateTime(login.logoutAt)})`
+            : "(Currently Active)";
+          return `${date}\n${device} • ${ip}\n${status}`;
+        })
+        .join("\n\n");
+
+      Alert.alert("Recent Activity", activityText);
+    } catch (error) {
+      console.error("Error fetching activity log:", error);
+      Alert.alert(
+        "Error",
+        "Failed to load activity history. Please try again.",
+      );
+    } finally {
+      setLoadingActivity(false);
+    }
   };
 
   const handleDataDeletion = () => {

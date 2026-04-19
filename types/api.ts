@@ -123,6 +123,151 @@ export interface UpdateNotificationRequest {
   read?: boolean;
 }
 
+// ============== ACTIVITY & LOGIN HISTORY ==============
+export interface LoginRecord {
+  id: string;
+  userId: string;
+  ipAddress: string;
+  userAgent: string;
+  loginAt: string;
+  logoutAt?: string;
+  isActive: boolean;
+}
+
+export interface UserActivity {
+  recentScans: Scan[];
+  recentNotifications: Notification[];
+  loginHistory: LoginRecord[];
+  profileUpdatedAt: string;
+}
+
+// ============== ANALYTICS ==============
+export interface DashboardMetrics {
+  totalScans: number;
+  totalPatients: number;
+  pneumoniaDetected: number;
+  normalScans: number;
+  accuracyRate: number;
+  averageConfidence: number;
+  todayMetrics: {
+    scans: number;
+    pneumonia: number;
+    normal: number;
+  };
+  thisWeekMetrics: {
+    scans: number;
+    pneumonia: number;
+    normal: number;
+  };
+  thisMonthMetrics: {
+    scans: number;
+    pneumonia: number;
+    normal: number;
+  };
+  recentScans: Scan[];
+  topPatients: Array<{
+    id: string;
+    name: string;
+    scanCount: number;
+    pneumoniaDetected: number;
+  }>;
+}
+
+export interface ScanResultStatistics {
+  resultBreakdown: {
+    pneumonia: number;
+    normal: number;
+    pneumoniaPercentage: number;
+    normalPercentage: number;
+  };
+  confidenceDistribution: {
+    excellent: number; // > 0.9
+    good: number; // 0.8 - 0.9
+    fair: number; // < 0.8
+  };
+  timelineData: Array<{
+    date: string;
+    scans: number;
+    pneumonia: number;
+    normal: number;
+    averageConfidence: number;
+  }>;
+  totalScans: number;
+  averageConfidence: number;
+}
+
+export interface PatientAnalytics {
+  totalPatients: number;
+  newPatientsThisMonth: number;
+  patientsWithPneumonia: number;
+  averageScansPerPatient: number;
+  topPatients: Array<{
+    id: string;
+    name: string;
+    idNumber: string;
+    scanCount: number;
+    pneumoniaDetected: number;
+    lastScanDate: string;
+  }>;
+}
+
+export interface DoctorAnalytics {
+  totalDoctors: number;
+  activeDoctorsThisMonth: number;
+  doctors: Array<{
+    id: string;
+    name: string;
+    email: string;
+    scanCount: number;
+    pneumoniaDetected: number;
+    accuracyRate: number;
+    averageConfidence: number;
+    lastActiveAt: string;
+  }>;
+}
+
+export interface ModelPerformance {
+  overallMetrics: {
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+  };
+  byModelVersion: Array<{
+    version: string;
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+    scanCount: number;
+  }>;
+  confidenceThresholdAnalysis: Array<{
+    threshold: number;
+    accuracy: number;
+    precision: number;
+    recall: number;
+    f1Score: number;
+  }>;
+}
+
+export interface ActivityTimelineEvent {
+  id: string;
+  type: "SCAN_UPLOADED" | "USER_LOGIN" | "NOTIFICATION_SENT" | "SCAN_COMPLETED";
+  timestamp: string;
+  user?: User;
+  scan?: Scan;
+  details?: Record<string, any>;
+}
+
+export interface ActivityTimeline {
+  events: ActivityTimelineEvent[];
+  totalEvents: number;
+  dateRange: {
+    from: string;
+    to: string;
+  };
+}
+
 // ============== API RESPONSE ==============
 export interface ApiResponse<T> {
   success: boolean;

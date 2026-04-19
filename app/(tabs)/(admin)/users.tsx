@@ -2,14 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    RefreshControl,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { useToast } from "../../../hooks/useToast";
 import { adminAPI } from "../../../services/api.client";
@@ -21,9 +21,6 @@ export default function UsersScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterRole, setFilterRole] = useState<"all" | "CLINICIAN" | "ADMIN">(
-    "all",
-  );
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Load users when screen is focused
@@ -62,8 +59,8 @@ export default function UsersScreen() {
     const matchesSearch =
       user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesRole = filterRole === "all" || user.role === filterRole;
-    return matchesSearch && matchesRole;
+    const isAdmin = user.role === "ADMIN";
+    return matchesSearch && isAdmin;
   });
 
   const handleToggleStatus = async (userId: string, currentStatus: string) => {
@@ -181,7 +178,12 @@ export default function UsersScreen() {
               {filteredUsers.length === 1 ? "user" : "users"}
             </Text>
           </View>
-          <View style={styles.addButton} />
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.push("/(tabs)/(admin)/analytics")}
+          >
+            <Ionicons name="bar-chart" size={24} color="#0066CC" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -204,59 +206,6 @@ export default function UsersScreen() {
             <Ionicons name="close-circle" size={20} color="#8E8E93" />
           </TouchableOpacity>
         )}
-      </View>
-
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filterRole === "all" && styles.filterButtonActive,
-          ]}
-          onPress={() => setFilterRole("all")}
-        >
-          <Text
-            style={[
-              styles.filterButtonText,
-              filterRole === "all" && styles.filterButtonTextActive,
-            ]}
-          >
-            All ({users.length})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filterRole === "CLINICIAN" && styles.filterButtonActive,
-          ]}
-          onPress={() => setFilterRole("CLINICIAN")}
-        >
-          <Text
-            style={[
-              styles.filterButtonText,
-              filterRole === "CLINICIAN" && styles.filterButtonTextActive,
-            ]}
-          >
-            Clinicians ({users.filter((u) => u.role === "CLINICIAN").length})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filterRole === "ADMIN" && styles.filterButtonActive,
-          ]}
-          onPress={() => setFilterRole("ADMIN")}
-        >
-          <Text
-            style={[
-              styles.filterButtonText,
-              filterRole === "ADMIN" && styles.filterButtonTextActive,
-            ]}
-          >
-            Admins ({users.filter((u) => u.role === "ADMIN").length})
-          </Text>
-        </TouchableOpacity>
       </View>
 
       {loading ? (

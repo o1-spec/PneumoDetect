@@ -9,6 +9,7 @@ export default function AdminLayout() {
     >
       <Stack.Screen name="users" />
       <Stack.Screen name="all-scans" />
+      <Stack.Screen name="analytics" />
     </Stack>
   );
 }
