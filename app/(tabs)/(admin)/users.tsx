@@ -66,30 +66,26 @@ export default function UsersScreen() {
     return matchesSearch && matchesRole;
   });
 
-  const handleToggleStatus = (userId: string, currentStatus: string) => {
+  const handleToggleStatus = async (userId: string, currentStatus: string) => {
     const newStatus = currentStatus === "ACTIVE" ? "SUSPENDED" : "ACTIVE";
     try {
-      (async () => {
-        await adminAPI.toggleUserStatus(userId);
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === userId ? { ...u, isActive: newStatus === "ACTIVE" } : u,
-          ),
-        );
-        success(`User status changed to ${newStatus}`);
-      })();
+      await adminAPI.toggleUserStatus(userId);
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === userId ? { ...u, isActive: newStatus === "ACTIVE" } : u,
+        ),
+      );
+      success(`User status changed to ${newStatus}`);
     } catch (err) {
       showError(getErrorMessage(err));
     }
   };
 
-  const handleDeleteUser = (userId: string, userName: string) => {
+  const handleDeleteUser = async (userId: string, userName: string) => {
     try {
-      (async () => {
-        await adminAPI.deleteUser(userId);
-        setUsers((prev) => prev.filter((u) => u.id !== userId));
-        success("User deleted successfully");
-      })();
+      await adminAPI.deleteUser(userId);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      success("User deleted successfully");
     } catch (err) {
       showError(getErrorMessage(err));
     }
