@@ -1,14 +1,11 @@
-import {
-    getAccessToken,
-    clearAuthData,
-} from "../utils/secureStorage";
 import axios, {
-    AxiosError,
-    AxiosInstance,
-    AxiosResponse,
-    InternalAxiosRequestConfig,
+  AxiosError,
+  AxiosInstance,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
 } from "axios";
 import { Platform } from "react-native";
+import { clearAuthData, getAccessToken } from "../utils/secureStorage";
 
 // Extend global to avoid TypeScript errors
 declare global {

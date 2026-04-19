@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import React from "react";
+import { useRouter } from "expo-router";
+import React, { useContext, useEffect } from "react";
 import {
     Dimensions,
     StyleSheet,
@@ -9,16 +9,38 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { AuthContext } from "../hooks/useAuth";
+import { hasSeenOnboarding } from "../utils/secureStorage";
 
 const { width, height } = Dimensions.get("window");
 
 export default function WelcomeScreen() {
+  const router = useRouter();
+  const authContext = useContext(AuthContext);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [authContext?.isSignedIn]);
+
+  const checkAuthStatus = async () => {
+    if (authContext?.isLoading) return;
+
+    if (authContext?.isSignedIn) {
+      const seenOnboarding = await hasSeenOnboarding();
+      if (!seenOnboarding) {
+        router.replace("/(onboarding)");
+      } else {
+        router.replace("/(tabs)");
+      }
+    }
+  };
+
   const handleGetStarted = () => {
-    router.push("/(auth)/signup"); // Changed from replace to push
+    router.push("/(auth)/signup");
   };
 
   const handleSignIn = () => {
-    router.push("/(auth)/login"); // Changed from replace to push
+    router.push("/(auth)/login");
   };
 
   return (

@@ -113,7 +113,10 @@ export default function SignUpScreen() {
       await register(registerData);
 
       success("Account created successfully!");
-      router.replace("/(tabs)");
+      router.push({
+        pathname: "/(auth)/otp-verification",
+        params: { email },
+      });
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       showError(errorMessage);

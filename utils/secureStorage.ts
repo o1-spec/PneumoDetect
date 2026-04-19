@@ -62,3 +62,24 @@ export const isTokenValid = async (): Promise<boolean> => {
   const token = await getAccessToken();
   return !!token;
 };
+
+const ONBOARDING_FLAG_KEY = "pneumodetect_has_seen_onboarding";
+
+export const storeOnboardingFlag = async (seen: boolean): Promise<void> => {
+  try {
+    await SecureStore.setItemAsync(ONBOARDING_FLAG_KEY, JSON.stringify(seen));
+  } catch (error) {
+    console.error("Failed to store onboarding flag:", error);
+    throw error;
+  }
+};
+
+export const hasSeenOnboarding = async (): Promise<boolean> => {
+  try {
+    const flag = await SecureStore.getItemAsync(ONBOARDING_FLAG_KEY);
+    return flag ? JSON.parse(flag) : false;
+  } catch (error) {
+    console.warn("Failed to retrieve onboarding flag:", error);
+    return false;
+  }
+};

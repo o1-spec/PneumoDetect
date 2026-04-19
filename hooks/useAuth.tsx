@@ -29,6 +29,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   refreshUser: () => Promise<void>;
+  verifyOTP: (data: { email: string; otp: string }) => Promise<void>;
+  resendOTP: (email: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -148,6 +150,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  const verifyOTP = useCallback(
+    async (data: { email: string; otp: string }) => {
+      try {
+        await api.post("/auth/verify-otp", data);
+      } catch (error) {
+        console.error("OTP verification failed:", error);
+        throw error;
+      }
+    },
+    [],
+  );
+
+  const resendOTP = useCallback(async (email: string) => {
+    try {
+      await api.post("/auth/resend-otp", { email });
+    } catch (error) {
+      console.error("Failed to resend OTP:", error);
+      throw error;
+    }
+  }, []);
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -157,6 +180,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     updateProfile,
     refreshUser,
+    verifyOTP,
+    resendOTP,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
