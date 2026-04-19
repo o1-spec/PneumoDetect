@@ -1,18 +1,24 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
-    createContext,
-    ReactNode,
-    useCallback,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
 } from "react";
 import api from "../services/api";
 import {
-    AuthResponse,
-    LoginRequest,
-    RegisterRequest,
-    User,
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  User,
 } from "../types/api";
+import {
+  clearAuthData,
+  getAccessToken,
+  getUserData,
+  storeAccessToken,
+  storeUserData,
+} from "../utils/secureStorage";
 
 interface AuthContextType {
   user: User | null;
@@ -50,11 +56,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const bootstrapAsync = async () => {
     try {
-      const token = await AsyncStorage.getItem("authToken");
-      const userData = await AsyncStorage.getItem("userData");
+      const token = await getAccessToken();
+      const userData = await getUserData();
 
       if (token && userData) {
-        setUser(JSON.parse(userData));
+        setUser(userData);
       }
     } catch (e) {
       console.warn("Failed to restore session:", e);
@@ -66,12 +72,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = useCallback(async (credentials: LoginRequest) => {
     try {
       const response = await api.post<AuthResponse>("/auth/login", credentials);
-      const { access_token, user: userData } = response.data;
+      const { accessToken, ...userData } = response.data;
 
-      await AsyncStorage.setItem("authToken", access_token);
-      await AsyncStorage.setItem("userData", JSON.stringify(userData));
+      if (!accessToken) {
+        throw new Error("No access token received from server");
+      }
 
-      setUser(userData);
+      await storeAccessToken(accessToken);
+      await storeUserData(userData);
+
+      setUser(userData as User);
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
@@ -81,12 +91,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = useCallback(async (data: RegisterRequest) => {
     try {
       const response = await api.post<AuthResponse>("/auth/register", data);
-      const { access_token, user: userData } = response.data;
+      const { accessToken, ...userData } = response.data;
 
-      await AsyncStorage.setItem("authToken", access_token);
-      await AsyncStorage.setItem("userData", JSON.stringify(userData));
+      if (!accessToken) {
+        throw new Error("No access token received from server");
+      }
 
-      setUser(userData);
+      await storeAccessToken(accessToken);
+      await storeUserData(userData);
+
+      setUser(userData as User);
     } catch (error) {
       console.error("Registration failed:", error);
       throw error;
@@ -99,8 +113,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.warn("Logout API call failed:", error);
     } finally {
-      await AsyncStorage.removeItem("authToken");
-      await AsyncStorage.removeItem("userData");
+      await clearAuthData();
       setUser(null);
     }
   }, []);
@@ -115,7 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const updatedUser = response.data;
 
       setUser(updatedUser);
-      await AsyncStorage.setItem("userData", JSON.stringify(updatedUser));
+      await storeUserData(updatedUser);
     } catch (error) {
       console.error("Profile update failed:", error);
       throw error;
@@ -128,7 +141,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const userData = response.data;
 
       setUser(userData);
-      await AsyncStorage.setItem("userData", JSON.stringify(userData));
+      await storeUserData(userData);
     } catch (error) {
       console.error("Failed to refresh user:", error);
       throw error;

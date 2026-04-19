@@ -1,4 +1,7 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+    getAccessToken,
+    clearAuthData,
+} from "../utils/secureStorage";
 import axios, {
     AxiosError,
     AxiosInstance,
@@ -33,7 +36,7 @@ const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     try {
-      const token = await AsyncStorage.getItem("authToken");
+      const token = await getAccessToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -58,8 +61,7 @@ api.interceptors.response.use(
     if (response?.status === 401) {
       // Token expired or invalid - clear storage and emit logout event
       try {
-        await AsyncStorage.removeItem("authToken");
-        await AsyncStorage.removeItem("userData");
+        await clearAuthData();
 
         // Emit a custom event that auth context can listen to
         // This will trigger app-wide logout

@@ -2,19 +2,33 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { RegisterRequest } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+
+const SPECIALIZATIONS = [
+  "General Practice",
+  "Pulmonology",
+  "Radiology",
+  "Internal Medicine",
+  "Family Medicine",
+  "Pediatrics",
+  "Emergency Medicine",
+  "Critical Care",
+  "Infectious Disease",
+  "Respiratory Medicine",
+];
 
 export default function SignUpScreen() {
   const [fullName, setFullName] = useState("");
@@ -25,6 +39,9 @@ export default function SignUpScreen() {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"CLINICIAN" | "ADMIN">("CLINICIAN");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSpecializationPicker, setShowSpecializationPicker] =
+    useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { success, error: showError } = useToast();
@@ -243,21 +260,94 @@ export default function SignUpScreen() {
           </View>
 
           {role === "CLINICIAN" && (
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="briefcase-outline"
-                size={20}
-                color="#8E8E93"
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Specialization (Optional)"
-                placeholderTextColor="#8E8E93"
-                value={specialization}
-                onChangeText={setSpecialization}
-                autoCapitalize="words"
-              />
+            <View style={styles.formGroup}>
+              <TouchableOpacity
+                style={[styles.inputContainer, styles.specializationButton]}
+                onPress={() => setShowSpecializationPicker(true)}
+              >
+                <Ionicons
+                  name="briefcase-outline"
+                  size={20}
+                  color="#8E8E93"
+                  style={styles.inputIcon}
+                />
+                <Text
+                  style={[
+                    styles.input,
+                    !specialization && styles.placeholderText,
+                  ]}
+                >
+                  {specialization || " Specialization (Optional)"}
+                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={20}
+                  color="#8E8E93"
+                  style={{ marginRight: 12 }}
+                />
+              </TouchableOpacity>
+
+              <Modal
+                visible={showSpecializationPicker}
+                animationType="slide"
+                transparent
+                onRequestClose={() => setShowSpecializationPicker(false)}
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContent}>
+                    <View style={styles.modalHeader}>
+                      <Text style={styles.modalTitle}>
+                        Select Specialization
+                      </Text>
+                      <TouchableOpacity
+                        onPress={() => setShowSpecializationPicker(false)}
+                      >
+                        <Ionicons name="close" size={24} color="#0066CC" />
+                      </TouchableOpacity>
+                    </View>
+
+                    <ScrollView style={styles.modalList}>
+                      <TouchableOpacity
+                        style={styles.modalOption}
+                        onPress={() => {
+                          setSpecialization("");
+                          setShowSpecializationPicker(false);
+                        }}
+                      >
+                        <Text
+                          style={[
+                            styles.modalOptionText,
+                            !specialization && styles.modalOptionTextActive,
+                          ]}
+                        >
+                          None (Optional)
+                        </Text>
+                      </TouchableOpacity>
+
+                      {SPECIALIZATIONS.map((spec) => (
+                        <TouchableOpacity
+                          key={spec}
+                          style={styles.modalOption}
+                          onPress={() => {
+                            setSpecialization(spec);
+                            setShowSpecializationPicker(false);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.modalOptionText,
+                              specialization === spec &&
+                                styles.modalOptionTextActive,
+                            ]}
+                          >
+                            {spec}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                </View>
+              </Modal>
             </View>
           )}
 
@@ -342,9 +432,19 @@ export default function SignUpScreen() {
                   if (errors.confirmPassword)
                     setErrors({ ...errors, confirmPassword: "" });
                 }}
-                secureTextEntry={!showPassword}
+                secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
               />
+              <TouchableOpacity
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons
+                  name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
+                  size={20}
+                  color="#8E8E93"
+                />
+              </TouchableOpacity>
             </View>
             {errors.confirmPassword && (
               <Text style={styles.errorText}>{errors.confirmPassword}</Text>
@@ -470,6 +570,55 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 8,
+  },
+  specializationButton: {
+    justifyContent: "space-between",
+  },
+  placeholderText: {
+    color: "#8E8E93",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "80%",
+    paddingTop: 16,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F7",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1C1C1E",
+  },
+  modalList: {
+    maxHeight: "90%",
+  },
+  modalOption: {
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F7",
+  },
+  modalOptionText: {
+    fontSize: 16,
+    color: "#1C1C1E",
+  },
+  modalOptionTextActive: {
+    color: "#0066CC",
+    fontWeight: "600",
   },
   roleContainer: {
     marginBottom: 16,

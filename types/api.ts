@@ -17,9 +17,8 @@ export interface RegisterRequest {
   phone?: string;
 }
 
-export interface AuthResponse {
-  access_token: string;
-  user: User;
+export interface AuthResponse extends User {
+  accessToken: string;
 }
 
 // ============== USER ==============
