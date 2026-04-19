@@ -57,6 +57,7 @@ When you call `clearSession()` or `clearAllData()`, the following are deleted:
 ## What Happens After Clearing
 
 After clearing the session:
+
 1. You'll be logged out
 2. You'll be redirected to the login screen (automatic via app/index.tsx)
 3. Onboarding flag will be reset (so you'll see onboarding when you signup)
@@ -77,19 +78,26 @@ xcrun simctl keychain delete com.example.pneumodetect
 After clearing:
 
 1. **Signup flow:**
+
    ```
    Signup → OTP Screen → Onboarding → Main App
    ```
 
 2. **Login flow:**
+
    ```
    Login → App (if verified)
    Login → OTP Screen (if unverified)
    ```
 
 3. **Check what's stored:**
+
    ```typescript
-   import { getAccessToken, getUserData, hasSeenOnboarding } from "@/utils/secureStorage";
+   import {
+     getAccessToken,
+     getUserData,
+     hasSeenOnboarding,
+   } from "@/utils/secureStorage";
 
    // Check token
    const token = await getAccessToken();

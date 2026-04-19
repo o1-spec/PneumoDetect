@@ -13,8 +13,8 @@ import {
   User,
 } from "../types/api";
 import {
-  clearAuthData,
   clearAllData,
+  clearAuthData,
   getAccessToken,
   getUserData,
   storeAccessToken,

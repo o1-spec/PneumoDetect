@@ -79,6 +79,33 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleClearSession = () => {
+    Alert.alert(
+      "Clear Session",
+      "This will delete all stored data (token, user info, onboarding flag) for fresh testing. You'll be logged out.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Clear All Data",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await authContext?.clearSession();
+              success("Session cleared! Starting fresh...");
+              router.replace("/(auth)/login");
+            } catch (err) {
+              showError(getErrorMessage(err));
+            }
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
+
   const handleSaveProfile = async () => {
     try {
       setLoading(true);
@@ -211,6 +238,11 @@ export default function ProfileScreen() {
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#D32F2F" />
           <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.clearSessionButton} onPress={handleClearSession}>
+          <Ionicons name="trash-bin-outline" size={20} color="#FF9800" />
+          <Text style={styles.clearSessionText}>Clear Session (Testing)</Text>
         </TouchableOpacity>
 
         <View style={styles.bottomSpacer} />
@@ -435,6 +467,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#D32F2F",
+  },
+  clearSessionButton: {
+    flexDirection: "row",
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 2,
+    borderColor: "#FF9800",
+  },
+  clearSessionText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FF9800",
   },
   bottomSpacer: {
     height: 40,
