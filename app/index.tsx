@@ -30,7 +30,12 @@ export default function WelcomeScreen() {
       if (!seenOnboarding) {
         router.replace("/(onboarding)");
       } else {
-        router.replace("/(tabs)");
+        // Route based on user role
+        if (authContext.user?.role === "PATIENT") {
+          router.replace("/(patient)");
+        } else {
+          router.replace("/(tabs)");
+        }
       }
     }
   };

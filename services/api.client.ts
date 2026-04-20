@@ -35,6 +35,36 @@ export const usersAPI = {
     const response = await api.put<User>("/users/profile", data);
     return response.data;
   },
+
+  /**
+   * PATIENT-SPECIFIC: Get patient's profile
+   * Requires PATIENT role
+   */
+  getPatientProfile: async (): Promise<any> => {
+    const response = await api.get("/users/patient-profile");
+    return response.data;
+  },
+
+  /**
+   * PATIENT-SPECIFIC: Update patient's profile
+   * Requires PATIENT role
+   */
+  updatePatientProfile: async (data: {
+    name?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    bloodType?: string;
+    medicalHistory?: string;
+    emergencyContact?: {
+      name?: string;
+      phone?: string;
+      relationship?: string;
+    };
+  }): Promise<any> => {
+    const response = await api.put("/users/patient-profile", data);
+    return response.data;
+  },
 };
 
 /**
@@ -127,6 +157,38 @@ export const scansAPI = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/scans/${id}`);
+  },
+
+  /**
+   * PATIENT-SPECIFIC: Get patient's own scans
+   * Returns scans with patient-safe fields only
+   * Requires PATIENT role
+   */
+  getMyScans: async (): Promise<any> => {
+    const response = await api.get("/scans/patient/my-scans/list");
+    return response.data;
+  },
+
+  /**
+   * PATIENT-SPECIFIC: Get single scan with patient-safe fields
+   * Hides raw images, heatmaps, and technical details
+   * Requires PATIENT role
+   */
+  getScanPatientView: async (scanId: string): Promise<any> => {
+    const response = await api.get(`/scans/patient/${scanId}/view`);
+    return response.data;
+  },
+
+  /**
+   * PATIENT-SPECIFIC: Update patient notes on scan
+   * Allows patient to add personal observations
+   * Requires PATIENT role
+   */
+  updatePatientNotes: async (scanId: string, notes: string): Promise<any> => {
+    const response = await api.patch(`/scans/patient/${scanId}/notes`, {
+      notes,
+    });
+    return response.data;
   },
 };
 

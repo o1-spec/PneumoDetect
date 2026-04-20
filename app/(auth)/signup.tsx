@@ -2,15 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Modal,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
@@ -35,13 +35,17 @@ export default function SignUpScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [specialization, setSpecialization] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"CLINICIAN" | "ADMIN">("CLINICIAN");
+  const [role, setRole] = useState<"CLINICIAN" | "PATIENT">("CLINICIAN");
+  const [specialization, setSpecialization] = useState(""); // Clinician only
+  const [dateOfBirth, setDateOfBirth] = useState(""); // Patient only
+  const [gender, setGender] = useState<"MALE" | "FEMALE" | "OTHER">("MALE"); // Patient only
+  const [medicalHistory, setMedicalHistory] = useState(""); // Patient only
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showSpecializationPicker, setShowSpecializationPicker] =
     useState(false);
+  const [showGenderPicker, setShowGenderPicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { success, error: showError } = useToast();
@@ -106,8 +110,15 @@ export default function SignUpScreen() {
         email,
         password,
         role,
-        specialization: specialization || undefined,
         phone: phone || undefined,
+        ...(role === "CLINICIAN" && {
+          specialization: specialization || undefined,
+        }),
+        ...(role === "PATIENT" && {
+          dateOfBirth: dateOfBirth || undefined,
+          gender: gender,
+          medicalHistory: medicalHistory || undefined,
+        }),
       };
 
       await register(registerData);
@@ -241,22 +252,22 @@ export default function SignUpScreen() {
               <TouchableOpacity
                 style={[
                   styles.roleButton,
-                  role === "ADMIN" && styles.roleButtonActive,
+                  role === "PATIENT" && styles.roleButtonActive,
                 ]}
-                onPress={() => setRole("ADMIN")}
+                onPress={() => setRole("PATIENT")}
               >
                 <Ionicons
-                  name="shield-checkmark"
+                  name="person-circle"
                   size={20}
-                  color={role === "ADMIN" ? "#FFFFFF" : "#0066CC"}
+                  color={role === "PATIENT" ? "#FFFFFF" : "#0066CC"}
                 />
                 <Text
                   style={[
                     styles.roleButtonText,
-                    role === "ADMIN" && styles.roleButtonTextActive,
+                    role === "PATIENT" && styles.roleButtonTextActive,
                   ]}
                 >
-                  Admin
+                  Patient
                 </Text>
               </TouchableOpacity>
             </View>
@@ -352,6 +363,112 @@ export default function SignUpScreen() {
                 </View>
               </Modal>
             </View>
+          )}
+
+          {role === "PATIENT" && (
+            <>
+              <View style={styles.formGroup}>
+                <View style={styles.inputContainer}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                    color="#8E8E93"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Date of Birth (YYYY-MM-DD) (Optional)"
+                    placeholderTextColor="#8E8E93"
+                    value={dateOfBirth}
+                    onChangeText={setDateOfBirth}
+                    keyboardType="default"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.formGroup}>
+                <TouchableOpacity
+                  style={styles.inputContainer}
+                  onPress={() => setShowGenderPicker(true)}
+                >
+                  <Ionicons
+                    name="person-outline"
+                    size={20}
+                    color="#8E8E93"
+                    style={styles.inputIcon}
+                  />
+                  <Text style={styles.input}>{gender}</Text>
+                  <Ionicons
+                    name="chevron-down"
+                    size={20}
+                    color="#8E8E93"
+                    style={{ marginRight: 12 }}
+                  />
+                </TouchableOpacity>
+
+                <Modal
+                  visible={showGenderPicker}
+                  animationType="slide"
+                  transparent
+                  onRequestClose={() => setShowGenderPicker(false)}
+                >
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                      <View style={styles.modalHeader}>
+                        <Text style={styles.modalTitle}>Select Gender</Text>
+                        <TouchableOpacity
+                          onPress={() => setShowGenderPicker(false)}
+                        >
+                          <Ionicons name="close" size={24} color="#0066CC" />
+                        </TouchableOpacity>
+                      </View>
+
+                      <ScrollView style={styles.modalList}>
+                        {(["MALE", "FEMALE", "OTHER"] as const).map((g) => (
+                          <TouchableOpacity
+                            key={g}
+                            style={styles.modalOption}
+                            onPress={() => {
+                              setGender(g);
+                              setShowGenderPicker(false);
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.modalOptionText,
+                                gender === g && styles.modalOptionTextActive,
+                              ]}
+                            >
+                              {g}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  </View>
+                </Modal>
+              </View>
+
+              <View style={styles.formGroup}>
+                <View style={styles.inputContainer}>
+                  <Ionicons
+                    name="document-text-outline"
+                    size={20}
+                    color="#8E8E93"
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={[styles.input, styles.textArea]}
+                    placeholder="Medical History (Optional)"
+                    placeholderTextColor="#8E8E93"
+                    value={medicalHistory}
+                    onChangeText={setMedicalHistory}
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+              </View>
+            </>
           )}
 
           <View style={styles.inputContainer}>
@@ -696,5 +813,10 @@ const styles = StyleSheet.create({
     color: "#0066CC",
     fontSize: 14,
     fontWeight: "600",
+  },
+  textArea: {
+    height: 80,
+    paddingTop: 12,
+    textAlignVertical: "top",
   },
 });

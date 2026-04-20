@@ -12,9 +12,12 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
-  role?: "CLINICIAN" | "ADMIN";
+  role?: "CLINICIAN" | "PATIENT";
   specialization?: string;
   phone?: string;
+  dateOfBirth?: string; // For patients
+  gender?: "MALE" | "FEMALE" | "OTHER";
+  medicalHistory?: string;
 }
 
 export interface AuthResponse extends User {
@@ -26,9 +29,12 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "ADMIN" | "CLINICIAN";
-  specialization?: string;
+  role: "CLINICIAN" | "PATIENT";
+  specialization?: string; // Clinician only
   phone?: string;
+  dateOfBirth?: string; // Patient only
+  gender?: "MALE" | "FEMALE" | "OTHER"; // Patient only
+  medicalHistory?: string; // Patient only
   avatarUrl?: string;
   isVerified: boolean;
   isActive: boolean;
@@ -39,7 +45,10 @@ export interface User {
 export interface UpdateProfileRequest {
   name?: string;
   phone?: string;
-  specialization?: string;
+  specialization?: string; // Clinician only
+  dateOfBirth?: string; // Patient only
+  gender?: "MALE" | "FEMALE" | "OTHER"; // Patient only
+  medicalHistory?: string; // Patient only
   avatarUrl?: string;
 }
 
@@ -64,11 +73,11 @@ export interface CreatePatientRequest {
 
 // ============== SCAN ==============
 export type ScanStatus = "UPLOADED" | "PROCESSING" | "COMPLETED" | "FAILED";
-export type ScanResult = "PNEUMONIA" | "NORMAL";
+export type ScanResult = "PNEUMONIA" | "NORMAL" | "PNEUMONIA_DETECTED" | "CONCERNS";
 
 export interface Scan {
   id: string;
-  imageUrl: string;
+  imageUrl?: string;
   heatmapUrl?: string;
   status: ScanStatus;
   result?: ScanResult;
@@ -76,10 +85,22 @@ export interface Scan {
   modelVersion?: string;
   createdAt: string;
   updatedAt: string;
-  patientId: string;
-  doctorId: string;
+  analyzedAt?: string; // When scan was analyzed
+  patientId?: string;
+  doctorId?: string;
+  clinicianId?: string;
   patient?: Patient;
   doctor?: User;
+  clinician?: User;
+  // Patient-specific fields (from patient-safe endpoints)
+  clinicianNotes?: string;
+  patientNotes?: string;
+  doctorName?: string; // Doctor/clinician name
+  hospitalName?: string; // Hospital name
+  recommendations?: string[]; // Recommendations based on result
+  disclaimer?: string; // Medical disclaimer
+  patientViewedAt?: string; // When patient viewed results
+  isSharedWithPatient?: boolean; // Sharing permissions
 }
 
 export interface ScanUploadRequest {

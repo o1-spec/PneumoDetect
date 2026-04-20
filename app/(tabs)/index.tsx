@@ -38,7 +38,7 @@ export default function DashboardScreen() {
 
   const authContext = useContext(AuthContext);
   const userDisplayName = authContext?.user?.name || "Doctor";
-  const isAdmin = authContext?.user?.role === "ADMIN";
+  const isAdmin = authContext?.user?.role === "CLINICIAN"; // Only clinicians see admin features
 
   useEffect(() => {
     loadDashboardData();
@@ -58,13 +58,11 @@ export default function DashboardScreen() {
         analyticsAPI.getScanResults({ groupBy: "day" }),
         scansAPI.getAll(),
         notificationsAPI.getAll(),
-        analyticsAPI
-          .getSystemStatus()
-          .catch(() => ({
-            aiModel: "Operational",
-            database: "Connected",
-            storage: "78% Used",
-          })),
+        analyticsAPI.getSystemStatus().catch(() => ({
+          aiModel: "Operational",
+          database: "Connected",
+          storage: "78% Used",
+        })),
       ]);
 
       setStats(analyticsData);

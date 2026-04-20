@@ -151,9 +151,9 @@ export default function ProfileScreen() {
             <View style={styles.roleBadge}>
               <Ionicons name="shield-checkmark" size={14} color="#0066CC" />
               <Text style={styles.roleText}>
-                {authContext.user.role === "ADMIN"
-                  ? "Administrator"
-                  : "Clinician"}
+                {authContext.user.role === "CLINICIAN"
+                  ? "Clinician"
+                  : "Patient"}
               </Text>
             </View>
           )}
