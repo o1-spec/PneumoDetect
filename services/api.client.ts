@@ -25,6 +25,16 @@ export const usersAPI = {
     const response = await api.get<User>("/users/me");
     return { data: response.data };
   },
+
+  updateProfile: async (data: {
+    name?: string;
+    phone?: string;
+    specialization?: string;
+    avatarUrl?: string;
+  }): Promise<User> => {
+    const response = await api.put<User>("/users/profile", data);
+    return response.data;
+  },
 };
 
 /**
@@ -44,6 +54,18 @@ export const patientsAPI = {
   create: async (data: CreatePatientRequest): Promise<Patient> => {
     const response = await api.post<Patient>("/patients", data);
     return response.data;
+  },
+
+  update: async (
+    id: string,
+    data: Partial<CreatePatientRequest>,
+  ): Promise<Patient> => {
+    const response = await api.put<Patient>(`/patients/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/patients/${id}`);
   },
 
   search: async (query: string): Promise<Patient[]> => {
@@ -93,6 +115,18 @@ export const scansAPI = {
   process: async (scanId: string): Promise<Scan> => {
     const response = await api.post<Scan>(`/scans/${scanId}/process`);
     return response.data;
+  },
+
+  update: async (
+    id: string,
+    data: { result?: string; notes?: string },
+  ): Promise<Scan> => {
+    const response = await api.patch<Scan>(`/scans/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/scans/${id}`);
   },
 };
 
@@ -153,6 +187,15 @@ export const analyticsAPI = {
         params,
       },
     );
+    return response.data;
+  },
+
+  getSystemStatus: async (): Promise<{
+    aiModel: string;
+    database: string;
+    storage: string;
+  }> => {
+    const response = await api.get("/dashboard/system-status");
     return response.data;
   },
 };
@@ -227,6 +270,21 @@ export const messagesAPI = {
     await api.post("/messages/send", {
       subject,
       message,
+    });
+  },
+
+  getAll: async (params?: {
+    skip?: number;
+    take?: number;
+    responded?: boolean;
+  }): Promise<any[]> => {
+    const response = await api.get<any[]>("/messages", { params });
+    return Array.isArray(response.data) ? response.data : [];
+  },
+
+  markAsResponded: async (id: string): Promise<void> => {
+    await api.patch(`/messages/${id}`, {
+      responded: true,
     });
   },
 };

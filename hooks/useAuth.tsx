@@ -1,25 +1,25 @@
 import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
+    createContext,
+    ReactNode,
+    useCallback,
+    useEffect,
+    useState,
 } from "react";
 import api from "../services/api";
 import { usersAPI } from "../services/api.client";
 import {
-  AuthResponse,
-  LoginRequest,
-  RegisterRequest,
-  User,
+    AuthResponse,
+    LoginRequest,
+    RegisterRequest,
+    User,
 } from "../types/api";
 import {
-  clearAllData,
-  clearAuthData,
-  getAccessToken,
-  getUserData,
-  storeAccessToken,
-  storeUserData,
+    clearAllData,
+    clearAuthData,
+    getAccessToken,
+    getUserData,
+    storeAccessToken,
+    storeUserData,
 } from "../utils/secureStorage";
 
 interface AuthContextType {
@@ -34,6 +34,12 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
   verifyOTP: (data: { email: string; otp: string }) => Promise<User>;
   resendOTP: (email: string) => Promise<void>;
+  changePassword: (data: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -200,6 +206,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
+  const changePassword = useCallback(
+    async (data: {
+      currentPassword: string;
+      newPassword: string;
+      confirmPassword: string;
+    }) => {
+      try {
+        if (data.newPassword !== data.confirmPassword) {
+          throw new Error("Passwords do not match");
+        }
+
+        await api.post("/auth/change-password", {
+          currentPassword: data.currentPassword,
+          newPassword: data.newPassword,
+        });
+      } catch (error) {
+        console.error("Password change failed:", error);
+        throw error;
+      }
+    },
+    [],
+  );
+
+  const deleteAccount = useCallback(async (password: string) => {
+    try {
+      await api.delete("/users/account", {
+        data: { password },
+      });
+
+      // Clear all auth data and logout
+      await clearAllData();
+      setUser(null);
+    } catch (error) {
+      console.error("Account deletion failed:", error);
+      throw error;
+    }
+  }, []);
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -212,6 +256,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     refreshUser,
     verifyOTP,
     resendOTP,
+    changePassword,
+    deleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
