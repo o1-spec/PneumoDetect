@@ -12,7 +12,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
-  role?: "CLINICIAN" | "PATIENT";
+  role?: "CLINICIAN" | "PATIENT" | "ADMIN";
   specialization?: string;
   phone?: string;
   dateOfBirth?: string; // For patients
@@ -29,7 +29,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: "CLINICIAN" | "PATIENT";
+  role: "CLINICIAN" | "PATIENT" | "ADMIN";
   specialization?: string; // Clinician only
   phone?: string;
   dateOfBirth?: string; // Patient only
@@ -130,6 +130,9 @@ export interface AnalyticsStats {
   normalCases: number;
   averageConfidence: number;
   recentScans: Scan[];
+  // Optional: Week-over-week comparison (if backend provides)
+  previousWeekScans?: number;
+  weekGrowthPercentage?: number;
 }
 
 // ============== NOTIFICATION ==============

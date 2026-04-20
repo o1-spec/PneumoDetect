@@ -38,7 +38,7 @@ export default function DashboardScreen() {
 
   const authContext = useContext(AuthContext);
   const userDisplayName = authContext?.user?.name || "Doctor";
-  const isAdmin = authContext?.user?.role === "CLINICIAN"; // Only clinicians see admin features
+  const isAdmin = authContext?.user?.role === "ADMIN"; // Only admins see admin features
 
   useEffect(() => {
     loadDashboardData();
@@ -48,41 +48,28 @@ export default function DashboardScreen() {
     try {
       setLoading(true);
 
-      // Load analytics data
       let analyticsData: AnalyticsStats | null = null;
       try {
         analyticsData = await analyticsAPI.getStats();
-      } catch (error) {
-        console.error("Failed to load analytics stats:", error);
-      }
+      } catch (error) {}
 
-      // Load scan results
       let scanResultsData: ScanResultStatistics | null = null;
       try {
         scanResultsData = await analyticsAPI.getScanResults({ groupBy: "day" });
-      } catch (error) {
-        console.error("Failed to load scan results:", error);
-      }
+      } catch (error) {}
 
-      // Load scans
       let scansData: Scan[] = [];
       try {
         const data = await scansAPI.getAll();
         scansData = Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Failed to load scans:", error);
-      }
+      } catch (error) {}
 
-      // Load notifications
       let notificationsData: any[] = [];
       try {
         const data = await notificationsAPI.getAll();
         notificationsData = Array.isArray(data) ? data : [];
-      } catch (error) {
-        console.error("Failed to load notifications:", error);
-      }
+      } catch (error) {}
 
-      // Load system status with proper validation
       let statusData: { aiModel: string; database: string; storage: string } = {
         aiModel: "Operational",
         database: "Connected",
@@ -90,22 +77,23 @@ export default function DashboardScreen() {
       };
       try {
         const response = await analyticsAPI.getSystemStatus();
-        // Validate response is an object with string values
-        if (
-          response &&
-          typeof response === "object" &&
-          typeof response.aiModel === "string" &&
-          typeof response.database === "string" &&
-          typeof response.storage === "string"
-        ) {
-          statusData = response;
-        } else {
-          console.warn("Invalid system status response format:", response);
+
+        if (response && typeof response === "object") {
+          if (response.aiModel) {
+            statusData = {
+              aiModel: response.aiModel || "Operational",
+              database: response.database || "Connected",
+              storage: response.storage || "0.0% Used",
+            };
+          } else if (
+            typeof response.aiModel === "string" &&
+            typeof response.database === "string" &&
+            typeof response.storage === "string"
+          ) {
+            statusData = response;
+          }
         }
-      } catch (error) {
-        console.error("Failed to load system status:", error);
-        // Use default values
-      }
+      } catch (error) {}
 
       setStats(analyticsData);
       setScanResults(scanResultsData);
@@ -114,9 +102,11 @@ export default function DashboardScreen() {
       setRecentScans(recent);
 
       const unreadCount = notificationsData.filter((n: any) => !n.read).length;
-      setNotificationCount(unreadCount);
+
+      const finalCount =
+        typeof unreadCount === "number" && unreadCount >= 0 ? unreadCount : 0;
+      setNotificationCount(finalCount);
     } catch (error) {
-      console.error("Dashboard data loading error:", error);
       setStats(null);
       setScanResults(null);
       setSystemStatus(null);
@@ -136,16 +126,49 @@ export default function DashboardScreen() {
     }
   };
 
+  const defaultTimeline = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    return {
+      date: date.toISOString(),
+      scans: 0,
+    };
+  });
+
+  const timelineDataForChart =
+    scanResults?.timelineData && scanResults.timelineData.length > 0
+      ? scanResults.timelineData
+      : defaultTimeline;
+
+  // Calculate growth percentage
+  const calculateGrowthPercentage = () => {
+    // If backend provides week-over-week data, use that
+    if (stats?.weekGrowthPercentage !== undefined) {
+      return stats.weekGrowthPercentage;
+    }
+    // Fallback: calculate from previous week data if available
+    if (stats?.previousWeekScans && stats?.totalScans) {
+      const growth =
+        ((stats.totalScans - stats.previousWeekScans) /
+          stats.previousWeekScans) *
+        100;
+      return growth;
+    }
+    // No data available
+    return null;
+  };
+
+  const growthPercentage = calculateGrowthPercentage();
+  const showGrowthMetric = stats && stats.totalScans > 0;
+
   const chartData = {
-    labels: scanResults?.timelineData?.map((item) => {
+    labels: timelineDataForChart.map((item) => {
       const date = new Date(item.date);
       return date.toLocaleDateString("en-US", { weekday: "short" });
-    }) || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    }),
     datasets: [
       {
-        data: scanResults?.timelineData?.map((item) => item.scans) || [
-          12, 15, 18, 14, 20, 16, 8,
-        ],
+        data: timelineDataForChart.map((item) => item.scans || 0),
         color: (opacity = 1) => `rgba(0, 102, 204, ${opacity})`,
         strokeWidth: 2,
       },
@@ -333,7 +356,15 @@ export default function DashboardScreen() {
                 <View style={styles.legendDot} />
                 <Text style={styles.legendText}>Scans per day</Text>
               </View>
-              <Text style={styles.chartSubtext}>↑ 12.5% vs last week</Text>
+              <Text style={styles.chartSubtext}>
+                {showGrowthMetric && growthPercentage !== null
+                  ? growthPercentage > 0
+                    ? `↑ ${growthPercentage.toFixed(1)}% vs last week`
+                    : growthPercentage < 0
+                      ? `↓ ${Math.abs(growthPercentage).toFixed(1)}% vs last week`
+                      : "→ No change vs last week"
+                  : "No comparison data"}
+              </Text>
             </View>
           </View>
         </View>

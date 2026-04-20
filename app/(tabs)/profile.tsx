@@ -14,7 +14,7 @@ import {
 import { MenuItem } from "../../components/MenuItem";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import { analyticsAPI } from "../../services/api.client";
+import { analyticsAPI, notificationsAPI } from "../../services/api.client";
 import { AnalyticsStats } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
@@ -24,6 +24,7 @@ export default function ProfileScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -40,6 +41,7 @@ export default function ProfileScreen() {
         setUserSpecialization(authContext.user.specialization || "");
       }
       loadStats();
+      loadNotificationCount();
     }, [authContext?.user]),
   );
 
@@ -49,6 +51,17 @@ export default function ProfileScreen() {
       setStats(data);
     } catch (err) {
       // Silent fail for stats
+    }
+  };
+
+  const loadNotificationCount = async () => {
+    try {
+      const notifications = await notificationsAPI.getAll();
+      const unreadCount = notifications.filter((n) => !n.read).length;
+      setNotificationCount(unreadCount);
+    } catch (err) {
+      // Silent fail - keep count as 0
+      setNotificationCount(0);
     }
   };
 
@@ -192,7 +205,9 @@ export default function ProfileScreen() {
             <MenuItem
               icon="notifications-outline"
               label="Notifications"
-              badge="3"
+              badge={
+                notificationCount > 0 ? String(notificationCount) : undefined
+              }
               onPress={() => router.push("/profile/notifications")}
             />
             <MenuItem

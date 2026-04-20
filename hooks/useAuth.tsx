@@ -1,25 +1,25 @@
 import React, {
-    createContext,
-    ReactNode,
-    useCallback,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
 } from "react";
 import api from "../services/api";
 import { usersAPI } from "../services/api.client";
 import {
-    AuthResponse,
-    LoginRequest,
-    RegisterRequest,
-    User,
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  User,
 } from "../types/api";
 import {
-    clearAllData,
-    clearAuthData,
-    getAccessToken,
-    getUserData,
-    storeAccessToken,
-    storeUserData,
+  clearAllData,
+  clearAuthData,
+  getAccessToken,
+  getUserData,
+  storeAccessToken,
+  storeUserData,
 } from "../utils/secureStorage";
 
 interface AuthContextType {
@@ -76,7 +76,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           await storeUserData(userData);
           setUser(userData);
         } catch (error) {
-          console.warn("Failed to fetch user data from API:", error);
           const storedUserData = await getUserData();
           if (storedUserData) {
             setUser(storedUserData);
@@ -84,7 +83,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }
     } catch (e) {
-      console.warn("Failed to restore session:", e);
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       setUser(userData as User);
     } catch (error) {
-      console.error("Login failed:", error);
       throw error;
     }
   }, []);
@@ -119,7 +116,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await api.post<AuthResponse>("/auth/register", data);
     } catch (error) {
-      console.error("Registration failed:", error);
       throw error;
     }
   }, []);
@@ -128,11 +124,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await api.post("/auth/logout");
     } catch (error) {
-      // Silently ignore logout errors (token might be expired)
-      // The important part is clearing local auth data below
-      if ((error as any)?.response?.status !== 401) {
-        console.warn("Logout API call failed:", error);
-      }
     } finally {
       await clearAuthData();
       setUser(null);
@@ -143,9 +134,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await clearAllData();
       setUser(null);
-    } catch (error) {
-      console.error("Failed to clear session:", error);
-    }
+    } catch (error) {}
   }, []);
 
   const handleLogoutEvent = useCallback(() => {
@@ -160,7 +149,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(updatedUser);
       await storeUserData(updatedUser);
     } catch (error) {
-      console.error("Profile update failed:", error);
       throw error;
     }
   }, []);
@@ -173,7 +161,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData);
       await storeUserData(userData);
     } catch (error) {
-      console.error("Failed to refresh user:", error);
       throw error;
     }
   }, []);

@@ -37,9 +37,7 @@ api.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-    } catch (error) {
-      console.warn("Failed to retrieve auth token:", error);
-    }
+    } catch (error) {}
     return config;
   },
   (error: AxiosError) => {
@@ -47,9 +45,6 @@ api.interceptors.request.use(
   },
 );
 
-/**
- * Response interceptor: Handle 401 and other errors
- */
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
@@ -62,9 +57,7 @@ api.interceptors.response.use(
         if (global.authLogoutEvent) {
           global.authLogoutEvent();
         }
-      } catch (err) {
-        console.warn("Failed to clear auth data:", err);
-      }
+      } catch (err) {}
     }
 
     return Promise.reject(error);
