@@ -181,7 +181,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         return userData;
       } catch (error) {
-        console.error("OTP verification failed:", error);
         throw error;
       }
     },
@@ -192,7 +191,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await api.post("/auth/resend-otp", { email });
     } catch (error) {
-      console.error("Failed to resend OTP:", error);
       throw error;
     }
   }, []);
