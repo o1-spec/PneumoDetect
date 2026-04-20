@@ -128,7 +128,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await api.post("/auth/logout");
     } catch (error) {
-      console.warn("Logout API call failed:", error);
+      // Silently ignore logout errors (token might be expired)
+      // The important part is clearing local auth data below
+      if ((error as any)?.response?.status !== 401) {
+        console.warn("Logout API call failed:", error);
+      }
     } finally {
       await clearAuthData();
       setUser(null);

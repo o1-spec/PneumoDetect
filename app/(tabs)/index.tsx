@@ -47,36 +47,76 @@ export default function DashboardScreen() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
-      const [
-        analyticsData,
-        scanResultsData,
-        scansData,
-        notificationsData,
-        statusData,
-      ] = await Promise.all([
-        analyticsAPI.getStats(),
-        analyticsAPI.getScanResults({ groupBy: "day" }),
-        scansAPI.getAll(),
-        notificationsAPI.getAll(),
-        analyticsAPI.getSystemStatus().catch(() => ({
-          aiModel: "Operational",
-          database: "Connected",
-          storage: "78% Used",
-        })),
-      ]);
+
+      // Load analytics data
+      let analyticsData: AnalyticsStats | null = null;
+      try {
+        analyticsData = await analyticsAPI.getStats();
+      } catch (error) {
+        console.error("Failed to load analytics stats:", error);
+      }
+
+      // Load scan results
+      let scanResultsData: ScanResultStatistics | null = null;
+      try {
+        scanResultsData = await analyticsAPI.getScanResults({ groupBy: "day" });
+      } catch (error) {
+        console.error("Failed to load scan results:", error);
+      }
+
+      // Load scans
+      let scansData: Scan[] = [];
+      try {
+        const data = await scansAPI.getAll();
+        scansData = Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Failed to load scans:", error);
+      }
+
+      // Load notifications
+      let notificationsData: any[] = [];
+      try {
+        const data = await notificationsAPI.getAll();
+        notificationsData = Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Failed to load notifications:", error);
+      }
+
+      // Load system status with proper validation
+      let statusData: { aiModel: string; database: string; storage: string } = {
+        aiModel: "Operational",
+        database: "Connected",
+        storage: "78% Used",
+      };
+      try {
+        const response = await analyticsAPI.getSystemStatus();
+        // Validate response is an object with string values
+        if (
+          response &&
+          typeof response === "object" &&
+          typeof response.aiModel === "string" &&
+          typeof response.database === "string" &&
+          typeof response.storage === "string"
+        ) {
+          statusData = response;
+        } else {
+          console.warn("Invalid system status response format:", response);
+        }
+      } catch (error) {
+        console.error("Failed to load system status:", error);
+        // Use default values
+      }
 
       setStats(analyticsData);
       setScanResults(scanResultsData);
       setSystemStatus(statusData);
-      const recent = Array.isArray(scansData) ? scansData.slice(0, 3) : [];
+      const recent = scansData.slice(0, 3);
       setRecentScans(recent);
 
-      const unreadCount = Array.isArray(notificationsData)
-        ? notificationsData.filter((n) => !n.read).length
-        : 0;
+      const unreadCount = notificationsData.filter((n: any) => !n.read).length;
       setNotificationCount(unreadCount);
     } catch (error) {
-      console.error("Failed to load dashboard data:", error);
+      console.error("Dashboard data loading error:", error);
       setStats(null);
       setScanResults(null);
       setSystemStatus(null);
@@ -366,7 +406,9 @@ export default function DashboardScreen() {
                 <Text style={styles.statusText}>AI Model</Text>
               </View>
               <Text style={styles.statusValue}>
-                {systemStatus?.aiModel || "Operational"}
+                {typeof systemStatus?.aiModel === "string"
+                  ? systemStatus.aiModel
+                  : "Operational"}
               </Text>
             </View>
             <View style={styles.statusRow}>
@@ -375,7 +417,9 @@ export default function DashboardScreen() {
                 <Text style={styles.statusText}>Database</Text>
               </View>
               <Text style={styles.statusValue}>
-                {systemStatus?.database || "Connected"}
+                {typeof systemStatus?.database === "string"
+                  ? systemStatus.database
+                  : "Connected"}
               </Text>
             </View>
             <View style={styles.statusRow}>
@@ -384,7 +428,9 @@ export default function DashboardScreen() {
                 <Text style={styles.statusText}>Storage</Text>
               </View>
               <Text style={styles.statusValue}>
-                {systemStatus?.storage || "78% Used"}
+                {typeof systemStatus?.storage === "string"
+                  ? systemStatus.storage
+                  : "78% Used"}
               </Text>
             </View>
           </View>
