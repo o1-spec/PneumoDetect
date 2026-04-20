@@ -1,14 +1,14 @@
+import { useToast } from "@/hooks/useToast";
 import React, { useState } from "react";
 import {
-  Modal,
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  ActivityIndicator,
-  Alert,
+    ActivityIndicator,
+    Alert,
+    Modal,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { useToast } from "@/hooks/useToast";
 
 interface PatientNotesModalProps {
   visible: boolean;
@@ -177,7 +177,11 @@ export const PatientNotesModal: React.FC<PatientNotesModalProps> = ({
               disabled={loading}
             >
               {loading && (
-                <ActivityIndicator size="small" color="white" style={{ marginRight: 8 }} />
+                <ActivityIndicator
+                  size="small"
+                  color="white"
+                  style={{ marginRight: 8 }}
+                />
               )}
               <Text
                 style={{

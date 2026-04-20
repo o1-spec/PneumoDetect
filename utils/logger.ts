@@ -50,7 +50,7 @@ class Logger {
   private log(
     level: LogEntry["level"],
     message: string,
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
@@ -77,7 +77,7 @@ class Logger {
    * Sanitize context to remove sensitive data
    */
   private sanitizeContext(
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ): Record<string, unknown> | undefined {
     if (!context) return undefined;
 
@@ -99,9 +99,7 @@ class Logger {
       if (sensitiveKeys.some((k) => key.toLowerCase().includes(k))) {
         sanitized[key] = "[REDACTED]";
       } else if (typeof value === "object" && value !== null) {
-        sanitized[key] = this.sanitizeContext(
-          value as Record<string, unknown>
-        );
+        sanitized[key] = this.sanitizeContext(value as Record<string, unknown>);
       } else {
         sanitized[key] = value;
       }
@@ -158,7 +156,7 @@ class Logger {
     endpoint: string,
     statusCode?: number,
     errorMessage?: string,
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ) {
     this.error(`API Error: ${endpoint}`, {
       endpoint,
@@ -174,7 +172,7 @@ class Logger {
   logApiRequest(
     method: string,
     endpoint: string,
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ) {
     this.debug(`API Request: ${method} ${endpoint}`, context);
   }
@@ -186,7 +184,7 @@ class Logger {
     method: string,
     endpoint: string,
     statusCode: number,
-    context?: Record<string, unknown>
+    context?: Record<string, unknown>,
   ) {
     this.debug(`API Response: ${method} ${endpoint} [${statusCode}]`, context);
   }
