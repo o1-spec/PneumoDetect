@@ -50,7 +50,7 @@ export default function PatientMyScansScreen() {
   const filteredScans = scans.filter((scan: Scan) => {
     if (filter === "NORMAL") return scan.result === "NORMAL";
     if (filter === "PNEUMONIA")
-      return scan.result === "PNEUMONIA_DETECTED" || scan.result === "CONCERNS";
+      return scan.result === "PNEUMONIA" || scan.result === "CONCERNS";
     return true;
   });
 

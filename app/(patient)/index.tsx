@@ -51,7 +51,7 @@ export default function PatientDashboardScreen() {
       const normal = scans.filter((s: any) => s.result === "NORMAL").length;
       const concerns = scans.filter(
         (s: any) =>
-          s.result === "PNEUMONIA_DETECTED" || s.result === "CONCERNS",
+          s.result === "PNEUMONIA" || s.result === "CONCERNS",
       ).length;
 
       setStats({
