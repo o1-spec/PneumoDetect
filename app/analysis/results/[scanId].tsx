@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
     Image,
     ScrollView,
@@ -10,11 +10,17 @@ import {
     View,
 } from "react-native";
 import { InfoRow } from "../../../components/InfoRow";
+import { PatientNotesModal } from "../../../components/PatientNotesModal";
 import { useToast } from "../../../hooks/useToast";
+import { scansAPI } from "../../../services/api.client";
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
   const { info } = useToast();
+  const [notesModalVisible, setNotesModalVisible] = useState(false);
+  const [patientNotes, setPatientNotes] = useState<string>("");
+  const [notesLoading, setNotesLoading] = useState(false);
+
   const {
     scanId,
     imageUri,
@@ -30,6 +36,19 @@ export default function ResultsScreen() {
   useEffect(() => {
     info("Analysis results ready");
   }, []);
+
+  const handleSaveNotes = async (notes: string) => {
+    try {
+      setNotesLoading(true);
+      const scanIdStr = Array.isArray(scanId) ? scanId[0] : (scanId as string);
+      await scansAPI.updatePatientNotes(scanIdStr, notes);
+      setPatientNotes(notes);
+      setNotesLoading(false);
+    } catch (error) {
+      setNotesLoading(false);
+      throw error;
+    }
+  };
 
   const isPneumonia = result === "PNEUMONIA";
   const predictionText = isPneumonia ? "Pneumonia Detected" : "Normal";
@@ -116,6 +135,26 @@ export default function ResultsScreen() {
           <InfoRow label="Scan Date" value={scanDate as string} />
         </View>
 
+        {/* Patient Notes Section */}
+        <View style={styles.notesCard}>
+          <View style={styles.notesHeader}>
+            <Text style={styles.cardTitle}>Clinical Notes</Text>
+            <TouchableOpacity
+              style={styles.editNotesButton}
+              onPress={() => setNotesModalVisible(true)}
+            >
+              <Ionicons name="pencil" size={16} color="#0066CC" />
+              <Text style={styles.editNotesText}>Edit</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {patientNotes ? (
+            <Text style={styles.notesText}>{patientNotes}</Text>
+          ) : (
+            <Text style={styles.notesPlaceholder}>No clinical notes added yet</Text>
+          )}
+        </View>
+
         <View style={styles.disclaimerBox}>
           <View style={styles.disclaimerHeader}>
             <Ionicons name="information-circle" size={20} color="#856404" />
@@ -165,6 +204,15 @@ export default function ResultsScreen() {
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
+
+      {/* Patient Notes Modal */}
+      <PatientNotesModal
+        visible={notesModalVisible}
+        currentNotes={patientNotes}
+        onClose={() => setNotesModalVisible(false)}
+        onSave={handleSaveNotes}
+        loading={notesLoading}
+      />
     </View>
   );
 }
@@ -306,6 +354,47 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#1C1C1E",
     marginBottom: 16,
+  },
+  notesCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  notesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  editNotesButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#F0F8FF",
+    borderRadius: 6,
+    gap: 4,
+  },
+  editNotesText: {
+    color: "#0066CC",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  notesText: {
+    fontSize: 14,
+    color: "#1C1C1E",
+    lineHeight: 20,
+  },
+  notesPlaceholder: {
+    fontSize: 14,
+    color: "#999",
+    fontStyle: "italic",
   },
   disclaimerBox: {
     backgroundColor: "#FFF3CD",

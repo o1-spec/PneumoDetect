@@ -74,9 +74,8 @@ export interface CreatePatientRequest {
 // ============== SCAN ==============
 export type ScanStatus = "UPLOADED" | "PROCESSING" | "COMPLETED" | "FAILED";
 export type ScanResult =
-  | "PNEUMONIA"
+  | "PNEUMONIA"    // ✅ Matches backend (removed PNEUMONIA_DETECTED)
   | "NORMAL"
-  | "PNEUMONIA_DETECTED"
   | "CONCERNS";
 
 export interface Scan {

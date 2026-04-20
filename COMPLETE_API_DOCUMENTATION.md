@@ -1,4 +1,5 @@
 # PneumoDetect Complete API & UI Documentation
+
 **Comprehensive Guide to All Screens, Workflows, and API Endpoints**
 
 **Date:** April 20, 2026  
@@ -10,12 +11,14 @@
 ## 📑 Complete Table of Contents
 
 ### Part 1: Authentication Flow
+
 1. [Login Screen](#login-screen)
 2. [Sign Up Screen](#sign-up-screen)
 3. [OTP Verification](#otp-verification)
 4. [Forgot Password](#forgot-password)
 
 ### Part 2: Main Application
+
 5. [Dashboard Screen](#dashboard-screen)
 6. [Scan Workflow](#scan-workflow-3-step-process)
    - 6.1 [Upload Screen](#upload-screen)
@@ -25,19 +28,23 @@
 8. [History/Records](#historyrecords)
 
 ### Part 3: User Features
+
 9. [Profile Management](#profile-management)
 10. [Patient Management](#patient-management)
 
 ### Part 4: Admin Features
+
 11. [Admin - Users](#admin-users)
 12. [Admin - All Scans](#admin-all-scans)
 13. [Admin - Analytics](#admin-analytics)
 
 ### Part 5: System Features
+
 14. [Notifications](#notifications)
 15. [Reports](#reports)
 
 ### Part 6: Reference
+
 16. [Complete API Endpoints Table](#complete-api-endpoints-table)
 17. [Error Handling](#error-handling)
 18. [Response Format Standards](#response-format-standards)
@@ -53,6 +60,7 @@
 **Auth Required:** ❌ No
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │  ← Back Button                              │
@@ -79,10 +87,11 @@
 ```
 
 ### Input Fields & Validation
-| Field | Type | Validation | Required |
-|-------|------|-----------|----------|
-| Email | Text | Valid email format (xxx@xxx.xxx) | ✅ Yes |
-| Password | Password | Min 6 characters | ✅ Yes |
+
+| Field    | Type     | Validation                       | Required |
+| -------- | -------- | -------------------------------- | -------- |
+| Email    | Text     | Valid email format (xxx@xxx.xxx) | ✅ Yes   |
+| Password | Password | Min 6 characters                 | ✅ Yes   |
 
 ### API Endpoint
 
@@ -91,6 +100,7 @@
 **Headers:** `Content-Type: application/json`
 
 #### Request Payload
+
 ```json
 {
   "email": "john@hospital.com",
@@ -99,6 +109,7 @@
 ```
 
 #### Success Response (200 OK)
+
 ```json
 {
   "id": "user-001",
@@ -119,6 +130,7 @@
 #### Error Responses
 
 **Invalid Credentials (401):**
+
 ```json
 {
   "statusCode": 401,
@@ -128,6 +140,7 @@
 ```
 
 **Email Not Verified (400):**
+
 ```json
 {
   "statusCode": 400,
@@ -138,6 +151,7 @@
 ```
 
 ### Navigation Flow
+
 ```
 Success (isVerified: true)
   → router.replace("/(tabs)")  // Go to Dashboard
@@ -165,6 +179,7 @@ Sign Up Click
 **Auth Required:** ❌ No
 
 ### Screen Layout (Clinician Mode)
+
 ```
 ┌────────────────────────────────────────────┐
 │  ← Back Button                              │
@@ -194,6 +209,7 @@ Sign Up Click
 ```
 
 ### Screen Layout (Patient Mode - Additional Fields)
+
 ```
 [Same as above, but after role selection adds:]
 
@@ -231,6 +247,7 @@ Sign Up Click
 | Medical History | Text | Any text | ❌ Optional |
 
 ### Available Specializations
+
 ```typescript
 [
   "General Practice",
@@ -242,8 +259,8 @@ Sign Up Click
   "Emergency Medicine",
   "Critical Care",
   "Infectious Disease",
-  "Respiratory Medicine"
-]
+  "Respiratory Medicine",
+];
 ```
 
 ### API Endpoint
@@ -255,6 +272,7 @@ Sign Up Click
 #### Request Payloads
 
 **Clinician Signup:**
+
 ```json
 {
   "name": "Dr. John Doe",
@@ -267,6 +285,7 @@ Sign Up Click
 ```
 
 **Patient Signup:**
+
 ```json
 {
   "name": "Jane Smith",
@@ -281,6 +300,7 @@ Sign Up Click
 ```
 
 **Minimal Signup (Clinician):**
+
 ```json
 {
   "name": "Dr. Smith",
@@ -291,6 +311,7 @@ Sign Up Click
 ```
 
 #### Success Response (201 Created)
+
 ```json
 {
   "id": "user-002",
@@ -311,6 +332,7 @@ Sign Up Click
 #### Error Responses
 
 **Email Already Exists (409):**
+
 ```json
 {
   "statusCode": 409,
@@ -320,6 +342,7 @@ Sign Up Click
 ```
 
 **Validation Error (400):**
+
 ```json
 {
   "statusCode": 400,
@@ -329,6 +352,7 @@ Sign Up Click
 ```
 
 ### Navigation Flow
+
 ```
 Success
   → router.push("/(auth)/otp-verification", { email })  // OTP Page
@@ -358,6 +382,7 @@ Sign In Link
 **Auth Required:** ❌ No
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │                                             │
@@ -385,9 +410,10 @@ Sign In Link
 ```
 
 ### Input Fields & Validation
-| Field | Type | Validation | Required |
-|-------|------|-----------|----------|
-| OTP Code | Numeric | Exactly 6 digits (0-9) | ✅ Yes |
+
+| Field    | Type    | Validation             | Required |
+| -------- | ------- | ---------------------- | -------- |
+| OTP Code | Numeric | Exactly 6 digits (0-9) | ✅ Yes   |
 
 ### API Endpoints
 
@@ -398,6 +424,7 @@ Sign In Link
 **Headers:** `Content-Type: application/json`
 
 #### Request Payload
+
 ```json
 {
   "email": "john@hospital.com",
@@ -406,6 +433,7 @@ Sign In Link
 ```
 
 #### Success Response (200 OK)
+
 ```json
 {
   "id": "user-002",
@@ -426,6 +454,7 @@ Sign In Link
 #### Error Responses
 
 **Invalid OTP (400):**
+
 ```json
 {
   "statusCode": 400,
@@ -435,6 +464,7 @@ Sign In Link
 ```
 
 **OTP Expired (400):**
+
 ```json
 {
   "statusCode": 400,
@@ -452,6 +482,7 @@ Sign In Link
 **Headers:** `Content-Type: application/json`
 
 #### Request Payload
+
 ```json
 {
   "email": "john@hospital.com"
@@ -459,6 +490,7 @@ Sign In Link
 ```
 
 #### Success Response (200 OK)
+
 ```json
 {
   "message": "OTP sent successfully",
@@ -469,6 +501,7 @@ Sign In Link
 #### Error Response
 
 **Too Many Requests (429):**
+
 ```json
 {
   "statusCode": 429,
@@ -478,6 +511,7 @@ Sign In Link
 ```
 
 ### Timer Behavior
+
 ```
 Resend Button States:
 - Initial: "Resend OTP" (clickable, blue)
@@ -486,6 +520,7 @@ Resend Button States:
 ```
 
 ### Navigation Flow
+
 ```
 Success
   → Check hasSeenOnboarding()
@@ -519,6 +554,7 @@ Back Button
 **Auth Required:** ❌ No
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │                                             │
@@ -547,9 +583,10 @@ Back Button
 ```
 
 ### Input Fields & Validation
-| Field | Type | Validation | Required |
-|-------|------|-----------|----------|
-| Email | Text | Valid email format | ✅ Yes |
+
+| Field | Type | Validation         | Required |
+| ----- | ---- | ------------------ | -------- |
+| Email | Text | Valid email format | ✅ Yes   |
 
 ### API Endpoint
 
@@ -558,6 +595,7 @@ Back Button
 **Headers:** `Content-Type: application/json`
 
 #### Request Payload
+
 ```json
 {
   "email": "john@hospital.com"
@@ -565,6 +603,7 @@ Back Button
 ```
 
 #### Success Response (200 OK)
+
 ```json
 {
   "message": "Password reset link sent successfully",
@@ -575,6 +614,7 @@ Back Button
 #### Error Responses
 
 **User Not Found (404):**
+
 ```json
 {
   "statusCode": 404,
@@ -584,6 +624,7 @@ Back Button
 ```
 
 **Rate Limited (429):**
+
 ```json
 {
   "statusCode": 429,
@@ -593,6 +634,7 @@ Back Button
 ```
 
 ### Navigation Flow
+
 ```
 Success
   → Show Alert: "Password reset link has been sent to your email"
@@ -623,6 +665,7 @@ Back Button
 **Roles:** CLINICIAN, PATIENT, ADMIN
 
 ### Screen Layout
+
 ```
 ┌─────────────────────────────────────────────┐
 │ Welcome back, Dr. John Doe!    🔔 [3]       │
@@ -662,6 +705,7 @@ Back Button
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "totalScans": 1250,
@@ -697,6 +741,7 @@ Back Button
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "resultBreakdown": {
@@ -733,6 +778,7 @@ Back Button
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "aiModel": "Operational",
@@ -750,6 +796,7 @@ Back Button
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 [
   {
@@ -764,6 +811,7 @@ Back Button
 ```
 
 ### Features & Navigation
+
 ```
 ✅ Pull-to-refresh
 ✅ Notification badge shows unread count
@@ -787,6 +835,7 @@ Back Button
 **Auth Required:** ✅ Yes (CLINICIAN role)
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ ← Back    Upload X-Ray      📤 Upload       │
@@ -813,6 +862,7 @@ Back Button
 ```
 
 ### Input Validation
+
 ```
 - Image Format: JPG, PNG only
 - Image Dimensions: Any (user can crop)
@@ -821,6 +871,7 @@ Back Button
 ```
 
 ### Features
+
 ```
 ✅ Camera capture (real-time)
 ✅ Gallery image picker
@@ -831,6 +882,7 @@ Back Button
 ```
 
 ### Navigation
+
 ```
 Click Continue
   → Validate image exists
@@ -851,6 +903,7 @@ Click Back
 **Auth Required:** ✅ Yes (CLINICIAN role)
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ ← Back    Patient Info       [X]            │
@@ -876,6 +929,7 @@ Click Back
 ```
 
 ### Add New Patient Form (Modal)
+
 ```
 ┌────────────────────────────────────────────┐
 │ Create New Patient                      ✕   │
@@ -900,6 +954,7 @@ Click Back
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 [
   {
@@ -930,6 +985,7 @@ Click Back
 **Headers:** `Authorization: Bearer {accessToken}`, `Content-Type: application/json`
 
 #### Request Payload
+
 ```json
 {
   "idNumber": "P003",
@@ -940,6 +996,7 @@ Click Back
 ```
 
 #### Response (201 Created)
+
 ```json
 {
   "id": "patient-003",
@@ -960,6 +1017,7 @@ Click Back
 **Headers:** `Authorization: Bearer {accessToken}`, `Content-Type: multipart/form-data`
 
 #### Request Payload (FormData)
+
 ```
 patientId: "patient-001"
 image: [File object from imageUri]
@@ -967,6 +1025,7 @@ clinicianNotes: "Possible consolidation in left lobe" (optional)
 ```
 
 #### Response (201 Created)
+
 ```json
 {
   "id": "scan-001",
@@ -978,6 +1037,7 @@ clinicianNotes: "Possible consolidation in left lobe" (optional)
 ```
 
 ### Navigation
+
 ```
 Click Continue
   → Validate patient selected
@@ -1003,6 +1063,7 @@ Click Add New Patient
 **Auth Required:** ✅ Yes (CLINICIAN role)
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │                                             │
@@ -1026,6 +1087,7 @@ Click Add New Patient
 ```
 
 ### Processing Steps & Timeline
+
 ```
 Step 1: Image Upload (0-20%)
   - Validate image format
@@ -1062,6 +1124,7 @@ Total Time: ~2-3 minutes
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "id": "scan-001",
@@ -1074,6 +1137,7 @@ Total Time: ~2-3 minutes
 ```
 
 #### Error Response
+
 ```json
 {
   "statusCode": 500,
@@ -1083,6 +1147,7 @@ Total Time: ~2-3 minutes
 ```
 
 ### Features & Polling
+
 ```
 ✅ Real-time progress bar updates
 ✅ Animated pulsing icon
@@ -1095,6 +1160,7 @@ Total Time: ~2-3 minutes
 ```
 
 ### Navigation
+
 ```
 Success (100%)
   → Show "Analysis complete!"
@@ -1122,6 +1188,7 @@ Processing Timeout (> 5 minutes)
 **Auth Required:** ✅ Yes
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ ✕ (close)        Analysis Results           │
@@ -1152,6 +1219,7 @@ Processing Timeout (> 5 minutes)
 ```
 
 ### Result Display Logic
+
 ```
 If result === "PNEUMONIA":
   - Icon: ⚠️ (warning)
@@ -1179,6 +1247,7 @@ Confidence Level Text:
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "id": "scan-001",
@@ -1206,6 +1275,7 @@ Confidence Level Text:
 ```
 
 ### Navigation
+
 ```
 Click View Heatmap
   → router.push("/analysis/results/explainable", params)
@@ -1226,6 +1296,7 @@ Click Close (✕)
 **Auth Required:** ✅ Yes
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ ←              Explainability               │
@@ -1255,6 +1326,7 @@ Click Close (✕)
 ```
 
 ### Features
+
 ```
 ✅ Heatmap overlay on original X-ray
 ✅ Color-coded attention regions
@@ -1273,6 +1345,7 @@ Click Close (✕)
 **Auth Required:** ✅ Yes
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ History                                     │
@@ -1303,6 +1376,7 @@ Click Close (✕)
 **Endpoint:** `/scans`  
 **Headers:** `Authorization: Bearer {accessToken}`  
 **Query Parameters:**
+
 ```
 Optional:
   ?status=COMPLETED
@@ -1311,6 +1385,7 @@ Optional:
 ```
 
 #### Response (200 OK)
+
 ```json
 [
   {
@@ -1330,6 +1405,7 @@ Optional:
 ```
 
 ### Features & Filtering
+
 ```
 ✅ Search by patient name or ID
 ✅ Search by scan ID
@@ -1342,6 +1418,7 @@ Optional:
 ```
 
 ### Navigation
+
 ```
 Click Scan Card
   → router.push("/report/[scanId]", { scanId })
@@ -1364,6 +1441,7 @@ Search/Filter
 **Auth Required:** ✅ Yes
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ Profile                                     │
@@ -1390,6 +1468,7 @@ Search/Filter
 ```
 
 ### Edit Profile Modal
+
 ```
 ┌────────────────────────────────────────────┐
 │ Edit Profile                            ✕   │
@@ -1412,6 +1491,7 @@ Search/Filter
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "id": "user-001",
@@ -1437,6 +1517,7 @@ Search/Filter
 **Headers:** `Authorization: Bearer {accessToken}`, `Content-Type: application/json`
 
 #### Request Payload
+
 ```json
 {
   "name": "Dr. John Doe",
@@ -1446,6 +1527,7 @@ Search/Filter
 ```
 
 #### Response (200 OK)
+
 ```json
 {
   "id": "user-001",
@@ -1479,6 +1561,7 @@ Search/Filter
 (Same as Dashboard - see Dashboard section)
 
 ### Navigation
+
 ```
 Click Edit Profile
   → Show edit modal
@@ -1506,6 +1589,7 @@ Click Download Reports
 **Auth Required:** ✅ Yes (CLINICIAN role)
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ ← Patients                          [+]     │
@@ -1556,6 +1640,7 @@ Click Download Reports
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "id": "patient-001",
@@ -1576,6 +1661,7 @@ Click Download Reports
 ```
 
 ### Navigation
+
 ```
 Click Add Patient ([+])
   → router.push("/patients/create")
@@ -1601,6 +1687,7 @@ Pull-to-refresh
 **Auth Required:** ✅ Yes (ADMIN role only)
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ Users                                       │
@@ -1632,6 +1719,7 @@ Pull-to-refresh
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 [
   {
@@ -1662,6 +1750,7 @@ Pull-to-refresh
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "id": "user-002",
@@ -1679,6 +1768,7 @@ Pull-to-refresh
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "message": "User deleted successfully"
@@ -1694,6 +1784,7 @@ Pull-to-refresh
 **Auth Required:** ✅ Yes (ADMIN role only)
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ All Scans                                   │
@@ -1735,6 +1826,7 @@ Pull-to-refresh
 ### Screen Tabs
 
 **Tab 1: Dashboard**
+
 ```
 ┌────────────────────────────────────────────┐
 │ Dashboard ⊡ | Scans | Patients             │
@@ -1751,6 +1843,7 @@ Pull-to-refresh
 ```
 
 **Tab 2: Scans**
+
 ```
 Result Breakdown:       Confidence Distribution:
 Pneumonia: 350 (29.2%)  Excellent (>90%): 800
@@ -1761,6 +1854,7 @@ Normal: 850 (70.8%)     Good (80-90%): 350
 ```
 
 **Tab 3: Patients**
+
 ```
 Total Patients: 450
 New This Month: 45
@@ -1782,6 +1876,7 @@ Top Patients:
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "totalScans": 1250,
@@ -1836,6 +1931,7 @@ Top Patients:
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "totalPatients": 450,
@@ -1866,6 +1962,7 @@ Top Patients:
 **Auth Required:** ✅ Yes
 
 ### Screen Layout
+
 ```
 ┌────────────────────────────────────────────┐
 │ ← Notifications                             │
@@ -1894,6 +1991,7 @@ Top Patients:
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 [
   {
@@ -1916,6 +2014,7 @@ Top Patients:
 **Headers:** `Authorization: Bearer {accessToken}`, `Content-Type: application/json`
 
 #### Request Payload
+
 ```json
 {
   "read": true
@@ -1923,6 +2022,7 @@ Top Patients:
 ```
 
 #### Response (200 OK)
+
 ```json
 {
   "id": "notif-001",
@@ -1940,6 +2040,7 @@ Top Patients:
 **Headers:** `Authorization: Bearer {accessToken}`
 
 #### Response (200 OK)
+
 ```json
 {
   "message": "All notifications marked as read"
@@ -1955,6 +2056,7 @@ Top Patients:
 **Auth Required:** ✅ Yes
 
 ### Report Contents
+
 ```
 ┌────────────────────────────────────────────┐
 │         PNEUMODETECT SCAN REPORT            │
@@ -2006,49 +2108,49 @@ Features:
 
 ### Backend Status: ✅ 44/44 Endpoints Complete
 
-| Category | Method | Endpoint | Purpose | Auth | Role |
-|----------|--------|----------|---------|------|------|
-| **AUTH** | POST | `/auth/login` | User login | ❌ | - |
-| | POST | `/auth/register` | User registration | ❌ | - |
-| | POST | `/auth/verify-otp` | Verify OTP code | ❌ | - |
-| | POST | `/auth/resend-otp` | Resend OTP code | ❌ | - |
-| | POST | `/auth/forgot-password` | Password reset | ❌ | - |
-| | POST | `/auth/logout` | User logout | ✅ | All |
-| **USERS** | GET | `/users/me` | Get current user | ✅ | All |
-| | PUT | `/users/profile` | Update profile | ✅ | All |
-| | GET | `/users/patient-profile` | Get patient profile | ✅ | PATIENT |
-| | PUT | `/users/patient-profile` | Update patient profile | ✅ | PATIENT |
-| **PATIENTS** | GET | `/patients` | List patients | ✅ | CLINICIAN |
-| | GET | `/patients/{id}` | Get patient | ✅ | CLINICIAN |
-| | POST | `/patients` | Create patient | ✅ | CLINICIAN |
-| | PUT | `/patients/{id}` | Update patient | ✅ | CLINICIAN |
-| | DELETE | `/patients/{id}` | Delete patient | ✅ | CLINICIAN |
-| **SCANS** | GET | `/scans` | List scans | ✅ | All |
-| | GET | `/scans/{id}` | Get scan | ✅ | All |
-| | GET | `/scans/patient/{patientId}` | Patient's scans | ✅ | CLINICIAN |
-| | POST | `/scans/upload` | Upload X-ray | ✅ | CLINICIAN |
-| | POST | `/scans/{id}/process` | Process scan | ✅ | CLINICIAN |
-| | PATCH | `/scans/{id}` | Update scan | ✅ | CLINICIAN |
-| | DELETE | `/scans/{id}` | Delete scan | ✅ | ADMIN |
-| | GET | `/scans/patient/my-scans/list` | My scans | ✅ | PATIENT |
-| | GET | `/scans/patient/{id}/view` | View my scan | ✅ | PATIENT |
-| | PATCH | `/scans/patient/{id}/notes` | Add notes | ✅ | PATIENT |
-| **ANALYTICS** | GET | `/analytics/stats` | Statistics | ✅ | All |
-| | GET | `/analytics/dashboard` | Dashboard | ✅ | ADMIN |
-| | GET | `/analytics/scans/results` | Scan results | ✅ | All |
-| | GET | `/analytics/patients` | Patient analytics | ✅ | ADMIN |
-| | GET | `/analytics/model-performance` | Model metrics | ✅ | ADMIN |
-| **NOTIFICATIONS** | GET | `/notifications` | List notifications | ✅ | All |
-| | GET | `/notifications/{id}` | Get notification | ✅ | All |
-| | PATCH | `/notifications/{id}` | Update notification | ✅ | All |
-| | POST | `/notifications/mark-all-read` | Mark all read | ✅ | All |
-| | DELETE | `/notifications/{id}` | Delete notification | ✅ | All |
-| **ADMIN** | GET | `/admin/users` | List users | ✅ | ADMIN |
-| | GET | `/admin/users/{id}` | Get user | ✅ | ADMIN |
-| | PATCH | `/admin/users/{id}/status` | Toggle status | ✅ | ADMIN |
-| | DELETE | `/admin/users/{id}` | Delete user | ✅ | ADMIN |
-| **ACTIVITY** | GET | `/users/activity` | User activity | ✅ | All |
-| | GET | `/users/activity/login` | Login history | ✅ | All |
+| Category          | Method | Endpoint                       | Purpose                | Auth | Role      |
+| ----------------- | ------ | ------------------------------ | ---------------------- | ---- | --------- |
+| **AUTH**          | POST   | `/auth/login`                  | User login             | ❌   | -         |
+|                   | POST   | `/auth/register`               | User registration      | ❌   | -         |
+|                   | POST   | `/auth/verify-otp`             | Verify OTP code        | ❌   | -         |
+|                   | POST   | `/auth/resend-otp`             | Resend OTP code        | ❌   | -         |
+|                   | POST   | `/auth/forgot-password`        | Password reset         | ❌   | -         |
+|                   | POST   | `/auth/logout`                 | User logout            | ✅   | All       |
+| **USERS**         | GET    | `/users/me`                    | Get current user       | ✅   | All       |
+|                   | PUT    | `/users/profile`               | Update profile         | ✅   | All       |
+|                   | GET    | `/users/patient-profile`       | Get patient profile    | ✅   | PATIENT   |
+|                   | PUT    | `/users/patient-profile`       | Update patient profile | ✅   | PATIENT   |
+| **PATIENTS**      | GET    | `/patients`                    | List patients          | ✅   | CLINICIAN |
+|                   | GET    | `/patients/{id}`               | Get patient            | ✅   | CLINICIAN |
+|                   | POST   | `/patients`                    | Create patient         | ✅   | CLINICIAN |
+|                   | PUT    | `/patients/{id}`               | Update patient         | ✅   | CLINICIAN |
+|                   | DELETE | `/patients/{id}`               | Delete patient         | ✅   | CLINICIAN |
+| **SCANS**         | GET    | `/scans`                       | List scans             | ✅   | All       |
+|                   | GET    | `/scans/{id}`                  | Get scan               | ✅   | All       |
+|                   | GET    | `/scans/patient/{patientId}`   | Patient's scans        | ✅   | CLINICIAN |
+|                   | POST   | `/scans/upload`                | Upload X-ray           | ✅   | CLINICIAN |
+|                   | POST   | `/scans/{id}/process`          | Process scan           | ✅   | CLINICIAN |
+|                   | PATCH  | `/scans/{id}`                  | Update scan            | ✅   | CLINICIAN |
+|                   | DELETE | `/scans/{id}`                  | Delete scan            | ✅   | ADMIN     |
+|                   | GET    | `/scans/patient/my-scans/list` | My scans               | ✅   | PATIENT   |
+|                   | GET    | `/scans/patient/{id}/view`     | View my scan           | ✅   | PATIENT   |
+|                   | PATCH  | `/scans/patient/{id}/notes`    | Add notes              | ✅   | PATIENT   |
+| **ANALYTICS**     | GET    | `/analytics/stats`             | Statistics             | ✅   | All       |
+|                   | GET    | `/analytics/dashboard`         | Dashboard              | ✅   | ADMIN     |
+|                   | GET    | `/analytics/scans/results`     | Scan results           | ✅   | All       |
+|                   | GET    | `/analytics/patients`          | Patient analytics      | ✅   | ADMIN     |
+|                   | GET    | `/analytics/model-performance` | Model metrics          | ✅   | ADMIN     |
+| **NOTIFICATIONS** | GET    | `/notifications`               | List notifications     | ✅   | All       |
+|                   | GET    | `/notifications/{id}`          | Get notification       | ✅   | All       |
+|                   | PATCH  | `/notifications/{id}`          | Update notification    | ✅   | All       |
+|                   | POST   | `/notifications/mark-all-read` | Mark all read          | ✅   | All       |
+|                   | DELETE | `/notifications/{id}`          | Delete notification    | ✅   | All       |
+| **ADMIN**         | GET    | `/admin/users`                 | List users             | ✅   | ADMIN     |
+|                   | GET    | `/admin/users/{id}`            | Get user               | ✅   | ADMIN     |
+|                   | PATCH  | `/admin/users/{id}/status`     | Toggle status          | ✅   | ADMIN     |
+|                   | DELETE | `/admin/users/{id}`            | Delete user            | ✅   | ADMIN     |
+| **ACTIVITY**      | GET    | `/users/activity`              | User activity          | ✅   | All       |
+|                   | GET    | `/users/activity/login`        | Login history          | ✅   | All       |
 
 ---
 
@@ -2066,15 +2168,15 @@ Features:
 
 ### Common Error Codes
 
-| Code | Error | Meaning | Action |
-|------|-------|---------|--------|
-| 400 | Bad Request | Invalid input | Check validation |
-| 401 | Unauthorized | Not authenticated | Login required |
-| 403 | Forbidden | No permission | Check role access |
-| 404 | Not Found | Resource missing | Check ID |
-| 409 | Conflict | Duplicate resource | Use existing |
-| 429 | Too Many Requests | Rate limited | Wait before retry |
-| 500 | Internal Error | Server error | Retry or contact support |
+| Code | Error             | Meaning            | Action                   |
+| ---- | ----------------- | ------------------ | ------------------------ |
+| 400  | Bad Request       | Invalid input      | Check validation         |
+| 401  | Unauthorized      | Not authenticated  | Login required           |
+| 403  | Forbidden         | No permission      | Check role access        |
+| 404  | Not Found         | Resource missing   | Check ID                 |
+| 409  | Conflict          | Duplicate resource | Use existing             |
+| 429  | Too Many Requests | Rate limited       | Wait before retry        |
+| 500  | Internal Error    | Server error       | Retry or contact support |
 
 ### Frontend Error Handling Pattern
 
@@ -2095,15 +2197,17 @@ try {
 ## 📋 Response Format Standards
 
 ### Success Response
+
 ```json
 {
-  "data": { },      // Response data
+  "data": {}, // Response data
   "message": "Success",
   "error": null
 }
 ```
 
 ### Error Response
+
 ```json
 {
   "statusCode": 400,
@@ -2113,12 +2217,14 @@ try {
 ```
 
 ### Headers
+
 ```
 Content-Type: application/json
 Authorization: Bearer {accessToken}
 ```
 
 ### Authentication
+
 ```
 All endpoints except /auth/* require:
 Authorization: Bearer {JWT_TOKEN}
@@ -2138,6 +2244,7 @@ Token stored in secure storage:
 ## 🔐 Security
 
 ### Authentication Flow
+
 ```
 1. User submits credentials
 2. Backend validates and returns JWT
@@ -2149,6 +2256,7 @@ Token stored in secure storage:
 ```
 
 ### Data Sensitivity
+
 ```
 ✅ Passwords: Hashed with bcrypt
 ✅ Tokens: Signed JWT with expiration
@@ -2162,6 +2270,7 @@ Token stored in secure storage:
 ## 🎯 Implementation Checklist
 
 ### Authentication ✅
+
 - [x] Login screen
 - [x] Signup with role selection
 - [x] OTP verification
@@ -2171,6 +2280,7 @@ Token stored in secure storage:
 - [x] Error handling
 
 ### Dashboard ✅
+
 - [x] Statistics display
 - [x] Charts and visualizations
 - [x] System status
@@ -2179,6 +2289,7 @@ Token stored in secure storage:
 - [x] All endpoints implemented
 
 ### Scan Workflow ✅
+
 - [x] Upload screen (image selection)
 - [x] Patient info screen (selection/creation)
 - [x] Processing screen (real-time progress)
@@ -2187,6 +2298,7 @@ Token stored in secure storage:
 - [x] All endpoints implemented
 
 ### Other Features ✅
+
 - [x] History/records
 - [x] Profile management
 - [x] Patient management
