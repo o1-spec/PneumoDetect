@@ -1,14 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useContext, useRef, useState } from "react";
-import {
-    Dimensions,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from "react-native";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { PremiumButton } from "../../components/auth/PremiumButton";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { storeOnboardingFlag } from "../../utils/secureStorage";
@@ -32,25 +26,25 @@ const SCREENS: OnboardingScreen[] = [
     icon: "pulse",
     description:
       "Quickly and accurately detect pneumonia using advanced AI technology. Simply upload a chest X-ray and get results in seconds.",
-    color: "#0066CC",
+    color: "#0B5ED7",
   },
   {
     id: 2,
     title: "How It Works",
     subtitle: "3 Simple Steps",
-    icon: "list",
+    icon: "layers-outline",
     description:
       "1. Upload a chest X-ray image\n2. Our AI analyzes the image\n3. Get detailed results and recommendations",
-    color: "#0066CC",
+    color: "#0B5ED7",
   },
   {
     id: 3,
     title: "Your Privacy Matters",
     subtitle: "Secure & Encrypted",
-    icon: "shield-checkmark",
+    icon: "shield-checkmark-outline",
     description:
       "Your medical data is encrypted and stored securely. We comply with healthcare privacy standards and never share your information.",
-    color: "#0066CC",
+    color: "#0B5ED7",
   },
 ];
 
@@ -114,12 +108,17 @@ export default function OnboardingScreen() {
         scrollEnabled={false}
       >
         {SCREENS.map((s) => (
-          <View key={s.id} style={[styles.screen, { width: SCREEN_WIDTH }]}>
+          <View style={styles.screen}>
             <View style={styles.screenContent}>
-              <View
-                style={[styles.iconCircle, { backgroundColor: `${s.color}20` }]}
-              >
-                <Ionicons name={s.icon as any} size={64} color={s.color} />
+              <View style={styles.iconContainer}>
+                <View
+                  style={[
+                    styles.iconCircle,
+                    { backgroundColor: `${s.color}15` },
+                  ]}
+                >
+                  <Ionicons name={s.icon as any} size={80} color={s.color} />
+                </View>
               </View>
 
               <Text style={styles.title}>{s.title}</Text>
@@ -145,36 +144,24 @@ export default function OnboardingScreen() {
 
         <View style={styles.buttonContainer}>
           {currentScreen === SCREENS.length - 1 ? (
-            <TouchableOpacity
-              style={[
-                styles.button,
-                styles.getStartedButton,
-                loading && styles.buttonDisabled,
-              ]}
-              onPress={handleGetStarted}
+            <PremiumButton
+              variant="primary"
+              size="lg"
+              loading={loading}
               disabled={loading}
+              onPress={handleGetStarted}
             >
-              <Text style={styles.buttonText}>
-                {loading ? "Loading..." : "Get Started"}
-              </Text>
-              <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
+              Get Started
+            </PremiumButton>
           ) : (
             <>
-              <TouchableOpacity
-                style={[styles.button, styles.skipButton]}
-                onPress={handleSkip}
-              >
-                <Text style={styles.skipButtonText}>Skip</Text>
-              </TouchableOpacity>
+              <PremiumButton variant="outline" size="lg" onPress={handleSkip}>
+                Skip
+              </PremiumButton>
 
-              <TouchableOpacity
-                style={[styles.button, styles.nextButton]}
-                onPress={handleNext}
-              >
-                <Text style={styles.buttonText}>Next</Text>
-                <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-              </TouchableOpacity>
+              <PremiumButton variant="primary" size="lg" onPress={handleNext}>
+                Next
+              </PremiumButton>
             </>
           )}
         </View>
@@ -186,116 +173,96 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FAFBFC",
   },
   screen: {
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   },
   screenContent: {
     alignItems: "center",
   },
+  iconContainer: {
+    marginBottom: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   iconCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 32,
+    borderWidth: 2,
+    borderColor: "#E0E7FF",
+    shadowColor: "#0B5ED7",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
   },
   title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 8,
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 12,
     textAlign: "center",
+    letterSpacing: -0.7,
   },
   subtitle: {
     fontSize: 16,
-    color: "#8E8E93",
-    marginBottom: 24,
+    color: "#6B7280",
+    marginBottom: 32,
     textAlign: "center",
+    fontWeight: "600",
+    letterSpacing: 0.3,
   },
   descriptionBox: {
-    backgroundColor: "#F5F5F7",
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 28,
+    marginTop: 32,
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
   description: {
-    fontSize: 14,
-    color: "#1C1C1E",
-    lineHeight: 22,
+    fontSize: 15,
+    color: "#111827",
+    lineHeight: 26,
     textAlign: "center",
+    fontWeight: "500",
   },
   footer: {
-    paddingBottom: 40,
-    paddingHorizontal: 24,
+    paddingBottom: 48,
+    paddingHorizontal: 20,
+    paddingTop: 24,
   },
   dotsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 32,
-    gap: 8,
+    marginBottom: 40,
+    gap: 10,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#E0E0E0",
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#E5E7EB",
   },
   dotActive: {
-    backgroundColor: "#0066CC",
-    width: 24,
+    backgroundColor: "#0B5ED7",
+    width: 32,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 12,
-  },
-  button: {
-    borderRadius: 12,
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-  },
-  getStartedButton: {
-    flex: 1,
-    backgroundColor: "#0066CC",
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  skipButton: {
-    flex: 1,
-    backgroundColor: "#F5F5F7",
-  },
-  nextButton: {
-    flex: 1,
-    backgroundColor: "#0066CC",
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  skipButtonText: {
-    color: "#0066CC",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  buttonDisabled: {
-    opacity: 0.5,
   },
 });

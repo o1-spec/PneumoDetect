@@ -4,34 +4,31 @@ export default function AuthLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#0066CC",
-        },
-        headerTintColor: "#FFFFFF",
-        headerTitleStyle: {
-          fontWeight: "bold",
-        },
-        headerBackTitle: "Back",
+        headerShown: false,
       }}
     >
       <Stack.Screen
         name="login"
         options={{
-          title: "Sign In",
           headerShown: false,
         }}
       />
       <Stack.Screen
         name="signup"
         options={{
-          title: "Create Account",
           headerShown: false,
         }}
       />
       <Stack.Screen
         name="forgot-password"
         options={{
-          title: "Reset Password",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="otp-verification"
+        options={{
+          headerShown: false,
         }}
       />
     </Stack>

@@ -2,16 +2,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { AuthHeader } from "../../components/auth/AuthHeader";
+import { AuthInput } from "../../components/auth/AuthInput";
+import { PremiumButton } from "../../components/auth/PremiumButton";
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
@@ -50,59 +52,63 @@ export default function ForgotPasswordScreen() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="key-outline" size={48} color="#0066CC" />
-          </View>
-          <Text style={styles.title}>Reset Password</Text>
-          <Text style={styles.subtitle}>
-            Enter your email address and we'll send you a link to reset your
-            password.
-          </Text>
-        </View>
+        {/* Back Button */}
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
+        </TouchableOpacity>
 
+        {/* Header */}
+        <AuthHeader
+          icon="key-outline"
+          title="Reset Password"
+          subtitle="Enter your email address and we'll send you a reset link"
+        />
+
+        {/* Form */}
         <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Ionicons
-              name="mail-outline"
-              size={20}
-              color="#8E8E93"
-              style={styles.inputIcon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Email Address"
-              placeholderTextColor="#8E8E93"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
+          <AuthInput
+            label="Email Address"
+            icon="mail-outline"
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={email}
+            onChangeText={setEmail}
+          />
 
-          <TouchableOpacity
-            style={[styles.resetButton, loading && styles.resetButtonDisabled]}
+          {/* Send Button */}
+          <PremiumButton
+            variant="primary"
+            size="lg"
+            loading={loading}
+            disabled={!email || loading}
             onPress={handleResetPassword}
-            disabled={loading}
+            style={styles.sendButton}
           >
-            <Text style={styles.resetButtonText}>
-              {loading ? "Sending..." : "Send Reset Link"}
-            </Text>
-          </TouchableOpacity>
+            Send Reset Link
+          </PremiumButton>
 
+          {/* Back to Sign In */}
           <TouchableOpacity
-            style={styles.backButton}
+            style={styles.backToSignIn}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={20} color="#0066CC" />
-            <Text style={styles.backButtonText}>Back to Sign In</Text>
+            <Ionicons name="chevron-back" size={16} color="#0B5ED7" />
+            <Text style={styles.backToSignInText}>Back to Sign In</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Info Box */}
         <View style={styles.infoBox}>
-          <Ionicons name="information-circle" size={20} color="#0066CC" />
+          <View style={styles.infoIconWrapper}>
+            <Ionicons name="information-circle" size={20} color="#0B5ED7" />
+          </View>
           <Text style={styles.infoText}>
             If an account exists with this email, you will receive password
             reset instructions.
@@ -116,107 +122,61 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
+    paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 40,
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  iconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: "#E3F2FD",
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 12,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#8E8E93",
-    textAlign: "center",
-    lineHeight: 24,
-    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   form: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    marginBottom: 32,
   },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F7",
-    borderRadius: 12,
-    marginBottom: 20,
-    paddingHorizontal: 16,
-    height: 56,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#1C1C1E",
-  },
-  resetButton: {
-    backgroundColor: "#0066CC",
-    borderRadius: 12,
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
+  sendButton: {
     marginBottom: 16,
   },
-  resetButtonDisabled: {
-    opacity: 0.6,
-  },
-  resetButtonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  backButton: {
+  backToSignIn: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
     paddingVertical: 12,
+    gap: 6,
   },
-  backButtonText: {
-    color: "#0066CC",
-    fontSize: 16,
+  backToSignInText: {
+    color: "#0B5ED7",
+    fontSize: 14,
     fontWeight: "600",
   },
   infoBox: {
     flexDirection: "row",
-    backgroundColor: "#E3F2FD",
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 24,
+    backgroundColor: "#F0F4FF",
+    borderWidth: 1,
+    borderColor: "#E0E7FF",
+    borderRadius: 10,
+    padding: 14,
     gap: 12,
+  },
+  infoIconWrapper: {
+    paddingTop: 2,
   },
   infoText: {
     flex: 1,
-    fontSize: 14,
-    color: "#0066CC",
-    lineHeight: 20,
+    fontSize: 13,
+    color: "#0B5ED7",
+    lineHeight: 19,
+    fontWeight: "500",
   },
 });

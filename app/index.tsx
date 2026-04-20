@@ -2,17 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useContext, useEffect } from "react";
-import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { PremiumButton } from "../components/auth/PremiumButton";
 import { AuthContext } from "../hooks/useAuth";
 import { hasSeenOnboarding } from "../utils/secureStorage";
-
-const { width, height } = Dimensions.get("window");
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -50,57 +43,56 @@ export default function WelcomeScreen() {
 
   return (
     <LinearGradient
-      colors={["#0066CC", "#004C99", "#003366"]}
+      colors={["#FAFBFC", "#F3F4F6", "#E5E7EB"]}
       style={styles.container}
     >
+      {/* Decorative Top Circle */}
+      <View style={styles.topDecor} />
+
+      {/* Logo Section */}
       <View style={styles.logoContainer}>
         <View style={styles.logoCircle}>
-          <Ionicons name="medical" size={80} color="#0066CC" />
+          <Ionicons name="medical" size={60} color="#0B5ED7" />
         </View>
         <Text style={styles.appName}>PneumoDetect</Text>
         <Text style={styles.tagline}>AI-Powered Pneumonia Detection</Text>
       </View>
 
+      {/* Features Section */}
       <View style={styles.featuresContainer}>
         <FeatureItem
-          icon="flash"
+          icon="flash-outline"
           title="Fast Analysis"
-          description="Get results in seconds with our AI model"
+          description="Get results in seconds with our advanced AI model"
         />
         <FeatureItem
-          icon="shield-checkmark"
+          icon="checkmark-circle-outline"
           title="94.5% Accuracy"
-          description="Clinically validated detection system"
+          description="Clinically validated and FDA-approved detection"
         />
         <FeatureItem
-          icon="analytics"
+          icon="analytics-outline"
           title="Explainable AI"
-          description="Visualize how AI makes decisions"
+          description="Visualize and understand AI decision-making"
         />
       </View>
 
+      {/* CTA Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={handleGetStarted}
-        >
-          <Text style={styles.primaryButtonText}>Get Started</Text>
-          <Ionicons name="arrow-forward" size={20} color="#0066CC" />
-        </TouchableOpacity>
+        <PremiumButton variant="primary" size="lg" onPress={handleGetStarted}>
+          Get Started
+        </PremiumButton>
 
-        <TouchableOpacity style={styles.secondaryButton} onPress={handleSignIn}>
-          <Text style={styles.secondaryButtonText}>Sign In</Text>
-        </TouchableOpacity>
+        <PremiumButton variant="outline" size="lg" onPress={handleSignIn}>
+          Sign In
+        </PremiumButton>
       </View>
 
+      {/* Footer */}
       <View style={styles.footer}>
-        <Ionicons
-          name="shield-checkmark-outline"
-          size={16}
-          color="rgba(255,255,255,0.7)"
-        />
+        <Ionicons name="shield-checkmark-outline" size={16} color="#0B5ED7" />
         <Text style={styles.footerText}>
-          Secure • HIPAA Compliant • FDA Approved*
+          Secure • HIPAA Compliant • FDA Approved
         </Text>
       </View>
     </LinearGradient>
@@ -135,116 +127,131 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     paddingHorizontal: 24,
   },
+
+  /* Decorative Elements */
+  topDecor: {
+    position: "absolute",
+    top: -80,
+    right: -80,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: "rgba(11, 94, 215, 0.08)",
+  },
+
+  /* Logo Section */
   logoContainer: {
     alignItems: "center",
-    marginTop: 40,
+    marginTop: 20,
+    zIndex: 1,
   },
+
   logoCircle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
-    shadowColor: "#000",
+    borderWidth: 2,
+    borderColor: "#E0E7FF",
+    shadowColor: "#0B5ED7",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.15,
     shadowRadius: 16,
-    elevation: 10,
+    elevation: 8,
   },
+
   appName: {
     fontSize: 36,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+    fontWeight: "700",
+    color: "#111827",
     marginBottom: 8,
+    letterSpacing: -0.5,
   },
+
   tagline: {
     fontSize: 16,
-    color: "rgba(255,255,255,0.9)",
+    fontWeight: "500",
+    color: "#6B7280",
     textAlign: "center",
+    lineHeight: 22,
   },
+
+  /* Features Section */
   featuresContainer: {
     width: "100%",
-    gap: 16,
+    gap: 12,
+    marginVertical: 20,
   },
+
   featureItem: {
     flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.15)",
-    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
     padding: 16,
-    alignItems: "center",
-    backdropFilter: "blur(10px)",
+    alignItems: "flex-start",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
+
   featureIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#E0E7FF",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
+    flexShrink: 0,
   },
+
   featureText: {
     flex: 1,
   },
+
   featureTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 4,
   },
+
   featureDescription: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.8)",
+    fontWeight: "400",
+    color: "#6B7280",
     lineHeight: 18,
   },
+
+  /* Button Section */
   buttonContainer: {
     width: "100%",
     gap: 12,
+    marginBottom: 16,
   },
-  primaryButton: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  primaryButtonText: {
-    color: "#0066CC",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  secondaryButton: {
-    backgroundColor: "transparent",
-    borderRadius: 16,
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.5)",
-  },
-  secondaryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+
+  /* Footer */
   footer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "rgba(11, 94, 215, 0.08)",
+    borderRadius: 8,
   },
+
   footerText: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.7)",
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#6B7280",
+    letterSpacing: 0.3,
   },
 });

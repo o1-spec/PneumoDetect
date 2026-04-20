@@ -2,15 +2,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useContext, useRef, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { AuthHeader } from "../../components/auth/AuthHeader";
+import { PremiumButton } from "../../components/auth/PremiumButton";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { getErrorMessage } from "../../utils/errorHandler";
@@ -119,47 +121,49 @@ export default function OTPVerificationScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <View style={styles.iconCircle}>
-            <Ionicons name="mail-outline" size={48} color="#0066CC" />
-          </View>
-          <Text style={styles.title}>Verify Email</Text>
-          <Text style={styles.subtitle}>We sent a 6-digit code to {email}</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() =>
+            router.canGoBack() ? router.back() : router.push("/(auth)/signup")
+          }
+        >
+          <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
+        </TouchableOpacity>
+
+        <AuthHeader
+          icon="mail-outline"
+          title="Verify Email"
+          subtitle={`We sent a 6-digit code to ${email}`}
+        />
 
         <View style={styles.form}>
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>Enter OTP</Text>
-            <TextInput
-              style={[styles.otpInput, error && styles.otpInputError]}
-              placeholder="000000"
-              placeholderTextColor="#8E8E93"
-              value={otp}
-              onChangeText={(text) => {
-                if (/^\d{0,6}$/.test(text)) {
-                  setOtp(text);
-                  setError("");
-                }
-              }}
-              keyboardType="numeric"
-              maxLength={6}
-              autoFocus
-            />
-            {error && <Text style={styles.errorText}>{error}</Text>}
-          </View>
+          <Text style={styles.otpLabel}>Enter Code</Text>
+          <TextInput
+            style={[styles.otpInput, error && styles.otpInputError]}
+            placeholder="000000"
+            placeholderTextColor="#D1D5DB"
+            value={otp}
+            onChangeText={(text) => {
+              if (/^\d{0,6}$/.test(text)) {
+                setOtp(text);
+                setError("");
+              }
+            }}
+            keyboardType="numeric"
+            maxLength={6}
+            autoFocus
+          />
+          {error && <Text style={styles.errorText}>{error}</Text>}
 
-          <TouchableOpacity
-            style={[
-              styles.verifyButton,
-              (loading || otp.length !== 6) && styles.verifyButtonDisabled,
-            ]}
-            onPress={handleVerifyOTP}
+          <PremiumButton
+            variant="primary"
+            size="lg"
+            loading={loading}
             disabled={loading || otp.length !== 6}
+            onPress={handleVerifyOTP}
           >
-            <Text style={styles.verifyButtonText}>
-              {loading ? "Verifying..." : "Verify"}
-            </Text>
-          </TouchableOpacity>
+            Verify Code
+          </PremiumButton>
 
           <View style={styles.resendContainer}>
             <Text style={styles.resendText}>Didn't receive the code? </Text>
@@ -192,121 +196,77 @@ export default function OTPVerificationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
+    paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 80,
-    paddingBottom: 40,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 32,
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  iconCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#E3F2FD",
-    justifyContent: "center",
-    alignItems: "center",
+  backButton: {
+    alignSelf: "flex-start",
+    padding: 8,
     marginBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#8E8E93",
-    textAlign: "center",
   },
   form: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    marginTop: 20,
+    gap: 16,
   },
-  formGroup: {
-    marginBottom: 24,
-  },
-  label: {
-    fontSize: 14,
+  otpLabel: {
+    fontSize: 13,
     fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 12,
+    color: "#111827",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 8,
   },
   otpInput: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    backgroundColor: "#F5F5F7",
-    borderRadius: 12,
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#111827",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    borderRadius: 10,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 12,
     textAlign: "center",
-    letterSpacing: 8,
+    letterSpacing: 6,
   },
   otpInputError: {
-    borderWidth: 2,
-    borderColor: "#D32F2F",
-    backgroundColor: "#FFEBEE",
+    borderColor: "#EF4444",
+    backgroundColor: "#FEE2E2",
   },
   errorText: {
-    color: "#D32F2F",
+    color: "#EF4444",
     fontSize: 12,
+    fontWeight: "500",
     marginTop: 8,
-  },
-  verifyButton: {
-    backgroundColor: "#0066CC",
-    borderRadius: 12,
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  verifyButtonDisabled: {
-    opacity: 0.5,
-    backgroundColor: "#CCCCCC",
-  },
-  verifyButtonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "bold",
   },
   resendContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingTop: 16,
+    marginTop: 8,
   },
   resendText: {
-    color: "#8E8E93",
     fontSize: 14,
+    fontWeight: "500",
+    color: "#6B7280",
   },
   resendLink: {
-    color: "#0066CC",
     fontSize: 14,
     fontWeight: "600",
+    color: "#0B5ED7",
   },
   resendLinkDisabled: {
     opacity: 0.5,
   },
   resendTimerText: {
-    color: "#8E8E93",
+    color: "#6B7280",
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: "500",
   },
 });

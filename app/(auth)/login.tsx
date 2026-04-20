@@ -7,10 +7,12 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { AuthHeader } from "../../components/auth/AuthHeader";
+import { AuthInput } from "../../components/auth/AuthInput";
+import { PremiumButton } from "../../components/auth/PremiumButton";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { getErrorMessage } from "../../utils/errorHandler";
@@ -98,114 +100,83 @@ export default function LoginScreen() {
             router.canGoBack() ? router.back() : router.push("/")
           }
         >
-          <Ionicons name="arrow-back" size={24} color="#0066CC" />
+          <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
         </TouchableOpacity>
 
-        <View style={styles.header}>
-          <View style={styles.iconCircle}>
-            <Ionicons name="log-in" size={48} color="#0066CC" />
-          </View>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to continue</Text>
-        </View>
+        {/* Header */}
+        <AuthHeader
+          icon="log-in-outline"
+          title="Welcome Back"
+          subtitle="Sign in to your PneumoDetect account"
+        />
 
+        {/* Form */}
         <View style={styles.form}>
-          <View style={styles.formGroup}>
-            <View
-              style={[styles.inputContainer, errors.email && styles.inputError]}
-            >
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color="#8E8E93"
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Email Address"
-                placeholderTextColor="#8E8E93"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  if (errors.email) setErrors({ ...errors, email: "" });
-                }}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-            {errors.email && (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            )}
-          </View>
+          <AuthInput
+            label="Email Address"
+            icon="mail-outline"
+            placeholder="you@example.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            value={email}
+            error={errors.email}
+            onChangeText={(text: string) => {
+              setEmail(text);
+              if (errors.email) setErrors({ ...errors, email: "" });
+            }}
+          />
 
-          <View style={styles.formGroup}>
-            <View
-              style={[
-                styles.inputContainer,
-                errors.password && styles.inputError,
-              ]}
-            >
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color="#8E8E93"
-                style={styles.inputIcon}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                placeholderTextColor="#8E8E93"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  if (errors.password) setErrors({ ...errors, password: "" });
-                }}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-              />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
-                <Ionicons
-                  name={showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={20}
-                  color="#8E8E93"
-                />
-              </TouchableOpacity>
-            </View>
-            {errors.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
-            )}
-          </View>
+          <AuthInput
+            label="Password"
+            icon="lock-closed-outline"
+            placeholder="••••••••"
+            secureTextEntry={!showPassword}
+            showPasswordToggle={true}
+            isPassword={true}
+            value={password}
+            error={errors.password}
+            onChangeText={(text: string) => {
+              setPassword(text);
+              if (errors.password) setErrors({ ...errors, password: "" });
+            }}
+            onTogglePassword={() => setShowPassword(!showPassword)}
+          />
 
+          {/* Forgot Password */}
           <TouchableOpacity
             onPress={() => router.push("/(auth)/forgot-password")}
-            style={styles.forgotPasswordContainer}
+            style={styles.forgotPasswordButton}
           >
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[
-              styles.loginButton,
-              (isLoading || !isFormValid()) && styles.loginButtonDisabled,
-            ]}
+          {/* Login Button */}
+          <PremiumButton
+            variant="primary"
+            size="lg"
+            loading={isLoading}
+            disabled={!isFormValid() || isLoading}
             onPress={handleLogin}
-            disabled={isLoading || !isFormValid()}
+            style={styles.loginButton}
           >
-            <Text style={styles.loginButtonText}>
-              {isLoading ? "Signing In..." : "Sign In"}
-            </Text>
-          </TouchableOpacity>
+            Sign In
+          </PremiumButton>
 
+          {/* Sign Up Link */}
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>Don't have an account? </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
               <Text style={styles.signupLink}>Sign Up</Text>
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Secure AI-powered pneumonia detection for clinical use.
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -215,139 +186,66 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
+    paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingHorizontal: 20,
+    paddingTop: 16,
     paddingBottom: 40,
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  iconCircle: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#E3F2FD",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#8E8E93",
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   form: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    marginBottom: 32,
   },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F7",
-    borderRadius: 12,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    height: 56,
-  },
-  inputError: {
-    borderWidth: 1,
-    borderColor: "#D32F2F",
-    backgroundColor: "#FFEBEE",
-  },
-  formGroup: {
-    marginBottom: 12,
-  },
-  errorText: {
-    color: "#D32F2F",
-    fontSize: 12,
-    marginTop: 4,
-    marginHorizontal: 4,
-    marginBottom: 12,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#1C1C1E",
-  },
-  eyeIcon: {
-    padding: 8,
-  },
-  forgotPasswordContainer: {
-    alignItems: "flex-end",
+  forgotPasswordButton: {
+    alignSelf: "flex-end",
     marginBottom: 24,
   },
-  forgotPassword: {
-    color: "#0066CC",
+  forgotPasswordText: {
+    color: "#0B5ED7",
     fontSize: 14,
     fontWeight: "600",
   },
   loginButton: {
-    backgroundColor: "#0066CC",
-    borderRadius: 12,
-    height: 56,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 16,
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  loginButtonDisabled: {
-    opacity: 0.5,
-    backgroundColor: "#CCCCCC",
-  },
-  loginButtonText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "bold",
+    marginBottom: 20,
   },
   signupContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    flexWrap: "wrap",
   },
   signupText: {
-    color: "#8E8E93",
+    color: "#6B7280",
     fontSize: 14,
+    fontWeight: "500",
   },
   signupLink: {
-    color: "#0066CC",
+    color: "#0B5ED7",
     fontSize: 14,
     fontWeight: "600",
+  },
+  footer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    paddingTop: 20,
+  },
+  footerText: {
+    fontSize: 12,
+    color: "#9CA3AF",
+    textAlign: "center",
+    fontStyle: "italic",
   },
 });
