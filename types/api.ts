@@ -73,7 +73,11 @@ export interface CreatePatientRequest {
 
 // ============== SCAN ==============
 export type ScanStatus = "UPLOADED" | "PROCESSING" | "COMPLETED" | "FAILED";
-export type ScanResult = "PNEUMONIA" | "NORMAL" | "PNEUMONIA_DETECTED" | "CONCERNS";
+export type ScanResult =
+  | "PNEUMONIA"
+  | "NORMAL"
+  | "PNEUMONIA_DETECTED"
+  | "CONCERNS";
 
 export interface Scan {
   id: string;

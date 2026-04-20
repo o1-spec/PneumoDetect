@@ -2,15 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
@@ -46,6 +46,7 @@ export default function SignUpScreen() {
   const [showSpecializationPicker, setShowSpecializationPicker] =
     useState(false);
   const [showGenderPicker, setShowGenderPicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { success, error: showError } = useToast();
@@ -96,6 +97,10 @@ export default function SignUpScreen() {
       confirmPassword !== "" &&
       password === confirmPassword
     );
+  };
+
+  const handleDatePress = () => {
+    setShowDatePicker(true);
   };
 
   const handleSignUp = async () => {
@@ -368,22 +373,72 @@ export default function SignUpScreen() {
           {role === "PATIENT" && (
             <>
               <View style={styles.formGroup}>
-                <View style={styles.inputContainer}>
+                <TouchableOpacity
+                  style={styles.inputContainer}
+                  onPress={handleDatePress}
+                >
                   <Ionicons
                     name="calendar-outline"
                     size={20}
                     color="#8E8E93"
                     style={styles.inputIcon}
                   />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Date of Birth (YYYY-MM-DD) (Optional)"
-                    placeholderTextColor="#8E8E93"
-                    value={dateOfBirth}
-                    onChangeText={setDateOfBirth}
-                    keyboardType="default"
+                  <Text
+                    style={[
+                      styles.input,
+                      { color: dateOfBirth ? "#1C1C1E" : "#8E8E93" },
+                    ]}
+                  >
+                    {dateOfBirth || "Date of Birth (Optional)"}
+                  </Text>
+                  <Ionicons
+                    name="chevron-down"
+                    size={20}
+                    color="#8E8E93"
+                    style={{ marginRight: 12 }}
                   />
-                </View>
+                </TouchableOpacity>
+
+                {Platform.OS === "ios" && showDatePicker && (
+                  <Modal
+                    visible={showDatePicker}
+                    transparent
+                    animationType="slide"
+                    onRequestClose={() => setShowDatePicker(false)}
+                  >
+                    <View style={styles.modalOverlay}>
+                      <View style={styles.datePickerContainer}>
+                        <View style={styles.datePickerHeader}>
+                          <TouchableOpacity
+                            onPress={() => setShowDatePicker(false)}
+                          >
+                            <Text style={styles.datePickerCancelText}>
+                              Cancel
+                            </Text>
+                          </TouchableOpacity>
+                          <Text style={styles.datePickerTitle}>
+                            Date of Birth
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() => setShowDatePicker(false)}
+                          >
+                            <Text style={styles.datePickerDoneText}>Done</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.dateInputContainer}>
+                          <TextInput
+                            style={styles.dateInput}
+                            placeholder="YYYY-MM-DD"
+                            placeholderTextColor="#8E8E93"
+                            value={dateOfBirth}
+                            onChangeText={setDateOfBirth}
+                            keyboardType="numbers-and-punctuation"
+                          />
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
+                )}
               </View>
 
               <View style={styles.formGroup}>
@@ -818,5 +873,63 @@ const styles = StyleSheet.create({
     height: 80,
     paddingTop: 12,
     textAlignVertical: "top",
+  },
+  datePickerButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E5EA",
+  },
+  datePickerConfirmButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  datePickerConfirmText: {
+    color: "#0066CC",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  datePickerContainer: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 16,
+  },
+  datePickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F7",
+  },
+  datePickerTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1C1C1E",
+  },
+  datePickerCancelText: {
+    color: "#8E8E93",
+    fontSize: 16,
+  },
+  datePickerDoneText: {
+    color: "#0066CC",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  dateInputContainer: {
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+  },
+  dateInput: {
+    backgroundColor: "#F5F5F7",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: "#1C1C1E",
   },
 });
