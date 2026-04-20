@@ -5,8 +5,8 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { Platform } from "react-native";
-import { clearAuthData, getAccessToken } from "../utils/secureStorage";
 import { logger } from "../utils/logger";
+import { clearAuthData, getAccessToken } from "../utils/secureStorage";
 
 // Extend global to avoid TypeScript errors
 declare global {
@@ -41,12 +41,16 @@ api.interceptors.request.use(
     } catch (error) {
       logger.debug("Failed to retrieve access token", { error: String(error) });
     }
-    
+
     // Log API request in development
-    logger.logApiRequest(config.method?.toUpperCase() || "UNKNOWN", config.url || "", {
-      hasAuth: !!config.headers.Authorization,
-    });
-    
+    logger.logApiRequest(
+      config.method?.toUpperCase() || "UNKNOWN",
+      config.url || "",
+      {
+        hasAuth: !!config.headers.Authorization,
+      },
+    );
+
     return config;
   },
   (error: AxiosError) => {
@@ -60,7 +64,7 @@ api.interceptors.response.use(
     logger.logApiResponse(
       response.config.method?.toUpperCase() || "UNKNOWN",
       response.config.url || "",
-      response.status
+      response.status,
     );
     return response;
   },
@@ -75,7 +79,7 @@ api.interceptors.response.use(
       {
         method: config?.method?.toUpperCase(),
         timestamp: new Date().toISOString(),
-      }
+      },
     );
 
     if (response?.status === 401) {

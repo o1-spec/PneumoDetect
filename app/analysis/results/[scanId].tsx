@@ -2,12 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { InfoRow } from "../../../components/InfoRow";
 import { PatientNotesModal } from "../../../components/PatientNotesModal";
@@ -147,11 +147,13 @@ export default function ResultsScreen() {
               <Text style={styles.editNotesText}>Edit</Text>
             </TouchableOpacity>
           </View>
-          
+
           {patientNotes ? (
             <Text style={styles.notesText}>{patientNotes}</Text>
           ) : (
-            <Text style={styles.notesPlaceholder}>No clinical notes added yet</Text>
+            <Text style={styles.notesPlaceholder}>
+              No clinical notes added yet
+            </Text>
           )}
         </View>
 

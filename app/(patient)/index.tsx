@@ -50,8 +50,7 @@ export default function PatientDashboardScreen() {
       // Calculate statistics
       const normal = scans.filter((s: any) => s.result === "NORMAL").length;
       const concerns = scans.filter(
-        (s: any) =>
-          s.result === "PNEUMONIA" || s.result === "CONCERNS",
+        (s: any) => s.result === "PNEUMONIA" || s.result === "CONCERNS",
       ).length;
 
       setStats({
