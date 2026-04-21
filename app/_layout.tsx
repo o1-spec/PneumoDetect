@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import "react-native-reanimated";
+import { DialogContainer } from "../components/DialogContainer";
 import { ToastContainer } from "../components/ToastContainer";
 import { AuthProvider } from "../hooks/useAuth";
 
@@ -20,6 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
       </Stack>
       <ToastContainer />
+      <DialogContainer />
     </AuthProvider>
   );
 }

@@ -4,7 +4,6 @@ import { router } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Dimensions,
     RefreshControl,
     ScrollView,
@@ -21,6 +20,7 @@ import {
     ScanResultStatistics,
 } from "../../../types/api";
 import { formatDate } from "../../../utils/dateFormatter";
+import { useToast } from "../../../hooks/useToast";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -38,6 +38,7 @@ export default function AnalyticsScreen() {
   const [activeTab, setActiveTab] = useState<
     "dashboard" | "scans" | "patients"
   >("dashboard");
+  const { error: showError } = useToast();
 
   useFocusEffect(
     useCallback(() => {
@@ -59,7 +60,7 @@ export default function AnalyticsScreen() {
       setPatientAnalytics(patients);
     } catch (error) {
       console.error("Error loading analytics:", error);
-      Alert.alert("Error", "Failed to load analytics data");
+      showError("Failed to load analytics data");
     } finally {
       setLoading(false);
     }

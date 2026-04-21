@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   Modal,
   ScrollView,
   StyleSheet,
@@ -26,6 +25,8 @@ import {
   formatDateTime,
   formatIPAddress,
 } from "../../utils/dateFormatter";
+import { dialogManager } from "../../utils/dialogManager";
+import { useToast } from "../../hooks/useToast";
 
 export default function PrivacySecurityScreen() {
   const [dataEncryption, setDataEncryption] = useState(true);
@@ -42,20 +43,21 @@ export default function PrivacySecurityScreen() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { error: showError, success: showSuccess, info: showInfo } = useToast();
 
   const handleChangePassword = () => {
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Alert.alert("Error", "Please fill in all password fields");
+      showError("Please fill in all password fields");
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert("Error", "New password must be at least 8 characters");
+      showError("New password must be at least 8 characters");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert("Error", "New passwords do not match");
+      showError("New passwords do not match");
       return;
     }
 
@@ -63,7 +65,7 @@ export default function PrivacySecurityScreen() {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmPassword("");
-    Alert.alert("Success", "Your password has been changed successfully!");
+    showSuccess("Your password has been changed successfully!");
   };
 
   const handleViewActivityLog = async () => {
@@ -73,7 +75,7 @@ export default function PrivacySecurityScreen() {
       const loginHistory = activity.loginHistory || [];
 
       if (loginHistory.length === 0) {
-        Alert.alert("No Activity", "No login history found.");
+        showInfo("No login history found.");
         return;
       }
 
@@ -90,53 +92,50 @@ export default function PrivacySecurityScreen() {
         })
         .join("\n\n");
 
-      Alert.alert("Recent Activity", activityText);
+      dialogManager.show({ title: "Recent Activity", message: activityText });
     } catch (error) {
       console.error("Error fetching activity log:", error);
-      Alert.alert(
-        "Error",
-        "Failed to load activity history. Please try again.",
-      );
+      showError("Failed to load activity history. Please try again.");
     } finally {
       setLoadingActivity(false);
     }
   };
 
   const handleDataDeletion = () => {
-    Alert.alert(
-      "Request Data Deletion",
-      "This will permanently delete all your data from our servers. This action cannot be undone.\n\nAre you sure you want to proceed?",
-      [
+    dialogManager.show({
+      title: "Request Data Deletion",
+      message: "This will permanently delete all your data from our servers. This action cannot be undone.\n\nAre you sure you want to proceed?",
+      buttons: [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete My Data",
           style: "destructive",
           onPress: () =>
-            Alert.alert(
-              "Confirmation Required",
-              "We've sent a confirmation email to verify this request.",
-            ),
+            dialogManager.show({
+              title: "Confirmation Required",
+              message: "We've sent a confirmation email to verify this request.",
+            })
         },
       ],
-    );
+    });
   };
 
   const handleDownloadData = () => {
-    Alert.alert(
-      "Download Your Data",
-      "We'll prepare a copy of all your data and send it to your email within 24 hours.",
-      [
+    dialogManager.show({
+      title: "Download Your Data",
+      message: "We'll prepare a copy of all your data and send it to your email within 24 hours.",
+      buttons: [
         { text: "Cancel", style: "cancel" },
         {
           text: "Request Download",
           onPress: () =>
-            Alert.alert(
-              "Request Sent",
-              "You'll receive an email when your data is ready.",
-            ),
+            dialogManager.show({
+              title: "Request Sent",
+              message: "You'll receive an email when your data is ready.",
+            })
         },
       ],
-    );
+    });
   };
 
   return (

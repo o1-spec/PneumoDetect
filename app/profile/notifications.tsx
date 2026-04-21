@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,6 +16,8 @@ import {
   SectionHeader,
   SettingRow,
 } from "../../components/premium/PremiumComponents";
+import { dialogManager } from "../../utils/dialogManager";
+import { useToast } from "../../hooks/useToast";
 
 export default function NotificationsScreen() {
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -27,15 +28,17 @@ export default function NotificationsScreen() {
   const [criticalAlerts, setCriticalAlerts] = useState(true);
   const [specialOffers, setSpecialOffers] = useState(false);
 
+  const { success: showSuccess } = useToast();
+
   const handleSave = () => {
-    Alert.alert("Success", "Notification preferences saved successfully!");
+    showSuccess("Notification preferences saved successfully!");
   };
 
   const handleReset = () => {
-    Alert.alert(
-      "Reset Preferences",
-      "Restore all notification settings to default?",
-      [
+    dialogManager.show({
+      title: "Reset Preferences",
+      message: "Restore all notification settings to default?",
+      buttons: [
         { text: "Cancel", style: "cancel" },
         {
           text: "Reset",
@@ -48,11 +51,11 @@ export default function NotificationsScreen() {
             setMonthlyDigest(true);
             setCriticalAlerts(true);
             setSpecialOffers(false);
-            Alert.alert("Success", "Settings reset to defaults");
+            showSuccess("Settings reset to defaults");
           },
         },
       ],
-    );
+    });
   };
 
   return (

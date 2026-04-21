@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Modal,
   ScrollView,
   StyleSheet,
@@ -17,6 +16,7 @@ import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { usersAPI } from "../../services/api.client";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { dialogManager } from "../../utils/dialogManager";
 
 export default function PatientProfileScreen() {
   const authContext = useContext(AuthContext);
@@ -68,21 +68,25 @@ export default function PatientProfileScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Logout",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await logout();
-            router.replace("/(auth)/login");
-          } catch (error) {
-            showError("Logout failed");
-          }
+    dialogManager.show({
+      title: "Logout",
+      message: "Are you sure you want to logout?",
+      buttons: [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout();
+              router.replace("/(auth)/login");
+            } catch (error) {
+              showError("Logout failed");
+            }
+          },
         },
-      },
-    ]);
+      ],
+    });
   };
 
   const handleChangePassword = async () => {

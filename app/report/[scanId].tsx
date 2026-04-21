@@ -5,7 +5,6 @@ import * as Sharing from "expo-sharing";
 import React, { useState } from "react";
 import {
     ActivityIndicator,
-    Alert,
     Image,
     ScrollView,
     StyleSheet,
@@ -13,6 +12,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { dialogManager } from "../../utils/dialogManager";
+import { useToast } from "../../hooks/useToast";
 
 const mockScanData = {
   id: "SCAN-2024-001",
@@ -34,6 +35,7 @@ export default function ReportScreen() {
   const { scanId } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const [pdfUri, setPdfUri] = useState<string | null>(null);
+  const { error: showError } = useToast();
 
   const scanData = mockScanData;
 
@@ -350,20 +352,20 @@ export default function ReportScreen() {
       setPdfUri(uri);
       setLoading(false);
 
-      Alert.alert(
-        "PDF Generated",
-        "Your report has been generated successfully!",
-        [
+      dialogManager.show({
+        title: "PDF Generated",
+        message: "Your report has been generated successfully!",
+        buttons: [
           { text: "OK" },
           {
             text: "Share",
             onPress: () => handleSharePDF(uri),
           },
         ],
-      );
+      });
     } catch (error) {
       setLoading(false);
-      Alert.alert("Error", "Failed to generate PDF. Please try again.");
+      showError("Failed to generate PDF. Please try again.");
       console.error(error);
     }
   };
@@ -373,7 +375,7 @@ export default function ReportScreen() {
       const isAvailable = await Sharing.isAvailableAsync();
 
       if (!isAvailable) {
-        Alert.alert("Error", "Sharing is not available on this device");
+        showError("Sharing is not available on this device");
         return;
       }
 
@@ -383,7 +385,7 @@ export default function ReportScreen() {
         UTI: "com.adobe.pdf",
       });
     } catch (error) {
-      Alert.alert("Error", "Failed to share PDF");
+      showError("Failed to share PDF");
       console.error(error);
     }
   };
@@ -393,7 +395,7 @@ export default function ReportScreen() {
       const html = generateHTMLReport();
       await Print.printAsync({ html });
     } catch (error) {
-      Alert.alert("Error", "Failed to print report");
+      showError("Failed to print report");
       console.error(error);
     }
   };

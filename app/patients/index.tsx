@@ -2,8 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    Alert,
-    FlatList,
+  FlatList,
     RefreshControl,
     StyleSheet,
     Text,
@@ -14,6 +13,7 @@ import {
 import { patientsAPI } from "../../services/api.client";
 import { Patient } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { useToast } from "../../hooks/useToast";
 
 export default function PatientsScreen() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -21,6 +21,7 @@ export default function PatientsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { error: showError } = useToast();
 
   // Load patients on mount
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function PatientsScreen() {
       const data = await patientsAPI.getAll();
       setPatients(data);
     } catch (error) {
-      Alert.alert("Error", getErrorMessage(error));
+      showError(getErrorMessage(error));
       console.error("Failed to load patients:", error);
     } finally {
       setLoading(false);

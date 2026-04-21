@@ -104,7 +104,7 @@ export default function PatientDashboardScreen() {
           style={styles.welcomeGradient}
         >
           <View style={styles.welcomeContent}>
-            <View>
+            <View style={styles.welcomeTextContainer}>
               <Text style={styles.welcomeGreeting}>Welcome back!</Text>
               <Text style={styles.welcomeName}>{user?.name || "Patient"}</Text>
               <Text style={styles.welcomeSubtext}>Your health summary</Text>
@@ -309,6 +309,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  welcomeTextContainer: {
+    flex: 1,
+    marginRight: 16,
   },
   welcomeGreeting: {
     fontSize: 14,

@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,20 +13,22 @@ import {
 import { AuthHeader } from "../../components/auth/AuthHeader";
 import { AuthInput } from "../../components/auth/AuthInput";
 import { PremiumButton } from "../../components/auth/PremiumButton";
+import { useToast } from "../../hooks/useToast";
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const { error: showError, success: showSuccess } = useToast();
 
   const handleResetPassword = async () => {
     if (!email) {
-      Alert.alert("Error", "Please enter your email address");
+      showError("Please enter your email address");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      Alert.alert("Error", "Please enter a valid email address");
+      showError("Please enter a valid email address");
       return;
     }
 
@@ -36,11 +37,8 @@ export default function ForgotPasswordScreen() {
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      Alert.alert(
-        "Success",
-        "Password reset link has been sent to your email.",
-        [{ text: "OK", onPress: () => router.back() }],
-      );
+      showSuccess("Password reset link has been sent to your email.");
+      setTimeout(() => router.back(), 2000);
     }, 1500);
   };
 
@@ -54,7 +52,6 @@ export default function ForgotPasswordScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Back Button */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}

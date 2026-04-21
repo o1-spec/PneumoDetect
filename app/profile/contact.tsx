@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
+
   Linking,
   ScrollView,
   StyleSheet,
@@ -19,15 +19,18 @@ import {
   SectionHeader,
 } from "../../components/premium/PremiumComponents";
 import { messagesAPI } from "../../services/api.client";
+import { dialogManager } from "../../utils/dialogManager";
+import { useToast } from "../../hooks/useToast";
 
 export default function ContactScreen() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const { error: showError } = useToast();
 
   const handleSendMessage = async () => {
     if (!subject.trim() || !message.trim()) {
-      Alert.alert("Error", "Please fill in all fields");
+      showError("Please fill in all fields");
       return;
     }
 
@@ -35,10 +38,10 @@ export default function ContactScreen() {
       setLoading(true);
       await messagesAPI.send(subject.trim(), message.trim());
 
-      Alert.alert(
-        "Message Sent",
-        "Thank you for contacting us. We'll get back to you within 24 hours.",
-        [
+      dialogManager.show({
+        title: "Message Sent",
+        message: "Thank you for contacting us. We'll get back to you within 24 hours.",
+        buttons: [
           {
             text: "OK",
             onPress: () => {
@@ -48,9 +51,9 @@ export default function ContactScreen() {
             },
           },
         ],
-      );
+      });
     } catch (error) {
-      Alert.alert("Error", "Failed to send message. Please try again.");
+      showError("Failed to send message. Please try again.");
       console.error("Error sending message:", error);
     } finally {
       setLoading(false);

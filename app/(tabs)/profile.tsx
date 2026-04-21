@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useContext, useState } from "react";
 import {
-  Alert,
   Modal,
   ScrollView,
   StyleSheet,
@@ -18,6 +17,7 @@ import { useToast } from "../../hooks/useToast";
 import { analyticsAPI, notificationsAPI } from "../../services/api.client";
 import { AnalyticsStats } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { dialogManager } from "../../utils/dialogManager";
 
 export default function ProfileScreen() {
   const authContext = useContext(AuthContext);
@@ -66,10 +66,10 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout from PneumoDetect?",
-      [
+    dialogManager.show({
+      title: "Logout",
+      message: "Are you sure you want to logout from PneumoDetect?",
+      buttons: [
         {
           text: "Cancel",
           style: "cancel",
@@ -88,15 +88,14 @@ export default function ProfileScreen() {
           },
         },
       ],
-      { cancelable: true },
-    );
+    });
   };
 
   const handleClearSession = () => {
-    Alert.alert(
-      "Clear Session",
-      "This will delete all stored data (token, user info, onboarding flag) for fresh testing. You'll be logged out.",
-      [
+    dialogManager.show({
+      title: "Clear Session",
+      message: "This will delete all stored data (token, user info, onboarding flag) for fresh testing. You'll be logged out.",
+      buttons: [
         {
           text: "Cancel",
           style: "cancel",
@@ -115,8 +114,7 @@ export default function ProfileScreen() {
           },
         },
       ],
-      { cancelable: true },
-    );
+    });
   };
 
   const handleSaveProfile = async () => {
@@ -137,14 +135,18 @@ export default function ProfileScreen() {
   };
 
   const handleDownloadReports = () => {
-    Alert.alert("Download Reports", "Download all your medical reports?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Download",
-        onPress: () =>
-          Alert.alert("Success", "Reports will be downloaded shortly"),
-      },
-    ]);
+    dialogManager.show({
+      title: "Download Reports",
+      message: "Download all your medical reports?",
+      buttons: [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Download",
+          onPress: () =>
+            success("Reports will be downloaded shortly"),
+        },
+      ]
+    });
   };
 
   return (

@@ -3,7 +3,6 @@ import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   RefreshControl,
@@ -17,6 +16,7 @@ import { PremiumChip } from "../../components/premium";
 import { scansAPI } from "../../services/api.client";
 import { Scan } from "../../types/api";
 import { formatDate, formatTime } from "../../utils/dateFormatter";
+import { useToast } from "../../hooks/useToast";
 
 export default function HistoryScreen() {
   const [scans, setScans] = useState<Scan[]>([]);
@@ -26,6 +26,7 @@ export default function HistoryScreen() {
   const [filterStatus, setFilterStatus] = useState<
     "all" | "PNEUMONIA" | "NORMAL"
   >("all");
+  const { error: showError } = useToast();
 
   useFocusEffect(
     useCallback(() => {
@@ -40,7 +41,7 @@ export default function HistoryScreen() {
       setScans(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error loading scans:", error);
-      Alert.alert("Error", "Failed to load scan history");
+      showError("Failed to load scan history");
       setScans([]);
     } finally {
       setLoading(false);
@@ -54,7 +55,7 @@ export default function HistoryScreen() {
       setScans(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error refreshing scans:", error);
-      Alert.alert("Error", "Failed to refresh scan history");
+      showError("Failed to refresh scan history");
     } finally {
       setRefreshing(false);
     }

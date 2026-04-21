@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    Alert,
     FlatList,
     RefreshControl,
     StyleSheet,
@@ -13,6 +12,7 @@ import {
 import { patientsAPI, scansAPI } from "../../services/api.client";
 import { Patient, Scan, ScanStatus } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { useToast } from "../../hooks/useToast";
 
 const STATUS_COLORS: Record<ScanStatus, string> = {
   UPLOADED: "#FFA500",
@@ -34,6 +34,7 @@ export default function PatientDetailScreen() {
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { error: showError } = useToast();
 
   useEffect(() => {
     loadPatientData();
@@ -50,7 +51,7 @@ export default function PatientDetailScreen() {
       setPatient(patientData);
       setScans(scansData);
     } catch (error) {
-      Alert.alert("Error", getErrorMessage(error));
+      showError(getErrorMessage(error));
       console.error("Failed to load patient data:", error);
     } finally {
       setLoading(false);

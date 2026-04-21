@@ -2,8 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -14,12 +12,15 @@ import {
 import { notificationsAPI } from "../../services/api.client";
 import { Notification } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { dialogManager } from "../../utils/dialogManager";
+import { useToast } from "../../hooks/useToast";
 
 export default function NotificationsScreen() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const { error: showError, success: showSuccess, info: showInfo } = useToast();
 
   useFocusEffect(
     useCallback(() => {
@@ -33,7 +34,7 @@ export default function NotificationsScreen() {
       const data = await notificationsAPI.getAll();
       setNotifications(Array.isArray(data) ? data : []);
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
       setNotifications([]);
     } finally {
       setLoading(false);
@@ -46,7 +47,7 @@ export default function NotificationsScreen() {
       const data = await notificationsAPI.getAll();
       setNotifications(Array.isArray(data) ? data : []);
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     } finally {
       setRefreshing(false);
     }
@@ -61,7 +62,7 @@ export default function NotificationsScreen() {
         ),
       );
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     }
   };
 
@@ -71,17 +72,17 @@ export default function NotificationsScreen() {
       setNotifications((prev) =>
         prev.map((notif) => ({ ...notif, isRead: true })),
       );
-      Alert.alert("Success", "All notifications marked as read");
+      showSuccess("All notifications marked as read");
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     }
   };
 
   const handleDelete = async (id: string) => {
-    Alert.alert(
-      "Delete Notification",
-      "Are you sure you want to delete this notification?",
-      [
+    dialogManager.show({
+      title: "Delete Notification",
+      message: "Are you sure you want to delete this notification?",
+      buttons: [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
@@ -91,24 +92,24 @@ export default function NotificationsScreen() {
               await notificationsAPI.delete(id);
               setNotifications((prev) => prev.filter((n) => n.id !== id));
             } catch (err) {
-              Alert.alert("Error", getErrorMessage(err));
+              showError(getErrorMessage(err));
             }
           },
         },
       ],
-    );
+    });
   };
 
   const handleClearAll = () => {
     if (notifications.length === 0) {
-      Alert.alert("No Notifications", "There are no notifications to clear.");
+      showInfo("There are no notifications to clear.");
       return;
     }
 
-    Alert.alert(
-      "Clear All Notifications",
-      "Are you sure you want to delete all notifications? This action cannot be undone.",
-      [
+    dialogManager.show({
+      title: "Clear All Notifications",
+      message: "Are you sure you want to delete all notifications? This action cannot be undone.",
+      buttons: [
         { text: "Cancel", style: "cancel" },
         {
           text: "Clear All",
@@ -119,14 +120,14 @@ export default function NotificationsScreen() {
                 notifications.map((n) => notificationsAPI.delete(n.id)),
               );
               setNotifications([]);
-              Alert.alert("Success", "All notifications cleared");
+              showSuccess("All notifications cleared");
             } catch (err) {
-              Alert.alert("Error", getErrorMessage(err));
+              showError(getErrorMessage(err));
             }
           },
         },
       ],
-    );
+    });
   };
 
   return (
@@ -149,18 +150,22 @@ export default function NotificationsScreen() {
             <TouchableOpacity
               style={styles.moreButton}
               onPress={() =>
-                Alert.alert("Options", "Choose an action", [
-                  {
-                    text: "Mark All as Read",
-                    onPress: handleMarkAllAsRead,
-                  },
-                  {
-                    text: "Clear All",
-                    onPress: handleClearAll,
-                    style: "destructive",
-                  },
-                  { text: "Cancel", style: "cancel" },
-                ])
+                dialogManager.show({
+                  title: "Options",
+                  message: "Choose an action",
+                  buttons: [
+                    {
+                      text: "Mark All as Read",
+                      onPress: handleMarkAllAsRead,
+                    },
+                    {
+                      text: "Clear All",
+                      onPress: handleClearAll,
+                      style: "destructive",
+                    },
+                    { text: "Cancel", style: "cancel" },
+                  ]
+                })
               }
             >
               <Ionicons name="ellipsis-horizontal" size={24} color="#0B5ED7" />

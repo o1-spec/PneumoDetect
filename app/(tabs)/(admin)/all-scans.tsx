@@ -3,7 +3,6 @@ import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Image,
   RefreshControl,
@@ -18,6 +17,7 @@ import { scansAPI } from "../../../services/api.client";
 import { Scan } from "../../../types/api";
 import { formatDate, formatTime } from "../../../utils/dateFormatter";
 import { getErrorMessage } from "../../../utils/errorHandler";
+import { dialogManager } from "../../../utils/dialogManager";
 
 export default function AllScansScreen() {
   const { success, error: showError } = useToast();
@@ -78,10 +78,10 @@ export default function AllScansScreen() {
   const normalCount = scans.filter((s: Scan) => s.result === "NORMAL").length;
 
   const handleDeleteScan = (scanId: string, patientName: string) => {
-    Alert.alert(
-      "Delete Scan",
-      `Are you sure you want to delete scan for ${patientName}? This action cannot be undone.`,
-      [
+    dialogManager.show({
+      title: "Delete Scan",
+      message: `Are you sure you want to delete scan for ${patientName}? This action cannot be undone.`,
+      buttons: [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
@@ -98,7 +98,7 @@ export default function AllScansScreen() {
           },
         },
       ],
-    );
+    });
   };
 
   const handleViewDetails = (scan: Scan) => {

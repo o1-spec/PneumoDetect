@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   KeyboardAvoidingView,
   Modal,
@@ -18,6 +17,7 @@ import {
 import { patientsAPI, scansAPI } from "../../services/api.client";
 import { Patient } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { useToast } from "../../hooks/useToast";
 
 export default function PatientInfoScreen() {
   const { imageUri } = useLocalSearchParams();
@@ -30,6 +30,7 @@ export default function PatientInfoScreen() {
   const [patientName, setPatientName] = useState("");
   const [age, setAge] = useState("");
   const [sex, setSex] = useState<"MALE" | "FEMALE" | "">("");
+  const { error: showError } = useToast();
 
   useEffect(() => {
     loadPatients();
@@ -41,7 +42,7 @@ export default function PatientInfoScreen() {
       const data = await patientsAPI.getAll();
       setPatients(data);
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -58,7 +59,7 @@ export default function PatientInfoScreen() {
 
   const handleCreatePatient = async () => {
     if (!patientId || !patientName || !age || !sex) {
-      Alert.alert("Missing Information", "Please fill in all required fields.");
+      showError("Please fill in all required fields.");
       return;
     }
 
@@ -73,7 +74,7 @@ export default function PatientInfoScreen() {
       setSelectedPatient(newPatient);
       setPatients([...patients, newPatient]);
     } catch (err) {
-      Alert.alert("Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -81,7 +82,7 @@ export default function PatientInfoScreen() {
 
   const handleUploadScan = async () => {
     if (!selectedPatient) {
-      Alert.alert("Select Patient", "Please select or create a patient first.");
+      showError("Please select or create a patient first.");
       return;
     }
 
@@ -101,7 +102,7 @@ export default function PatientInfoScreen() {
         },
       });
     } catch (err) {
-      Alert.alert("Upload Error", getErrorMessage(err));
+      showError(getErrorMessage(err));
     } finally {
       setUploading(false);
     }
