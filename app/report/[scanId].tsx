@@ -68,7 +68,6 @@ export default function ReportScreen() {
     } catch (error) {
       setLoading(false);
       showError("Failed to generate PDF. Please try again.");
-      console.error(error);
     }
   };
 
@@ -88,7 +87,6 @@ export default function ReportScreen() {
       });
     } catch (error) {
       showError("Failed to share PDF");
-      console.error(error);
     }
   };
 
@@ -98,7 +96,6 @@ export default function ReportScreen() {
       await Print.printAsync({ html });
     } catch (error) {
       showError("Failed to print report");
-      console.error(error);
     }
   };
 

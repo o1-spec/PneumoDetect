@@ -66,11 +66,7 @@ class Logger {
       this.logs = this.logs.slice(-this.maxLogs);
     }
 
-    // Console output in development
-    if (__DEV__) {
-      const style = this.getConsoleStyle(level);
-      console.log(`%c[${level.toUpperCase()}]`, style, message, context || "");
-    }
+    // Logs are stored in memory only; use logger.exportLogs() for debugging
   }
 
   /**

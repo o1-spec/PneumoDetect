@@ -52,7 +52,6 @@ export default function PatientDetailScreen() {
       setScans(scansData);
     } catch (error) {
       showError(getErrorMessage(error));
-      console.error("Failed to load patient data:", error);
     } finally {
       setLoading(false);
     }

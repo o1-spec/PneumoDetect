@@ -124,7 +124,6 @@ export default function SignUpScreen() {
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       showError(errorMessage);
-      console.error("Signup error:", error);
     } finally {
       setLoading(false);
     }

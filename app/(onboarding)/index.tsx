@@ -82,7 +82,6 @@ export default function OnboardingScreen() {
       success("Welcome aboard!");
       router.replace("/(tabs)");
     } catch (error) {
-      console.error("Failed to complete onboarding:", error);
     } finally {
       setLoading(false);
     }

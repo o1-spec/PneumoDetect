@@ -94,7 +94,6 @@ export default function PrivacySecurityScreen() {
 
       dialogManager.show({ title: "Recent Activity", message: activityText });
     } catch (error) {
-      console.error("Error fetching activity log:", error);
       showError("Failed to load activity history. Please try again.");
     } finally {
       setLoadingActivity(false);

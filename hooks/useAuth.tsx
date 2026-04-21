@@ -215,7 +215,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           newPassword: data.newPassword,
         });
       } catch (error) {
-        console.error("Password change failed:", error);
         throw error;
       }
     },
@@ -232,7 +231,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await clearAllData();
       setUser(null);
     } catch (error) {
-      console.error("Account deletion failed:", error);
       throw error;
     }
   }, []);

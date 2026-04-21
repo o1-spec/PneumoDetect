@@ -40,7 +40,6 @@ export default function HistoryScreen() {
       const data = await scansAPI.getAll();
       setScans(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error loading scans:", error);
       showError("Failed to load scan history");
       setScans([]);
     } finally {
@@ -54,7 +53,6 @@ export default function HistoryScreen() {
       const data = await scansAPI.getAll();
       setScans(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error("Error refreshing scans:", error);
       showError("Failed to refresh scan history");
     } finally {
       setRefreshing(false);

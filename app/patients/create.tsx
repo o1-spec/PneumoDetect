@@ -56,7 +56,6 @@ export default function CreatePatientScreen() {
       router.back();
     } catch (error) {
       showError(getErrorMessage(error));
-      console.error("Failed to create patient:", error);
     } finally {
       setLoading(false);
     }

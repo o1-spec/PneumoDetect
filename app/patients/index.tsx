@@ -49,7 +49,6 @@ export default function PatientsScreen() {
       setPatients(data);
     } catch (error) {
       showError(getErrorMessage(error));
-      console.error("Failed to load patients:", error);
     } finally {
       setLoading(false);
     }

@@ -54,7 +54,6 @@ export default function ContactScreen() {
       });
     } catch (error) {
       showError("Failed to send message. Please try again.");
-      console.error("Error sending message:", error);
     } finally {
       setLoading(false);
     }

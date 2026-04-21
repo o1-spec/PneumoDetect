@@ -59,7 +59,6 @@ export default function AnalyticsScreen() {
       setScanResults(scans);
       setPatientAnalytics(patients);
     } catch (error) {
-      console.error("Error loading analytics:", error);
       showError("Failed to load analytics data");
     } finally {
       setLoading(false);
@@ -71,7 +70,6 @@ export default function AnalyticsScreen() {
       setRefreshing(true);
       await loadAnalytics();
     } catch (error) {
-      console.error("Error refreshing analytics:", error);
     } finally {
       setRefreshing(false);
     }
