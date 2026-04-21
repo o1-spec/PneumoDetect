@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Card } from "../../../components/premium";
 import { InfoRow } from "../../../components/InfoRow";
 import { PatientNotesModal } from "../../../components/PatientNotesModal";
 import { useToast } from "../../../hooks/useToast";
@@ -61,7 +62,7 @@ export default function ResultsScreen() {
           style={styles.backButton}
           onPress={() => router.replace("/(tabs)")}
         >
-          <Ionicons name="close" size={24} color="#0066CC" />
+          <Ionicons name="close" size={24} color="#0B5ED7" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Analysis Results</Text>
         <View style={styles.placeholder} />
@@ -143,7 +144,7 @@ export default function ResultsScreen() {
               style={styles.editNotesButton}
               onPress={() => setNotesModalVisible(true)}
             >
-              <Ionicons name="pencil" size={16} color="#0066CC" />
+              <Ionicons name="pencil" size={16} color="#0B5ED7" />
               <Text style={styles.editNotesText}>Edit</Text>
             </TouchableOpacity>
           </View>
@@ -192,7 +193,7 @@ export default function ResultsScreen() {
               })
             }
           >
-            <Ionicons name="document-text-outline" size={20} color="#0066CC" />
+            <Ionicons name="document-text-outline" size={20} color="#0B5ED7" />
             <Text style={styles.secondaryButtonText}>Generate Report</Text>
           </TouchableOpacity>
 
@@ -222,7 +223,7 @@ export default function ResultsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
   },
   header: {
     flexDirection: "row",
@@ -230,18 +231,24 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingTop: 60,
-    paddingBottom: 16,
+    paddingBottom: 20,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   backButton: {
     padding: 8,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#111827",
+    letterSpacing: -0.5,
   },
   placeholder: {
     width: 40,
@@ -255,17 +262,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   xrayImage: {
     width: "100%",
     height: 300,
     borderRadius: 8,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#F3F4F6",
   },
   predictionCard: {
     borderRadius: 12,
@@ -275,30 +284,32 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   predictionDanger: {
-    backgroundColor: "#FFEBEE",
-    borderColor: "#D32F2F",
+    backgroundColor: "rgba(239, 68, 68, 0.08)",
+    borderColor: "#EF4444",
   },
   predictionSafe: {
-    backgroundColor: "#E8F5E9",
-    borderColor: "#4CAF50",
+    backgroundColor: "rgba(16, 185, 129, 0.08)",
+    borderColor: "#10B981",
   },
   predictionIcon: {
     marginBottom: 16,
   },
   predictionText: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 28,
+    fontWeight: "800",
     marginBottom: 8,
+    letterSpacing: -0.5,
   },
   textDanger: {
-    color: "#D32F2F",
+    color: "#EF4444",
   },
   textSafe: {
-    color: "#4CAF50",
+    color: "#10B981",
   },
   predictionSubtext: {
     fontSize: 14,
-    color: "#636366",
+    color: "#6B7280",
+    fontWeight: "500",
   },
   confidenceCard: {
     backgroundColor: "#FFFFFF",
@@ -306,67 +317,78 @@ const styles = StyleSheet.create({
     padding: 24,
     marginBottom: 16,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   confidenceLabel: {
-    fontSize: 14,
-    color: "#636366",
+    fontSize: 13,
+    color: "#6B7280",
     marginBottom: 8,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   confidenceValue: {
     fontSize: 48,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: "#111827",
     marginBottom: 16,
+    letterSpacing: -0.5,
   },
   confidenceBar: {
     width: "100%",
-    height: 8,
-    backgroundColor: "#E5E5EA",
-    borderRadius: 4,
+    height: 10,
+    backgroundColor: "#E5E7EB",
+    borderRadius: 5,
     overflow: "hidden",
     marginBottom: 12,
   },
   confidenceBarFill: {
     height: "100%",
-    borderRadius: 4,
+    borderRadius: 5,
   },
   confidenceDescription: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#636366",
+    fontWeight: "700",
+    color: "#6B7280",
   },
   infoCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: "#111827",
     marginBottom: 16,
+    letterSpacing: -0.3,
   },
   notesCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   notesHeader: {
     flexDirection: "row",
@@ -379,29 +401,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: "#F0F8FF",
+    backgroundColor: "#EFF6FF",
     borderRadius: 6,
     gap: 4,
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
   },
   editNotesText: {
-    color: "#0066CC",
+    color: "#0B5ED7",
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   notesText: {
     fontSize: 14,
-    color: "#1C1C1E",
+    color: "#111827",
     lineHeight: 20,
+    fontWeight: "500",
   },
   notesPlaceholder: {
     fontSize: 14,
-    color: "#999",
+    color: "#9CA3AF",
     fontStyle: "italic",
   },
   disclaimerBox: {
-    backgroundColor: "#FFF3CD",
-    borderWidth: 2,
-    borderColor: "#FFE69C",
+    backgroundColor: "#FFFBEB",
+    borderWidth: 1,
+    borderColor: "#FCD34D",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -414,30 +439,38 @@ const styles = StyleSheet.create({
   },
   disclaimerTitle: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#856404",
+    fontWeight: "800",
+    color: "#92400E",
+    letterSpacing: -0.3,
   },
   disclaimerText: {
     fontSize: 13,
-    color: "#856404",
+    color: "#92400E",
     lineHeight: 20,
+    fontWeight: "500",
   },
   actionButtons: {
     gap: 12,
   },
   primaryButton: {
     flexDirection: "row",
-    backgroundColor: "#0066CC",
+    backgroundColor: "#0B5ED7",
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 3,
   },
   primaryButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "800",
+    letterSpacing: -0.3,
   },
   secondaryButton: {
     flexDirection: "row",
@@ -448,12 +481,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
     borderWidth: 2,
-    borderColor: "#0066CC",
+    borderColor: "#0B5ED7",
   },
   secondaryButtonText: {
-    color: "#0066CC",
+    color: "#0B5ED7",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "800",
+    letterSpacing: -0.3,
   },
   tertiaryButton: {
     backgroundColor: "transparent",
@@ -463,9 +497,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   tertiaryButtonText: {
-    color: "#0066CC",
+    color: "#0B5ED7",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
+    letterSpacing: -0.3,
   },
   bottomSpacer: {
     height: 40,

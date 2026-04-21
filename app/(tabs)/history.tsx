@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { PremiumChip } from "../../components/premium";
 import { scansAPI } from "../../services/api.client";
 import { Scan } from "../../types/api";
 import { formatDate, formatTime } from "../../utils/dateFormatter";
@@ -183,56 +184,21 @@ export default function HistoryScreen() {
       </View>
 
       <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filterStatus === "all" && styles.filterTabActive,
-          ]}
+        <PremiumChip
+          label="All"
+          selected={filterStatus === "all"}
           onPress={() => setFilterStatus("all")}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              filterStatus === "all" && styles.filterTextActive,
-            ]}
-          >
-            All
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filterStatus === "PNEUMONIA" && styles.filterTabActive,
-          ]}
+        />
+        <PremiumChip
+          label="Pneumonia"
+          selected={filterStatus === "PNEUMONIA"}
           onPress={() => setFilterStatus("PNEUMONIA")}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              filterStatus === "PNEUMONIA" && styles.filterTextActive,
-            ]}
-          >
-            Pneumonia
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filterStatus === "NORMAL" && styles.filterTabActive,
-          ]}
+        />
+        <PremiumChip
+          label="Normal"
+          selected={filterStatus === "NORMAL"}
           onPress={() => setFilterStatus("NORMAL")}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              filterStatus === "NORMAL" && styles.filterTextActive,
-            ]}
-          >
-            Normal
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
 
       <FlatList
@@ -258,7 +224,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
   },
   centerContent: {
     justifyContent: "center",
@@ -269,108 +235,109 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: "row",
-    padding: 16,
+    padding: 20,
+    paddingBottom: 16,
     gap: 12,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
   },
   statBox: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   dangerBox: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "rgba(239, 68, 68, 0.08)",
+    borderColor: "#FECACA",
   },
   safeBox: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: "rgba(16, 185, 129, 0.08)",
+    borderColor: "#A7F3D0",
   },
   statValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 4,
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
   dangerText: {
-    color: "#D32F2F",
+    color: "#EF4444",
   },
   safeText: {
-    color: "#4CAF50",
+    color: "#10B981",
   },
   statLabel: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: "#6B7280",
     fontWeight: "600",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     paddingHorizontal: 16,
-    borderRadius: 12,
-    height: 50,
-    marginBottom: 12,
+    borderRadius: 14,
+    height: 54,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   searchIcon: {
     marginRight: 12,
+    color: "#9CA3AF",
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#1C1C1E",
+    color: "#111827",
+    fontWeight: "500",
   },
   filterContainer: {
     flexDirection: "row",
-    paddingHorizontal: 16,
-    gap: 8,
-    marginBottom: 16,
-  },
-  filterTab: {
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    backgroundColor: "#E5E5EA",
-  },
-  filterTabActive: {
-    backgroundColor: "#0066CC",
-  },
-  filterText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#8E8E93",
-  },
-  filterTextActive: {
-    color: "#FFFFFF",
+    gap: 12,
+    marginBottom: 24,
   },
   listContent: {
-    padding: 16,
-    paddingTop: 0,
+    paddingHorizontal: 20,
+    paddingBottom: 60,
   },
   historyCard: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 14,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
   thumbnail: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    backgroundColor: "#F5F5F7",
-    marginRight: 12,
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+    marginRight: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   historyInfo: {
     flex: 1,
@@ -379,36 +346,40 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 4,
+    marginBottom: 8,
   },
   scanId: {
-    fontSize: 11,
-    color: "#0066CC",
-    fontWeight: "600",
+    fontSize: 12,
+    color: "#0B5ED7",
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   statusBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     justifyContent: "center",
     alignItems: "center",
   },
   statusDanger: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
   },
   statusSafe: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
   },
   patientName: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 2,
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 4,
+    letterSpacing: -0.3,
   },
   patientId: {
-    fontSize: 12,
-    color: "#8E8E93",
-    marginBottom: 8,
+    fontSize: 13,
+    color: "#6B7280",
+    marginBottom: 10,
+    fontWeight: "500",
   },
   historyFooter: {
     flexDirection: "row",
@@ -418,30 +389,34 @@ const styles = StyleSheet.create({
   dateTime: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 6,
   },
   dateText: {
-    fontSize: 11,
-    color: "#8E8E93",
-    marginRight: 8,
+    fontSize: 12,
+    color: "#9CA3AF",
+    marginRight: 10,
+    fontWeight: "600",
   },
   timeText: {
-    fontSize: 11,
-    color: "#8E8E93",
+    fontSize: 12,
+    color: "#9CA3AF",
+    fontWeight: "600",
   },
   confidence: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#0066CC",
+    fontSize: 14,
+    fontWeight: "800",
+    color: "#0B5ED7",
+    letterSpacing: -0.3,
   },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 60,
+    paddingVertical: 80,
   },
   emptyText: {
     fontSize: 16,
-    color: "#8E8E93",
+    color: "#9CA3AF",
     marginTop: 16,
+    fontWeight: "500",
   },
 });

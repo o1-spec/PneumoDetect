@@ -21,7 +21,6 @@ export default function NotificationsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // Load notifications when screen is focused
   useFocusEffect(
     useCallback(() => {
       loadNotifications();
@@ -138,7 +137,7 @@ export default function NotificationsScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Notifications</Text>
@@ -164,7 +163,7 @@ export default function NotificationsScreen() {
                 ])
               }
             >
-              <Ionicons name="ellipsis-horizontal" size={24} color="#0066CC" />
+              <Ionicons name="ellipsis-horizontal" size={24} color="#0B5ED7" />
             </TouchableOpacity>
           )}
         </View>
@@ -172,7 +171,7 @@ export default function NotificationsScreen() {
 
       {loading ? (
         <View style={styles.emptyState}>
-          <ActivityIndicator size="large" color="#0066CC" />
+          <ActivityIndicator size="large" color="#0B5ED7" />
         </View>
       ) : notifications.length === 0 ? (
         <View style={styles.emptyState}>
@@ -180,7 +179,7 @@ export default function NotificationsScreen() {
             <Ionicons
               name="notifications-off-outline"
               size={64}
-              color="#C7C7CC"
+              color="#9CA3AF"
             />
           </View>
           <Text style={styles.emptyTitle}>No Notifications</Text>
@@ -271,7 +270,7 @@ const NotificationCard = ({
       </View>
     </TouchableOpacity>
     <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-      <Ionicons name="trash-outline" size={20} color="#D32F2F" />
+      <Ionicons name="trash-outline" size={20} color="#EF4444" />
     </TouchableOpacity>
   </View>
 );
@@ -279,18 +278,18 @@ const NotificationCard = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
   },
   header: {
     backgroundColor: "#FFFFFF",
     paddingTop: 60,
-    paddingBottom: 16,
+    paddingBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
   headerContent: {
@@ -303,7 +302,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -312,21 +311,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#111827",
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 12,
-    color: "#0066CC",
-    marginTop: 2,
-    fontWeight: "600",
+    fontSize: 13,
+    color: "#0B5ED7",
+    marginTop: 4,
+    fontWeight: "700",
+    letterSpacing: 0.5,
   },
   moreButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -338,11 +339,13 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#8E8E93",
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#6B7280",
     marginBottom: 12,
     marginLeft: 4,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   notificationCard: {
     flexDirection: "row",
@@ -350,15 +353,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
   unreadCard: {
     borderLeftWidth: 4,
-    borderLeftColor: "#0066CC",
+    borderLeftColor: "#0B5ED7",
+    backgroundColor: "#F0F9FF",
   },
   notificationIcon: {
     width: 48,
@@ -367,6 +373,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
   },
   notificationContent: {
     flex: 1,
@@ -379,29 +388,31 @@ const styles = StyleSheet.create({
   },
   notificationTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: "#111827",
     flex: 1,
   },
   unreadTitle: {
-    fontWeight: "bold",
+    fontWeight: "800",
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#0066CC",
+    backgroundColor: "#0B5ED7",
     marginLeft: 8,
   },
   notificationMessage: {
     fontSize: 14,
-    color: "#636366",
+    color: "#6B7280",
     lineHeight: 20,
     marginBottom: 6,
+    fontWeight: "500",
   },
   notificationTime: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: "#9CA3AF",
+    fontWeight: "500",
   },
   emptyState: {
     flex: 1,
@@ -413,22 +424,26 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   emptyTitle: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: "#111827",
     marginBottom: 12,
+    letterSpacing: -0.5,
   },
   emptyText: {
     fontSize: 16,
-    color: "#8E8E93",
+    color: "#6B7280",
     textAlign: "center",
     lineHeight: 24,
+    fontWeight: "500",
   },
   bottomSpacer: {
     height: 40,
@@ -442,5 +457,6 @@ const styles = StyleSheet.create({
     padding: 8,
     justifyContent: "center",
     alignItems: "center",
+    marginLeft: 8,
   },
 });

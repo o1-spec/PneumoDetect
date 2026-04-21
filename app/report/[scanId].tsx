@@ -204,32 +204,33 @@ export default function ReportScreen() {
             }
             
             .notes-content {
-              background: #F5F5F7;
+              background: #F9FAFB;
               padding: 16px;
-              border-radius: 8px;
-              color: #1C1C1E;
+              border-radius: 10px;
+              color: #111827;
               line-height: 1.6;
               font-size: 14px;
+              border: 1px solid #E5E7EB;
             }
             
             .footer {
               margin-top: 48px;
               text-align: center;
               padding-top: 24px;
-              border-top: 2px solid #E5E5EA;
-              color: #8E8E93;
+              border-top: 2px solid #E5E7EB;
+              color: #6B7280;
               font-size: 12px;
             }
             
             .signature-section {
               margin-top: 32px;
               padding-top: 24px;
-              border-top: 1px solid #E5E5EA;
+              border-top: 1px solid #E5E7EB;
             }
             
             .signature-line {
               margin-top: 40px;
-              border-top: 2px solid #1C1C1E;
+              border-top: 2px solid #111827;
               width: 300px;
               padding-top: 8px;
               text-align: center;
@@ -537,12 +538,12 @@ const InfoRow = ({ label, value }: { label: string; value: string }) => (
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
   },
   backButton: {
     position: "absolute",
     top: 60,
-    left: 16,
+    left: 20,
     width: 44,
     height: 44,
     borderRadius: 22,
@@ -552,108 +553,117 @@ const styles = StyleSheet.create({
     zIndex: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
     elevation: 3,
   },
   content: {
     flex: 1,
     paddingTop: 120,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   idBadge: {
-    backgroundColor: "#0066CC",
+    backgroundColor: "#0B5ED7",
     alignSelf: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 20,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   idText: {
     color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    borderRadius: 14,
+    padding: 18,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 2,
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: "#111827",
     marginBottom: 16,
   },
   infoGrid: {
-    gap: 12,
+    gap: 10,
   },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 8,
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
+    borderBottomColor: "#F3F4F6",
   },
   infoLabel: {
     fontSize: 14,
-    color: "#636366",
-    fontWeight: "600",
+    color: "#6B7280",
+    fontWeight: "700",
   },
   infoValue: {
     fontSize: 14,
-    color: "#1C1C1E",
-    fontWeight: "bold",
+    color: "#111827",
+    fontWeight: "700",
   },
   predictionCard: {
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 24,
-    marginBottom: 16,
+    marginBottom: 18,
     alignItems: "center",
     borderWidth: 2,
   },
   predictionDanger: {
-    backgroundColor: "#FFEBEE",
-    borderColor: "#D32F2F",
+    backgroundColor: "rgba(239, 68, 68, 0.08)",
+    borderColor: "#EF4444",
   },
   predictionSafe: {
-    backgroundColor: "#E8F5E9",
-    borderColor: "#4CAF50",
+    backgroundColor: "rgba(16, 185, 129, 0.08)",
+    borderColor: "#10B981",
   },
   predictionLabel: {
-    fontSize: 14,
-    color: "#636366",
-    marginBottom: 8,
+    fontSize: 13,
+    color: "#6B7280",
+    marginBottom: 10,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   predictionText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 18,
   },
   textDanger: {
-    color: "#D32F2F",
+    color: "#EF4444",
   },
   textSafe: {
-    color: "#4CAF50",
+    color: "#10B981",
   },
   confidenceContainer: {
     alignItems: "center",
   },
   confidenceValue: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 36,
+    fontWeight: "800",
+    color: "#111827",
   },
   confidenceLabel: {
     fontSize: 12,
-    color: "#636366",
-    marginTop: 4,
+    color: "#6B7280",
+    marginTop: 6,
+    fontWeight: "600",
   },
   imageGrid: {
     gap: 16,
@@ -663,77 +673,87 @@ const styles = StyleSheet.create({
   },
   imageTitle: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#636366",
-    marginBottom: 8,
+    fontWeight: "700",
+    color: "#6B7280",
+    marginBottom: 10,
   },
   medicalImage: {
     width: "100%",
-    height: 200,
-    borderRadius: 8,
-    backgroundColor: "#F5F5F7",
+    height: 220,
+    borderRadius: 12,
+    backgroundColor: "#F3F4F6",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   notesText: {
     fontSize: 14,
-    color: "#1C1C1E",
+    color: "#111827",
     lineHeight: 22,
+    fontWeight: "500",
   },
   disclaimerBox: {
-    backgroundColor: "#FFF3CD",
+    backgroundColor: "rgba(245, 158, 11, 0.08)",
     borderWidth: 2,
-    borderColor: "#FFE69C",
-    borderRadius: 12,
+    borderColor: "#FCD34D",
+    borderRadius: 14,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 18,
   },
   disclaimerHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
+    gap: 10,
+    marginBottom: 10,
   },
   disclaimerTitle: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#856404",
+    fontWeight: "800",
+    color: "#D97706",
   },
   disclaimerText: {
     fontSize: 13,
-    color: "#856404",
+    color: "#92400E",
     lineHeight: 20,
+    fontWeight: "500",
   },
   actionButtons: {
     gap: 12,
+    marginBottom: 20,
   },
   primaryButton: {
     flexDirection: "row",
-    backgroundColor: "#0066CC",
-    borderRadius: 12,
+    backgroundColor: "#0B5ED7",
+    borderRadius: 14,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 10,
+    shadowColor: "#0B5ED7",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 4,
   },
   primaryButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 15,
+    fontWeight: "700",
   },
   secondaryButton: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 10,
     borderWidth: 2,
-    borderColor: "#0066CC",
+    borderColor: "#0B5ED7",
   },
   secondaryButtonText: {
-    color: "#0066CC",
-    fontSize: 16,
-    fontWeight: "bold",
+    color: "#0B5ED7",
+    fontSize: 15,
+    fontWeight: "700",
   },
   bottomSpacer: {
     height: 40,

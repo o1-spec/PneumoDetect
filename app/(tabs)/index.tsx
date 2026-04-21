@@ -1,21 +1,23 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Dimensions,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import { Card, SectionHeader, StatCard } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import {
-  analyticsAPI,
-  notificationsAPI,
-  scansAPI,
+    analyticsAPI,
+    notificationsAPI,
+    scansAPI,
 } from "../../services/api.client";
 import { AnalyticsStats, Scan, ScanResultStatistics } from "../../types/api";
 
@@ -233,119 +235,177 @@ export default function DashboardScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        <View style={styles.welcomeCard}>
-          <View>
-            <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.userName}>{userDisplayName}</Text>
+        {/* Welcome Card with Gradient */}
+        <LinearGradient
+          colors={["#0B5ED7", "#0B5ED7", "#1E6FDD"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.welcomeGradient}
+        >
+          <View style={styles.welcomeContent}>
+            <View>
+              <Text style={styles.welcomeGreeting}>Welcome back!</Text>
+              <Text style={styles.welcomeName}>{userDisplayName}</Text>
+              <Text style={styles.welcomeSubtext}>
+                {notificationCount > 0
+                  ? `${notificationCount} updates waiting`
+                  : "All systems operational"}
+              </Text>
+            </View>
+            <View style={styles.welcomeIconCircle}>
+              <Ionicons name="medical" size={48} color="#FFFFFF" />
+            </View>
           </View>
-          <View style={styles.iconContainer}>
-            <Ionicons name="medical" size={40} color="#0066CC" />
-          </View>
-        </View>
+        </LinearGradient>
 
+        {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.quickActions}>
+          <SectionHeader
+            title="Quick Actions"
+            subtitle="Get started in seconds"
+          />
+          <View style={styles.quickActionsGrid}>
             <TouchableOpacity
-              style={styles.actionCard}
+              style={styles.actionButton}
               onPress={() => router.push("/analysis/upload")}
             >
-              <View style={[styles.actionIcon, styles.primaryBg]}>
-                <Ionicons name="add-circle" size={32} color="#FFFFFF" />
+              <View
+                style={[
+                  styles.actionIconBg,
+                  { backgroundColor: "rgba(11, 94, 215, 0.1)" },
+                ]}
+              >
+                <Ionicons name="add-circle-outline" size={28} color="#0B5ED7" />
               </View>
-              <Text style={styles.actionText}>New Scan</Text>
+              <Text style={styles.actionButtonText}>New Scan</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.actionCard}
+              style={styles.actionButton}
               onPress={() => router.push("/(tabs)/history")}
             >
-              <View style={[styles.actionIcon, styles.secondaryBg]}>
-                <Ionicons name="time" size={32} color="#FFFFFF" />
+              <View
+                style={[
+                  styles.actionIconBg,
+                  { backgroundColor: "rgba(16, 185, 129, 0.1)" },
+                ]}
+              >
+                <Ionicons name="time-outline" size={28} color="#10B981" />
               </View>
-              <Text style={styles.actionText}>History</Text>
+              <Text style={styles.actionButtonText}>History</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionCard}
-              onPress={() => router.push("/(tabs)/(admin)/all-scans")}
-            >
-              <View style={[styles.actionIcon, styles.tertiaryBg]}>
-                <Ionicons name="analytics" size={32} color="#FFFFFF" />
-              </View>
-              <Text style={styles.actionText}>Analytics</Text>
-            </TouchableOpacity>
-
-            {isAdmin && (
+          </View>
+          {isAdmin && (
+            <View style={styles.quickActionsGrid}>
               <TouchableOpacity
-                style={styles.actionCard}
+                style={styles.actionButton}
+                onPress={() => router.push("/(tabs)/(admin)/all-scans")}
+              >
+                <View
+                  style={[
+                    styles.actionIconBg,
+                    { backgroundColor: "rgba(59, 130, 246, 0.1)" },
+                  ]}
+                >
+                  <Ionicons
+                    name="bar-chart-outline"
+                    size={28}
+                    color="#3B82F6"
+                  />
+                </View>
+                <Text style={styles.actionButtonText}>All Scans</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionButton}
                 onPress={() => router.push("/(tabs)/(admin)/users")}
               >
-                <View style={[styles.actionIcon, styles.quaternaryBg]}>
-                  <Ionicons name="people" size={32} color="#FFFFFF" />
+                <View
+                  style={[
+                    styles.actionIconBg,
+                    { backgroundColor: "rgba(168, 85, 247, 0.1)" },
+                  ]}
+                >
+                  <Ionicons name="people-outline" size={28} color="#A855F7" />
                 </View>
-                <Text style={styles.actionText}>Users</Text>
+                <Text style={styles.actionButtonText}>Users</Text>
               </TouchableOpacity>
-            )}
+            </View>
+          )}
+        </View>
+
+        {/* Statistics */}
+        <View style={styles.section}>
+          <SectionHeader
+            title="Scan Overview"
+            subtitle="This month's statistics"
+          />
+          <View style={styles.statsContainer}>
+            <View style={styles.statRow}>
+              <StatCard
+                icon="document-text-outline"
+                title="Total Scans"
+                value={stats?.totalScans || 0}
+                trend={
+                  growthPercentage !== null
+                    ? {
+                        value: Math.abs(growthPercentage),
+                        isPositive: growthPercentage >= 0,
+                      }
+                    : undefined
+                }
+                color="#0B5ED7"
+                backgroundColor="rgba(11, 94, 215, 0.08)"
+              />
+              <StatCard
+                icon="checkmark-circle-outline"
+                title="Completed"
+                value={stats?.completedScans || 0}
+                color="#10B981"
+                backgroundColor="rgba(16, 185, 129, 0.08)"
+              />
+            </View>
+            <View style={styles.statRow}>
+              <StatCard
+                icon="warning-outline"
+                title="Pneumonia"
+                value={stats?.failedScans || 0}
+                color="#EF4444"
+                backgroundColor="rgba(239, 68, 68, 0.08)"
+              />
+              <StatCard
+                icon="time-outline"
+                title="Processing"
+                value={stats?.processingScans || 0}
+                color="#F59E0B"
+                backgroundColor="rgba(245, 158, 11, 0.08)"
+              />
+            </View>
           </View>
         </View>
 
+        {/* Weekly Activity Chart */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Overview</Text>
-          <View style={styles.statsGrid}>
-            <View style={[styles.statCard, styles.totalCard]}>
-              <Ionicons name="document-text" size={24} color="#0066CC" />
-              <Text style={styles.statValue}>{stats?.totalScans || 0}</Text>
-              <Text style={styles.statLabel}>Total Scans</Text>
-            </View>
-
-            <View style={[styles.statCard, styles.dangerCard]}>
-              <Ionicons name="warning" size={24} color="#D32F2F" />
-              <Text style={[styles.statValue, styles.dangerText]}>
-                {stats?.failedScans || 0}
-              </Text>
-              <Text style={styles.statLabel}>Failed</Text>
-            </View>
-
-            <View style={[styles.statCard, styles.safeCard]}>
-              <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
-              <Text style={[styles.statValue, styles.safeText]}>
-                {stats?.completedScans || 0}
-              </Text>
-              <Text style={styles.statLabel}>Completed</Text>
-            </View>
-
-            <View style={[styles.statCard, styles.accuracyCard]}>
-              <Ionicons name="time" size={24} color="#FF9800" />
-              <Text style={[styles.statValue, styles.accuracyText]}>
-                {stats?.processingScans || 0}
-              </Text>
-              <Text style={styles.statLabel}>Processing</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Weekly Activity</Text>
-          <View style={styles.chartCard}>
+          <SectionHeader title="Weekly Activity" subtitle="7-day scan trend" />
+          <Card elevated="light">
             <LineChart
               data={chartData}
-              width={screenWidth - 48}
+              width={screenWidth - 56}
               height={220}
               chartConfig={{
                 backgroundColor: "#FFFFFF",
                 backgroundGradientFrom: "#FFFFFF",
                 backgroundGradientTo: "#FFFFFF",
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(0, 102, 204, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(28, 28, 30, ${opacity})`,
+                color: (opacity = 1) => `rgba(11, 94, 215, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
                 style: {
                   borderRadius: 16,
                 },
                 propsForDots: {
-                  r: "6",
+                  r: "5",
                   strokeWidth: "2",
-                  stroke: "#0066CC",
+                  stroke: "#0B5ED7",
                 },
               }}
               bezier
@@ -366,7 +426,7 @@ export default function DashboardScreen() {
                   : "No comparison data"}
               </Text>
             </View>
-          </View>
+          </Card>
         </View>
 
         <View style={styles.section}>
@@ -377,55 +437,69 @@ export default function DashboardScreen() {
             </TouchableOpacity>
           </View>
 
-          {recentScans.map((scan) => (
-            <TouchableOpacity
-              key={scan.id}
-              style={styles.scanCard}
-              onPress={() =>
-                router.push({
-                  pathname: "/report/[scanId]",
-                  params: { scanId: scan.id },
-                })
-              }
-            >
-              <View style={styles.scanHeader}>
-                <View>
-                  <Text style={styles.scanId}>{scan.id}</Text>
-                  <Text style={styles.patientName}>
-                    {scan.patient?.name || "Unknown Patient"}
-                  </Text>
-                </View>
-                <View
-                  style={[
-                    styles.resultBadge,
-                    scan.result === "PNEUMONIA"
-                      ? styles.resultDanger
-                      : styles.resultSafe,
-                  ]}
-                >
-                  <Text
+          {recentScans.length > 0 ? (
+            recentScans.map((scan) => (
+              <TouchableOpacity
+                key={scan.id}
+                style={styles.scanCard}
+                onPress={() =>
+                  router.push({
+                    pathname: "/report/[scanId]",
+                    params: { scanId: scan.id },
+                  })
+                }
+              >
+                <View style={styles.scanHeader}>
+                  <View>
+                    <Text style={styles.scanId}>{scan.id}</Text>
+                    <Text style={styles.patientName}>
+                      {scan.patient?.name || "Unknown Patient"}
+                    </Text>
+                  </View>
+                  <View
                     style={[
-                      styles.resultText,
+                      styles.resultBadge,
                       scan.result === "PNEUMONIA"
-                        ? styles.resultTextDanger
-                        : styles.resultTextSafe,
+                        ? styles.resultDanger
+                        : styles.resultSafe,
                     ]}
                   >
-                    {scan.result === "PNEUMONIA" ? "POSITIVE" : "NEGATIVE"}
+                    <Text
+                      style={[
+                        styles.resultText,
+                        scan.result === "PNEUMONIA"
+                          ? styles.resultTextDanger
+                          : styles.resultTextSafe,
+                      ]}
+                    >
+                      {scan.result === "PNEUMONIA" ? "POSITIVE" : "NEGATIVE"}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.scanFooter}>
+                  <Text style={styles.scanDate}>
+                    <Ionicons
+                      name="calendar-outline"
+                      size={12}
+                      color="#8E8E93"
+                    />{" "}
+                    {new Date(scan.createdAt).toLocaleDateString()}
+                  </Text>
+                  <Text style={styles.scanConfidence}>
+                    {scan.confidence || 0}% confidence
                   </Text>
                 </View>
-              </View>
-              <View style={styles.scanFooter}>
-                <Text style={styles.scanDate}>
-                  <Ionicons name="calendar-outline" size={12} color="#8E8E93" />{" "}
-                  {new Date(scan.createdAt).toLocaleDateString()}
-                </Text>
-                <Text style={styles.scanConfidence}>
-                  {scan.confidence || 0}% confidence
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyState}>
+              <Ionicons name="document-outline" size={48} color="#D1D5DB" />
+              <Text style={styles.emptyStateTitle}>No Recent Scans</Text>
+              <Text style={styles.emptyStateText}>
+                Start by uploading a new X-ray scan
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -476,41 +550,43 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
   },
   header: {
     backgroundColor: "#FFFFFF",
     paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
     elevation: 2,
   },
   headerContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#111827",
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#8E8E93",
-    marginTop: 2,
+    color: "#6B7280",
+    marginTop: 4,
+    fontWeight: "500",
   },
   notificationButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "#F5F5F7",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#F3F4F6",
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
@@ -519,173 +595,135 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 6,
     right: 6,
-    backgroundColor: "#D32F2F",
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
+    backgroundColor: "#EF4444",
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
     borderWidth: 2,
     borderColor: "#FFFFFF",
   },
   badgeText: {
     color: "#FFFFFF",
     fontSize: 11,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
   scrollView: {
     flex: 1,
   },
-  welcomeCard: {
+  welcomeGradient: {
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 24,
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: "#0B5ED7",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  welcomeContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#E3F2FD",
-    margin: 16,
-    marginTop: 24,
-    padding: 20,
-    borderRadius: 16,
   },
-  welcomeText: {
+  welcomeGreeting: {
     fontSize: 14,
-    color: "#0066CC",
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.9)",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
     marginBottom: 4,
   },
-  userName: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#0066CC",
+  welcomeName: {
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    marginBottom: 8,
+    letterSpacing: -0.5,
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#FFFFFF",
+  welcomeSubtext: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.85)",
+  },
+  welcomeIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     justifyContent: "center",
     alignItems: "center",
+    backdropFilter: "blur(10px)",
   },
   section: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 12,
+    fontWeight: "700",
+    color: "#111827",
+    letterSpacing: -0.3,
   },
   viewAllText: {
     fontSize: 14,
-    color: "#0066CC",
-    fontWeight: "600",
+    color: "#0B5ED7",
+    fontWeight: "700",
   },
-  quickActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  actionCard: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  actionIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  primaryBg: {
-    backgroundColor: "#0066CC",
-  },
-  secondaryBg: {
-    backgroundColor: "#4CAF50",
-  },
-  tertiaryBg: {
-    backgroundColor: "#FF9800",
-  },
-  quaternaryBg: {
-    backgroundColor: "#9C27B0",
-  },
-  actionText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    textAlign: "center",
-  },
-  statsGrid: {
+  quickActionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+    marginBottom: 8,
   },
-  statCard: {
-    width: (screenWidth - 44) / 2,
+  actionButton: {
+    flex: 1,
+    minWidth: (screenWidth - 52) / 2,
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 14,
+    padding: 18,
     alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
-  totalCard: {
-    backgroundColor: "#E3F2FD",
+  actionIconBg: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
   },
-  dangerCard: {
-    backgroundColor: "#FFEBEE",
+  actionButtonText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#111827",
+    textAlign: "center",
   },
-  safeCard: {
-    backgroundColor: "#E8F5E9",
+  statsContainer: {
+    gap: 12,
   },
-  accuracyCard: {
-    backgroundColor: "#FFF3E0",
-  },
-  statValue: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginVertical: 8,
-  },
-  dangerText: {
-    color: "#D32F2F",
-  },
-  safeText: {
-    color: "#4CAF50",
-  },
-  accuracyText: {
-    color: "#FF9800",
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#8E8E93",
-    fontWeight: "600",
-  },
-  chartCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  statRow: {
+    flexDirection: "row",
+    gap: 12,
   },
   chart: {
     marginVertical: 8,
@@ -695,7 +733,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
   },
   chartLegend: {
     flexDirection: "row",
@@ -706,26 +747,29 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#0066CC",
+    backgroundColor: "#0B5ED7",
   },
   legendText: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: "#6B7280",
+    fontWeight: "500",
   },
   chartSubtext: {
-    fontSize: 12,
-    color: "#4CAF50",
+    fontSize: 13,
+    color: "#10B981",
     fontWeight: "600",
   },
   scanCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
   scanHeader: {
@@ -736,14 +780,15 @@ const styles = StyleSheet.create({
   },
   scanId: {
     fontSize: 12,
-    color: "#0066CC",
-    fontWeight: "600",
+    color: "#0B5ED7",
+    fontWeight: "700",
     marginBottom: 4,
+    letterSpacing: 0.5,
   },
   patientName: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: "#111827",
   },
   resultBadge: {
     paddingHorizontal: 12,
@@ -751,59 +796,62 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   resultDanger: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
   },
   resultSafe: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
   },
   resultText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   resultTextDanger: {
-    color: "#D32F2F",
+    color: "#EF4444",
   },
   resultTextSafe: {
-    color: "#4CAF50",
+    color: "#10B981",
   },
   scanFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#F5F5F7",
+    borderTopColor: "#F3F4F6",
   },
   scanDate: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: "#9CA3AF",
+    fontWeight: "500",
   },
   scanConfidence: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: "#111827",
   },
   statusCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 14,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
   statusRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
+    borderBottomColor: "#F3F4F6",
   },
   statusIndicator: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
   statusDot: {
     width: 10,
@@ -811,19 +859,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   statusActive: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#10B981",
   },
   statusText: {
     fontSize: 14,
-    color: "#1C1C1E",
+    color: "#111827",
     fontWeight: "600",
   },
   statusValue: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: "#6B7280",
+    fontWeight: "500",
   },
   bottomSpacer: {
-    height: 40,
+    height: 60,
   },
   loadingContainer: {
     flex: 1,
@@ -832,7 +881,29 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: "#8E8E93",
-    marginTop: 8,
+    color: "#9CA3AF",
+    marginTop: 12,
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 40,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderStyle: "dashed",
+  },
+  emptyStateTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  emptyStateText: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    textAlign: "center",
   },
 });
