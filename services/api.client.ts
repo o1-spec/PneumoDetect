@@ -104,6 +104,15 @@ export const patientsAPI = {
     });
     return response.data;
   },
+
+  /**
+   * ADMIN ONLY: Link a clinical patient record to a registered user account.
+   * Once linked, scan result notifications will be delivered to that user.
+   */
+  linkToUser: async (patientId: string, userId: string): Promise<Patient> => {
+    const response = await api.patch<Patient>(`/patients/${patientId}/link-user`, { userId });
+    return response.data;
+  },
 };
 
 /**
