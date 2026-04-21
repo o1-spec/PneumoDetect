@@ -82,7 +82,9 @@ api.interceptors.response.use(
       },
     );
 
-    if (response?.status === 401) {
+    const isLogoutEndpoint = config?.url?.includes("/auth/logout");
+
+    if (response?.status === 401 && !isLogoutEndpoint) {
       try {
         await clearAuthData();
 

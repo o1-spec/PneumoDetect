@@ -122,8 +122,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = useCallback(async () => {
     try {
-      await api.post("/auth/logout");
+      const token = await getAccessToken();
+      if (token) {
+        await api.post("/auth/logout");
+      }
     } catch (error) {
+      // Silently ignore — we always clear local state regardless
     } finally {
       await clearAuthData();
       setUser(null);
