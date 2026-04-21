@@ -2,14 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { PremiumChip } from "../../components/premium";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
 import type { Scan } from "../../types/api";
@@ -29,7 +30,6 @@ export default function PatientMyScansScreen() {
   const loadScans = async () => {
     try {
       setLoading(true);
-      // Use patient-specific endpoint
       const response = await scansAPI.getMyScans();
       const scans = response.scans || [];
       setScans(scans);
@@ -64,66 +64,40 @@ export default function PatientMyScansScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>My Scans</Text>
+        <View style={styles.headerContent}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>My Scans</Text>
+          <View style={{ width: 40 }} />
+        </View>
       </View>
 
-      {/* Filter Buttons */}
       <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "ALL" && styles.filterButtonActive,
-          ]}
+        <PremiumChip
+          label={`All (${scans.length})`}
+          selected={filter === "ALL"}
           onPress={() => setFilter("ALL")}
-        >
-          <Text
-            style={[
-              styles.filterButtonText,
-              filter === "ALL" && styles.filterButtonTextActive,
-            ]}
-          >
-            All ({scans.length})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "NORMAL" && styles.filterButtonActive,
-          ]}
+        />
+        <PremiumChip
+          label={`Normal (${scans.filter((s) => s.result === "NORMAL").length})`}
+          selected={filter === "NORMAL"}
           onPress={() => setFilter("NORMAL")}
-        >
-          <Text
-            style={[
-              styles.filterButtonText,
-              filter === "NORMAL" && styles.filterButtonTextActive,
-            ]}
-          >
-            Normal ({scans.filter((s) => s.result === "NORMAL").length})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            filter === "PNEUMONIA" && styles.filterButtonActive,
-          ]}
+        />
+        <PremiumChip
+          label={`Concerns (${
+            scans.filter(
+              (s) => s.result === "PNEUMONIA" || s.result === "CONCERNS"
+            ).length
+          })`}
+          selected={filter === "PNEUMONIA"}
           onPress={() => setFilter("PNEUMONIA")}
-        >
-          <Text
-            style={[
-              styles.filterButtonText,
-              filter === "PNEUMONIA" && styles.filterButtonTextActive,
-            ]}
-          >
-            Concerns ({scans.filter((s) => s.result === "PNEUMONIA").length})
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
 
-      {/* Scans List */}
       <ScrollView
         style={styles.content}
+        contentContainerStyle={{ paddingBottom: 40 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -132,7 +106,7 @@ export default function PatientMyScansScreen() {
         {loading ? (
           <ActivityIndicator
             size="large"
-            color="#0066CC"
+            color="#0B5ED7"
             style={{ marginTop: 40 }}
           />
         ) : filteredScans.length > 0 ? (
@@ -167,9 +141,9 @@ export default function PatientMyScansScreen() {
                         minute: "2-digit",
                       })}
                     </Text>
-                    {scan.patient && (
+                    {scan.doctorName && (
                       <Text style={styles.patientName}>
-                        Patient: {scan.patient.name}
+                        Analyzed by {scan.doctorName}
                       </Text>
                     )}
                   </View>
@@ -205,14 +179,14 @@ export default function PatientMyScansScreen() {
                     </Text>
                   </View>
 
-                  <Ionicons name="chevron-forward" size={24} color="#D0D0D0" />
+                  <Ionicons name="chevron-forward" size={24} color="#D1D5DB" />
                 </View>
               </TouchableOpacity>
             ))}
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="images-outline" size={64} color="#D0D0D0" />
+            <Ionicons name="images-outline" size={64} color="#D1D5DB" />
             <Text style={styles.emptyText}>No scans found</Text>
             <Text style={styles.emptySubtext}>
               {filter === "ALL"
@@ -221,8 +195,6 @@ export default function PatientMyScansScreen() {
             </Text>
           </View>
         )}
-
-        <View style={{ height: 40 }} />
       </ScrollView>
     </View>
   );
@@ -231,68 +203,66 @@ export default function PatientMyScansScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
   },
   header: {
     backgroundColor: "#FFFFFF",
     paddingTop: 60,
     paddingBottom: 16,
-    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+  headerContent: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#F3F4F6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#111827",
+    letterSpacing: -0.3,
   },
   filterContainer: {
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     flexDirection: "row",
     gap: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-  },
-  filterButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: "#F5F5F7",
-    borderWidth: 1,
-    borderColor: "#E5E5EA",
-  },
-  filterButtonActive: {
-    backgroundColor: "#0066CC",
-    borderColor: "#0066CC",
-  },
-  filterButtonText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#8E8E93",
-  },
-  filterButtonTextActive: {
-    color: "#FFFFFF",
   },
   content: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 20,
   },
   scansList: {
     gap: 12,
   },
   scanCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 14,
+    padding: 16,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
   scanCardLeft: {
@@ -307,80 +277,88 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   statusNormal: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#10B981",
   },
   statusConcern: {
-    backgroundColor: "#FF9800",
+    backgroundColor: "#EF4444",
   },
   scanInfo: {
     flex: 1,
   },
   scanDate: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#111827",
   },
   scanTime: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: "#6B7280",
     marginTop: 2,
+    fontWeight: "500",
   },
   patientName: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: "#4B5563",
     marginTop: 4,
+    fontWeight: "500",
   },
   scanCardRight: {
     alignItems: "flex-end",
     gap: 8,
   },
   resultBadge: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 12,
   },
   resultNormalBg: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
   },
   resultConcernBg: {
-    backgroundColor: "#FFF3E0",
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
   },
   resultBadgeText: {
-    fontSize: 11,
-    fontWeight: "bold",
+    fontSize: 12,
+    fontWeight: "700",
   },
   resultNormalText: {
-    color: "#4CAF50",
+    color: "#10B981",
   },
   resultConcernText: {
-    color: "#FF9800",
+    color: "#EF4444",
   },
   confidenceContainer: {
     alignItems: "flex-end",
   },
   confidenceLabel: {
-    fontSize: 11,
-    color: "#8E8E93",
+    fontSize: 12,
+    color: "#6B7280",
+    fontWeight: "500",
   },
   confidenceValue: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#111827",
     marginTop: 2,
   },
   emptyState: {
     alignItems: "center",
     paddingVertical: 60,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   emptyText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#111827",
     marginTop: 12,
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: "#6B7280",
     marginTop: 4,
+    fontWeight: "500",
   },
 });

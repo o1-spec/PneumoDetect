@@ -1,15 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { Card, SectionHeader, StatCard } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
@@ -41,16 +43,14 @@ export default function PatientDashboardScreen() {
   const loadScans = async () => {
     try {
       setLoading(true);
-      // Use patient-specific endpoint that returns scans with patient-safe fields
       const response = await scansAPI.getMyScans();
       const scans = response.scans || [];
 
       setRecentScans(scans.slice(0, 5));
 
-      // Calculate statistics
       const normal = scans.filter((s: any) => s.result === "NORMAL").length;
       const concerns = scans.filter(
-        (s: any) => s.result === "PNEUMONIA" || s.result === "CONCERNS",
+        (s: any) => s.result === "PNEUMONIA" || s.result === "CONCERNS"
       ).length;
 
       setStats({
@@ -84,11 +84,8 @@ export default function PatientDashboardScreen() {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.headerTitle}>Welcome Back</Text>
-            <Text style={styles.headerSubtitle}>{user?.name || "Patient"}</Text>
-          </View>
-          <View style={styles.headerIcon}>
-            <Ionicons name="person-circle" size={56} color="#0066CC" />
+            <Text style={styles.headerTitle}>Dashboard</Text>
+            <Text style={styles.headerSubtitle}>Track your health updates</Text>
           </View>
         </View>
       </View>
@@ -100,54 +97,69 @@ export default function PatientDashboardScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Statistics Cards */}
-        <View style={styles.statsContainer}>
-          <View style={[styles.statCard, styles.totalCard]}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="images" size={28} color="#0066CC" />
+        <LinearGradient
+          colors={["#0B5ED7", "#0B5ED7", "#1E6FDD"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.welcomeGradient}
+        >
+          <View style={styles.welcomeContent}>
+            <View>
+              <Text style={styles.welcomeGreeting}>Welcome back!</Text>
+              <Text style={styles.welcomeName}>{user?.name || "Patient"}</Text>
+              <Text style={styles.welcomeSubtext}>Your health summary</Text>
             </View>
-            <View style={styles.statContent}>
-              <Text style={styles.statLabel}>Total Scans</Text>
-              <Text style={styles.statValue}>{stats.totalScans}</Text>
-            </View>
-          </View>
-
-          <View style={[styles.statCard, styles.normalCard]}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="checkmark-circle" size={28} color="#4CAF50" />
-            </View>
-            <View style={styles.statContent}>
-              <Text style={styles.statLabel}>Normal</Text>
-              <Text style={styles.statValue}>{stats.normalScans}</Text>
+            <View style={styles.welcomeIconCircle}>
+              <Ionicons name="person" size={48} color="#FFFFFF" />
             </View>
           </View>
+        </LinearGradient>
 
-          <View style={[styles.statCard, styles.pneumoniaCard]}>
-            <View style={styles.statIconContainer}>
-              <Ionicons name="alert-circle" size={28} color="#FF9800" />
+        <View style={styles.section}>
+          <SectionHeader title="Your Activity" subtitle="Scan statistics" />
+          <View style={styles.statsContainer}>
+            <View style={styles.statRow}>
+              <StatCard
+                icon="document-text-outline"
+                title="Total Scans"
+                value={stats.totalScans}
+                color="#0B5ED7"
+                backgroundColor="rgba(11, 94, 215, 0.08)"
+              />
+              <StatCard
+                icon="checkmark-circle-outline"
+                title="Normal"
+                value={stats.normalScans}
+                color="#10B981"
+                backgroundColor="rgba(16, 185, 129, 0.08)"
+              />
             </View>
-            <View style={styles.statContent}>
-              <Text style={styles.statLabel}>Concerns</Text>
-              <Text style={styles.statValue}>{stats.pneumoniaScans}</Text>
+            <View style={styles.statRow}>
+              <StatCard
+                icon="alert-circle-outline"
+                title="Concerns"
+                value={stats.pneumoniaScans}
+                color="#EF4444"
+                backgroundColor="rgba(239, 68, 68, 0.08)"
+              />
             </View>
           </View>
         </View>
 
-        {/* Recent Scans */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Scans</Text>
             <TouchableOpacity
               onPress={() => router.push("/(patient)/my-scans")}
             >
-              <Text style={styles.viewAllLink}>View All</Text>
+              <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
           </View>
 
           {loading ? (
             <ActivityIndicator
               size="large"
-              color="#0066CC"
+              color="#0B5ED7"
               style={{ marginTop: 20 }}
             />
           ) : recentScans.length > 0 ? (
@@ -160,9 +172,7 @@ export default function PatientDashboardScreen() {
                 >
                   <View style={styles.scanHeader}>
                     <View style={styles.scanInfo}>
-                      <Text style={styles.scanDate}>
-                        {new Date(scan.createdAt).toLocaleDateString()}
-                      </Text>
+                      <Text style={styles.scanId}>{scan.id}</Text>
                       <Text style={styles.scanPatient}>
                         {scan.doctorName || "Analyzed"}
                       </Text>
@@ -171,16 +181,16 @@ export default function PatientDashboardScreen() {
                       style={[
                         styles.resultBadge,
                         scan.result === "NORMAL"
-                          ? styles.resultNormal
-                          : styles.resultPneumonia,
+                          ? styles.resultSafe
+                          : styles.resultDanger,
                       ]}
                     >
                       <Text
                         style={[
                           styles.resultText,
                           scan.result === "NORMAL"
-                            ? styles.resultTextNormal
-                            : styles.resultTextPneumonia,
+                            ? styles.resultTextSafe
+                            : styles.resultTextDanger,
                         ]}
                       >
                         {scan.result || "PENDING"}
@@ -188,34 +198,27 @@ export default function PatientDashboardScreen() {
                     </View>
                   </View>
 
-                  <View style={styles.scanDetails}>
-                    <View style={styles.detailItem}>
-                      <Ionicons name="trending-up" size={16} color="#8E8E93" />
-                      <Text style={styles.detailText}>
-                        Confidence:{" "}
-                        {scan.confidence
-                          ? Math.round(scan.confidence * 100)
-                          : "N/A"}
-                        %
-                      </Text>
-                    </View>
-                    {scan.status === "COMPLETED" && (
-                      <View style={styles.detailItem}>
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={16}
-                          color="#4CAF50"
-                        />
-                        <Text style={styles.detailText}>Analysis Complete</Text>
-                      </View>
-                    )}
+                  <View style={styles.scanFooter}>
+                    <Text style={styles.scanDate}>
+                      <Ionicons
+                        name="calendar-outline"
+                        size={12}
+                        color="#8E8E93"
+                      />{" "}
+                      {new Date(scan.createdAt).toLocaleDateString()}
+                    </Text>
+                    <Text style={styles.scanConfidence}>
+                      {scan.confidence
+                        ? `${Math.round(scan.confidence * 100)}% confidence`
+                        : "N/A confidence"}
+                    </Text>
                   </View>
                 </TouchableOpacity>
               ))}
             </View>
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons name="document-outline" size={48} color="#D0D0D0" />
+              <Ionicons name="document-outline" size={48} color="#D1D5DB" />
               <Text style={styles.emptyText}>No scans yet</Text>
               <Text style={styles.emptySubtext}>
                 Your scan results will appear here
@@ -224,20 +227,22 @@ export default function PatientDashboardScreen() {
           )}
         </View>
 
-        {/* Quick Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Important Notes</Text>
-          <View style={styles.infoCard}>
-            <Ionicons name="information-circle" size={24} color="#0066CC" />
+          <Card elevated="light" backgroundColor="rgba(11, 94, 215, 0.08)">
             <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>Always Consult a Doctor</Text>
-              <Text style={styles.infoText}>
-                This AI analysis is not a medical diagnosis. Always consult with
-                a qualified healthcare professional for medical advice.
-              </Text>
+              <Ionicons name="information-circle" size={24} color="#0B5ED7" />
+              <View style={styles.infoTextContainer}>
+                <Text style={styles.infoTitle}>Always Consult a Doctor</Text>
+                <Text style={styles.infoText}>
+                  This AI analysis is not a medical diagnosis. Always consult
+                  with a qualified healthcare professional for medical advice.
+                </Text>
+              </View>
             </View>
-          </View>
+          </Card>
         </View>
+        <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
   );
@@ -246,206 +251,233 @@ export default function PatientDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: "#FAFBFC",
   },
   header: {
     backgroundColor: "#FFFFFF",
     paddingTop: 60,
     paddingBottom: 16,
-    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   headerContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#111827",
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: "#6B7280",
     marginTop: 4,
-  },
-  headerIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#E3F2FD",
-    justifyContent: "center",
-    alignItems: "center",
+    fontWeight: "500",
   },
   content: {
     flex: 1,
-    padding: 16,
   },
-  statsContainer: {
-    flexDirection: "row",
+  welcomeGradient: {
+    marginHorizontal: 20,
+    marginTop: 20,
     marginBottom: 24,
-    gap: 12,
+    borderRadius: 16,
+    padding: 24,
+    shadowColor: "#0B5ED7",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  statCard: {
-    flex: 1,
-    borderRadius: 12,
-    padding: 14,
+  welcomeContent: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  totalCard: {
-    backgroundColor: "#E3F2FD",
-  },
-  normalCard: {
-    backgroundColor: "#E8F5E9",
-  },
-  pneumoniaCard: {
-    backgroundColor: "#FFF3E0",
-  },
-  statIconContainer: {
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
   },
-  statContent: {
-    flex: 1,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#8E8E93",
+  welcomeGreeting: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.9)",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
     marginBottom: 4,
   },
-  statValue: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+  welcomeName: {
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  welcomeSubtext: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.85)",
+  },
+  welcomeIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
   },
   section: {
+    paddingHorizontal: 20,
     marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: "#111827",
+    letterSpacing: -0.3,
   },
-  viewAllLink: {
+  viewAllText: {
     fontSize: 14,
-    color: "#0066CC",
-    fontWeight: "600",
+    color: "#0B5ED7",
+    fontWeight: "700",
+  },
+  statsContainer: {
+    gap: 12,
+  },
+  statRow: {
+    flexDirection: "row",
+    gap: 12,
   },
   scansList: {
     gap: 12,
   },
   scanCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
     elevation: 2,
   },
   scanHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   scanInfo: {
     flex: 1,
   },
-  scanDate: {
+  scanId: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: "#0B5ED7",
+    fontWeight: "700",
+    marginBottom: 4,
+    letterSpacing: 0.5,
   },
   scanPatient: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginTop: 4,
+    fontWeight: "700",
+    color: "#111827",
   },
   resultBadge: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 12,
   },
-  resultNormal: {
-    backgroundColor: "#E8F5E9",
+  resultDanger: {
+    backgroundColor: "rgba(239, 68, 68, 0.1)",
   },
-  resultPneumonia: {
-    backgroundColor: "#FFF3E0",
+  resultSafe: {
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
   },
   resultText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
   },
-  resultTextNormal: {
-    color: "#4CAF50",
+  resultTextSafe: {
+    color: "#10B981",
   },
-  resultTextPneumonia: {
-    color: "#FF9800",
+  resultTextDanger: {
+    color: "#EF4444",
   },
-  scanDetails: {
+  scanFooter: {
     flexDirection: "row",
-    gap: 16,
-  },
-  detailItem: {
-    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 6,
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#F3F4F6",
+    paddingTop: 12,
   },
-  detailText: {
-    fontSize: 12,
-    color: "#8E8E93",
+  scanDate: {
+    fontSize: 13,
+    color: "#6B7280",
+    fontWeight: "500",
+  },
+  scanConfidence: {
+    fontSize: 13,
+    color: "#374151",
+    fontWeight: "600",
   },
   emptyState: {
     alignItems: "center",
     paddingVertical: 40,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   emptyText: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: "#111827",
     marginTop: 12,
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: "#6B7280",
     marginTop: 4,
-  },
-  infoCard: {
-    backgroundColor: "#E3F2FD",
-    borderRadius: 12,
-    padding: 14,
-    flexDirection: "row",
-    gap: 12,
+    fontWeight: "500",
   },
   infoContent: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+  },
+  infoTextContainer: {
     flex: 1,
   },
   infoTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#0066CC",
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#0B5ED7",
     marginBottom: 4,
   },
   infoText: {
-    fontSize: 13,
-    color: "#555555",
-    lineHeight: 18,
+    fontSize: 14,
+    color: "#1E3A8A",
+    lineHeight: 20,
+    fontWeight: "500",
+  },
+  bottomSpacer: {
+    height: 40,
   },
 });
