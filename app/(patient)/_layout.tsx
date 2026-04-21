@@ -31,7 +31,7 @@ export default function PatientLayout() {
         options={{
           title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="medical" size={size} color={color} />
+            <Ionicons name="grid-outline" size={size} color={color} />
           ),
         }}
       />
@@ -40,7 +40,7 @@ export default function PatientLayout() {
         options={{
           title: "My Scans",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="images" size={size} color={color} />
+            <Ionicons name="images-outline" size={size} color={color} />
           ),
         }}
       />
@@ -49,8 +49,14 @@ export default function PatientLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-circle" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
+        }}
+      />
+    <Tabs.Screen
+        name="scan-details"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
