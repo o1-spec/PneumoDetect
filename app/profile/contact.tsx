@@ -11,6 +11,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import {
+  COLORS,
+  InfoCard,
+  PremiumCard,
+  PrimaryButton,
+  SectionHeader,
+} from "../../components/premium/PremiumComponents";
 import { messagesAPI } from "../../services/api.client";
 
 export default function ContactScreen() {
@@ -70,7 +77,7 @@ export default function ContactScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Contact Support</Text>
@@ -80,124 +87,227 @@ export default function ContactScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Get in Touch</Text>
-          <View style={styles.card}>
-            <TouchableOpacity style={styles.contactMethod} onPress={handleCall}>
-              <View style={styles.contactLeft}>
-                <View style={[styles.iconContainer, styles.phoneIcon]}>
-                  <Ionicons name="call" size={24} color="#4CAF50" />
-                </View>
-                <View style={styles.contactText}>
-                  <Text style={styles.contactLabel}>Phone Support</Text>
-                  <Text style={styles.contactValue}>+234 705 826 6972</Text>
-                  <Text style={styles.contactHours}>Mon-Fri, 9AM-6PM EST</Text>
-                </View>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <SectionHeader
+          title="Get in Touch"
+          subtitle="Choose your preferred contact method"
+        />
+        <PremiumCard>
+          {/* Phone Support */}
+          <TouchableOpacity style={styles.contactMethod} onPress={handleCall}>
+            <View style={styles.contactLeft}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: COLORS.success + "20" },
+                ]}
+              >
+                <Ionicons name="call" size={24} color={COLORS.success} />
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-            </TouchableOpacity>
+              <View style={styles.contactText}>
+                <Text
+                  style={[styles.contactLabel, { color: COLORS.textPrimary }]}
+                >
+                  Phone Support
+                </Text>
+                <Text style={[styles.contactValue, { color: COLORS.primary }]}>
+                  +234 705 826 6972
+                </Text>
+                <Text
+                  style={[styles.contactHours, { color: COLORS.textSecondary }]}
+                >
+                  Mon-Fri, 9AM-6PM EST
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={COLORS.textTertiary}
+            />
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.contactMethod}
-              onPress={handleEmail}
-            >
-              <View style={styles.contactLeft}>
-                <View style={[styles.iconContainer, styles.emailIcon]}>
-                  <Ionicons name="mail" size={24} color="#0066CC" />
-                </View>
-                <View style={styles.contactText}>
-                  <Text style={styles.contactLabel}>Email Support</Text>
-                  <Text style={styles.contactValue}>
-                    oluwafemionadokun@gmail.com
-                  </Text>
-                  <Text style={styles.contactHours}>
-                    Response within 24 hours
-                  </Text>
-                </View>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-            </TouchableOpacity>
+          <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
 
-            <TouchableOpacity
-              style={styles.contactMethod}
-              onPress={handleWebsite}
-            >
-              <View style={styles.contactLeft}>
-                <View style={[styles.iconContainer, styles.webIcon]}>
-                  <Ionicons name="globe" size={24} color="#FF9800" />
-                </View>
-                <View style={styles.contactText}>
-                  <Text style={styles.contactLabel}>Website</Text>
-                  <Text style={styles.contactValue}>pneumoscan.ai</Text>
-                  <Text style={styles.contactHours}>Visit our website</Text>
-                </View>
+          {/* Email Support */}
+          <TouchableOpacity style={styles.contactMethod} onPress={handleEmail}>
+            <View style={styles.contactLeft}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: COLORS.primary + "20" },
+                ]}
+              >
+                <Ionicons name="mail" size={24} color={COLORS.primary} />
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-            </TouchableOpacity>
+              <View style={styles.contactText}>
+                <Text
+                  style={[styles.contactLabel, { color: COLORS.textPrimary }]}
+                >
+                  Email Support
+                </Text>
+                <Text
+                  style={[styles.contactValue, { color: COLORS.primary }]}
+                  numberOfLines={1}
+                >
+                  oluwafemionadokun@gmail.com
+                </Text>
+                <Text
+                  style={[styles.contactHours, { color: COLORS.textSecondary }]}
+                >
+                  Response within 24 hours
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={COLORS.textTertiary}
+            />
+          </TouchableOpacity>
+
+          <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
+
+          {/* Website */}
+          <TouchableOpacity
+            style={styles.contactMethod}
+            onPress={handleWebsite}
+          >
+            <View style={styles.contactLeft}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: COLORS.warning + "20" },
+                ]}
+              >
+                <Ionicons name="globe" size={24} color={COLORS.warning} />
+              </View>
+              <View style={styles.contactText}>
+                <Text
+                  style={[styles.contactLabel, { color: COLORS.textPrimary }]}
+                >
+                  Website
+                </Text>
+                <Text style={[styles.contactValue, { color: COLORS.primary }]}>
+                  pneumoscan.ai
+                </Text>
+                <Text
+                  style={[styles.contactHours, { color: COLORS.textSecondary }]}
+                >
+                  Visit our website
+                </Text>
+              </View>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={COLORS.textTertiary}
+            />
+          </TouchableOpacity>
+        </PremiumCard>
+
+        <SectionHeader
+          title="Send Us a Message"
+          subtitle="We'll get back to you soon"
+        />
+        <PremiumCard>
+          <View style={styles.formGroup}>
+            <Text style={[styles.formLabel, { color: COLORS.textPrimary }]}>
+              Subject
+            </Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: COLORS.background,
+                  borderColor: COLORS.border,
+                  color: COLORS.textPrimary,
+                },
+              ]}
+              placeholder="What can we help you with?"
+              placeholderTextColor={COLORS.textTertiary}
+              value={subject}
+              onChangeText={setSubject}
+            />
           </View>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Send Us a Message</Text>
-          <View style={styles.card}>
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Subject</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="What can we help you with?"
-                placeholderTextColor="#8E8E93"
-                value={subject}
-                onChangeText={setSubject}
-              />
-            </View>
+          <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
 
-            <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Message</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder="Describe your issue or question..."
-                placeholderTextColor="#8E8E93"
-                value={message}
-                onChangeText={setMessage}
-                multiline
-                numberOfLines={6}
-                textAlignVertical="top"
-              />
-            </View>
+          <View style={styles.formGroup}>
+            <Text style={[styles.formLabel, { color: COLORS.textPrimary }]}>
+              Message
+            </Text>
+            <TextInput
+              style={[
+                styles.input,
+                styles.textArea,
+                {
+                  backgroundColor: COLORS.background,
+                  borderColor: COLORS.border,
+                  color: COLORS.textPrimary,
+                },
+              ]}
+              placeholder="Describe your issue or question..."
+              placeholderTextColor={COLORS.textTertiary}
+              value={message}
+              onChangeText={setMessage}
+              multiline
+              numberOfLines={6}
+              textAlignVertical="top"
+            />
+          </View>
 
-            <TouchableOpacity
-              style={[styles.sendButton, loading && styles.sendButtonDisabled]}
+          <View style={styles.formGroup}>
+            <PrimaryButton
+              label={loading ? "Sending..." : "Send Message"}
+              icon="send"
               onPress={handleSendMessage}
               disabled={loading}
-            >
-              <Ionicons name="send" size={20} color="#FFFFFF" />
-              <Text style={styles.sendButtonText}>
-                {loading ? "Sending..." : "Send Message"}
-              </Text>
-            </TouchableOpacity>
+            />
           </View>
+        </PremiumCard>
+
+        {/* Social Links Section */}
+        <SectionHeader
+          title="Follow Us"
+          subtitle="Stay updated with our latest news"
+        />
+        <View style={styles.socialContainer}>
+          <TouchableOpacity
+            style={[styles.socialButton, { backgroundColor: "#1DA1F2" }]}
+          >
+            <Ionicons name="logo-twitter" size={24} color={COLORS.card} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.socialButton, { backgroundColor: "#0A66C2" }]}
+          >
+            <Ionicons name="logo-linkedin" size={24} color={COLORS.card} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.socialButton, { backgroundColor: "#1877F2" }]}
+          >
+            <Ionicons name="logo-facebook" size={24} color={COLORS.card} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.socialButton, { backgroundColor: "#E4405F" }]}
+          >
+            <Ionicons name="logo-instagram" size={24} color={COLORS.card} />
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Follow Us</Text>
-          <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-twitter" size={24} color="#1DA1F2" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-linkedin" size={24} color="#0A66C2" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-instagram" size={24} color="#E4405F" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* Response Time Info Card */}
+        <InfoCard
+          icon="time-outline"
+          title="Response Time"
+          description="We typically respond to messages within 24 hours. For urgent matters, please call our phone support line."
+          type="info"
+        />
 
-        <View style={styles.bottomSpacer} />
+        <View style={{ height: 20 }} />
       </ScrollView>
     </View>
   );
@@ -206,19 +316,15 @@ export default function ContactScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
+    paddingTop: 50,
   },
   header: {
-    backgroundColor: "#FFFFFF",
-    paddingTop: 60,
+    backgroundColor: COLORS.card,
+    paddingTop: 12,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
   },
   headerContent: {
     flexDirection: "row",
@@ -230,22 +336,24 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTextContainer: {
     flex: 1,
-    alignItems: "center",
+    marginHorizontal: 12,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
     marginTop: 2,
   },
   placeholder: {
@@ -254,26 +362,31 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  section: {
+  scrollContent: {
     paddingHorizontal: 16,
-    marginTop: 24,
+    paddingBottom: 20,
+  },
+  section: {
+    marginBottom: 28,
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#8E8E93",
+    fontWeight: "700",
+    color: COLORS.textSecondary,
     marginBottom: 12,
-    marginLeft: 4,
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderRadius: 12,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.border,
   },
   contactMethod: {
     flexDirection: "row",
@@ -281,7 +394,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
+    borderBottomColor: COLORS.border,
   },
   contactLeft: {
     flexDirection: "row",
@@ -297,47 +410,54 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   phoneIcon: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: COLORS.success + "20",
   },
   emailIcon: {
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primary + "20",
   },
   webIcon: {
-    backgroundColor: "#FFF3E0",
+    backgroundColor: COLORS.warning + "20",
   },
   contactText: {
     flex: 1,
   },
   contactLabel: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   contactValue: {
     fontSize: 14,
-    color: "#0066CC",
+    color: COLORS.primary,
     marginBottom: 2,
+    fontWeight: "600",
   },
   contactHours: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
+    fontWeight: "500",
   },
   formGroup: {
     padding: 16,
   },
   formLabel: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
     marginBottom: 8,
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
   },
   input: {
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    fontWeight: "500",
   },
   textArea: {
     height: 120,
@@ -345,27 +465,28 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     flexDirection: "row",
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
     margin: 16,
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#0066CC",
+    shadowColor: COLORS.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   sendButtonDisabled: {
-    backgroundColor: "#A0A0A0",
+    backgroundColor: COLORS.textTertiary,
     shadowOpacity: 0.1,
   },
   sendButtonText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+    fontWeight: "700",
+    color: COLORS.card,
+    letterSpacing: 0.3,
   },
   locationInfo: {
     flexDirection: "row",
@@ -376,7 +497,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primary + "15",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -385,32 +506,33 @@ const styles = StyleSheet.create({
   },
   locationName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
     marginBottom: 8,
   },
   locationAddress: {
     fontSize: 14,
-    color: "#636366",
+    color: COLORS.textSecondary,
     lineHeight: 20,
+    fontWeight: "500",
   },
   socialContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 16,
+    marginBottom: 28,
   },
   socialButton: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 3,
   },
   bottomSpacer: {
     height: 40,

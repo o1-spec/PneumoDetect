@@ -2,12 +2,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import {
+  COLORS,
+  InfoCard,
+  PremiumCard,
+  PrimaryButton,
+  SectionHeader,
+} from "../../components/premium/PremiumComponents";
 
 const FAQ_DATA = [
   {
@@ -89,7 +96,7 @@ export default function HelpCenterScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Help Center</Text>
@@ -99,79 +106,132 @@ export default function HelpCenterScreen() {
         </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          <View style={styles.quickActions}>
-            <TouchableOpacity
-              style={styles.quickActionButton}
-              onPress={handleContactSupport}
-            >
-              <Ionicons name="mail-outline" size={24} color="#FFFFFF" />
-              <Text style={styles.quickActionText}>Contact Support</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Quick Action Section */}
+        <SectionHeader title="Quick Actions" subtitle="Get help in seconds" />
+        <PremiumCard>
+          <PrimaryButton
+            label="Contact Support"
+            icon="mail-outline"
+            onPress={handleContactSupport}
+          />
+        </PremiumCard>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>User Guide</Text>
-          <View style={styles.card}>
-            {USER_GUIDE_SECTIONS.map((section, index) => (
-              <View key={index}>
-                <TouchableOpacity
-                  style={styles.guideItemHeader}
-                  onPress={() => handleUserGuidePress(index)}
-                >
-                  <View style={styles.guideItemLeft}>
-                    <View style={styles.guideIcon}>
-                      <Ionicons
-                        name={section.icon as any}
-                        size={24}
-                        color="#0066CC"
-                      />
-                    </View>
-                    <Text style={styles.guideItemTitle}>{section.title}</Text>
+        {/* User Guide Section */}
+        <SectionHeader title="User Guide" subtitle="Step-by-step tutorials" />
+        <PremiumCard>
+          {USER_GUIDE_SECTIONS.map((section, index) => (
+            <View key={index}>
+              <TouchableOpacity
+                style={styles.guideItemHeader}
+                onPress={() => handleUserGuidePress(index)}
+              >
+                <View style={styles.guideItemLeft}>
+                  <View
+                    style={[
+                      styles.guideIcon,
+                      { backgroundColor: COLORS.primary + "15" },
+                    ]}
+                  >
+                    <Ionicons
+                      name={section.icon as any}
+                      size={24}
+                      color={COLORS.primary}
+                    />
                   </View>
-                  <Ionicons
-                    name={
-                      expandedGuide === index ? "chevron-up" : "chevron-down"
-                    }
-                    size={24}
-                    color="#0066CC"
-                  />
-                </TouchableOpacity>
-                {expandedGuide === index && (
-                  <View style={styles.guideItemContent}>
-                    <Text style={styles.guideContentText}>
-                      {section.content}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
-          <View style={styles.card}>
-            {FAQ_DATA.map((faq, index) => (
-              <View key={index} style={styles.faqItem}>
-                <View style={styles.faqQuestion}>
-                  <Ionicons
-                    name="help-circle-outline"
-                    size={20}
-                    color="#0066CC"
-                  />
-                  <Text style={styles.faqQuestionText}>{faq.question}</Text>
+                  <Text style={styles.guideItemTitle}>{section.title}</Text>
                 </View>
-                <Text style={styles.faqAnswer}>{faq.answer}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
+                <Ionicons
+                  name={expandedGuide === index ? "chevron-up" : "chevron-down"}
+                  size={24}
+                  color={COLORS.primary}
+                />
+              </TouchableOpacity>
+              {expandedGuide === index && (
+                <View
+                  style={[
+                    styles.guideItemContent,
+                    { backgroundColor: COLORS.background },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.guideContentText,
+                      { color: COLORS.textSecondary },
+                    ]}
+                  >
+                    {section.content}
+                  </Text>
+                </View>
+              )}
+              {index < USER_GUIDE_SECTIONS.length - 1 && (
+                <View
+                  style={[styles.divider, { backgroundColor: COLORS.border }]}
+                />
+              )}
+            </View>
+          ))}
+        </PremiumCard>
 
-        <View style={styles.bottomSpacer} />
+        {/* FAQ Section */}
+        <SectionHeader
+          title="Frequently Asked Questions"
+          subtitle="Common questions answered"
+        />
+        <PremiumCard>
+          {FAQ_DATA.map((faq, index) => (
+            <View key={index}>
+              <View style={styles.faqItem}>
+                <View style={styles.faqQuestion}>
+                  <View
+                    style={[
+                      styles.faqIcon,
+                      { backgroundColor: COLORS.success + "15" },
+                    ]}
+                  >
+                    <Ionicons
+                      name="help-circle-outline"
+                      size={20}
+                      color={COLORS.success}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.faqQuestionText,
+                      { color: COLORS.textPrimary },
+                    ]}
+                  >
+                    {faq.question}
+                  </Text>
+                </View>
+                <Text
+                  style={[styles.faqAnswer, { color: COLORS.textSecondary }]}
+                >
+                  {faq.answer}
+                </Text>
+              </View>
+              {index < FAQ_DATA.length - 1 && (
+                <View
+                  style={[styles.divider, { backgroundColor: COLORS.border }]}
+                />
+              )}
+            </View>
+          ))}
+        </PremiumCard>
+
+        {/* Support Info Card */}
+        <InfoCard
+          icon="help-buoy-outline"
+          title="Still Need Help?"
+          description="Can't find what you're looking for? Contact our support team directly. We're here to assist you 24/7."
+          type="info"
+        />
+
+        <View style={{ height: 20 }} />
       </ScrollView>
     </View>
   );
@@ -180,19 +240,15 @@ export default function HelpCenterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
+    paddingTop: 50,
   },
   header: {
-    backgroundColor: "#FFFFFF",
-    paddingTop: 60,
+    backgroundColor: COLORS.card,
+    paddingTop: 12,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
   },
   headerContent: {
     flexDirection: "row",
@@ -204,22 +260,24 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTextContainer: {
     flex: 1,
-    alignItems: "center",
+    marginHorizontal: 12,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
     marginTop: 2,
   },
   placeholder: {
@@ -228,85 +286,32 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  section: {
+  scrollContent: {
     paddingHorizontal: 16,
-    marginTop: 24,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
+  section: {
+    marginBottom: 28,
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#8E8E93",
+    fontWeight: "700",
+    color: COLORS.textSecondary,
     marginBottom: 12,
-    marginLeft: 4,
-  },
-  quickActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  quickActionButton: {
-    flex: 1,
-    flexDirection: "row",
-    backgroundColor: "#0066CC",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  quickActionText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  secondaryAction: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#0066CC",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-  },
-  secondaryActionText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#0066CC",
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
   },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderRadius: 12,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  faqItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  faqQuestion: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
-  },
-  faqQuestionText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    flex: 1,
-  },
-  faqAnswer: {
-    fontSize: 14,
-    color: "#636366",
-    lineHeight: 20,
-    marginLeft: 28,
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.border,
   },
   guideItemHeader: {
     flexDirection: "row",
@@ -314,7 +319,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
+    borderBottomColor: COLORS.border,
   },
   guideItemLeft: {
     flexDirection: "row",
@@ -323,28 +328,61 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   guideIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#E3F2FD",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },
   guideItemTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     flex: 1,
   },
   guideItemContent: {
     padding: 16,
-    paddingTop: 0,
-    backgroundColor: "#F9F9FB",
+    paddingTop: 12,
+    backgroundColor: COLORS.background,
   },
   guideContentText: {
     fontSize: 13,
-    color: "#636366",
+    color: COLORS.textSecondary,
     lineHeight: 20,
+    fontWeight: "500",
+  },
+  faqItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  faqQuestion: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12,
+  },
+  faqIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 0,
+  },
+  faqQuestionText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+  faqAnswer: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+    marginLeft: 48,
+    fontWeight: "500",
   },
   bottomSpacer: {
     height: 40,

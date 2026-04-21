@@ -2,26 +2,36 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import {
+  ActionItem,
+  COLORS,
+  InfoCard,
+  PremiumCard,
+  SectionHeader,
+  SettingRow,
+} from "../../components/premium/PremiumComponents";
 import { activityAPI } from "../../services/api.client";
 import { LoginRecord } from "../../types/api";
 import {
-    extractBrowserInfo,
-    formatDateTime,
-    formatIPAddress,
+  extractBrowserInfo,
+  formatDateTime,
+  formatIPAddress,
 } from "../../utils/dateFormatter";
 
 export default function PrivacySecurityScreen() {
   const [dataEncryption, setDataEncryption] = useState(true);
+  const [loginAlerts, setLoginAlerts] = useState(true);
+  const [sessionTimeout, setSessionTimeout] = useState(true);
+  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [loadingActivity, setLoadingActivity] = useState(false);
 
@@ -132,13 +142,14 @@ export default function PrivacySecurityScreen() {
   return (
     <>
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={24} color="#0066CC" />
+              <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
             </TouchableOpacity>
             <View style={styles.headerTextContainer}>
               <Text style={styles.headerTitle}>Privacy & Security</Text>
@@ -148,134 +159,118 @@ export default function PrivacySecurityScreen() {
           </View>
         </View>
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Security Alert Info */}
+          <InfoCard
+            icon="shield-checkmark-outline"
+            title="Your Account is Secure"
+            description="End-to-end encryption protects all your data. Manage your security settings below."
+            type="success"
+          />
+
+          {/* Password & Authentication Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Password & Authentication</Text>
-            <View style={styles.card}>
-              <TouchableOpacity
-                style={styles.actionItem}
-                onPress={() => setShowPasswordModal(true)}
-              >
-                <View style={styles.actionLeft}>
-                  <View style={[styles.iconContainer, styles.passwordIcon]}>
-                    <Ionicons name="key" size={22} color="#FF9800" />
-                  </View>
-                  <View style={styles.actionText}>
-                    <Text style={styles.actionLabel}>Change Password</Text>
-                    <Text style={styles.actionDescription}>
-                      Update your account password
-                    </Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Security Settings</Text>
-            <View style={styles.card}>
-              <View style={styles.settingRow}>
-                <View style={styles.settingLeft}>
-                  <View style={[styles.iconContainer, styles.encryptionIcon]}>
-                    <Ionicons name="lock-closed" size={22} color="#D32F2F" />
-                  </View>
-                  <View style={styles.settingText}>
-                    <Text style={styles.settingLabel}>
-                      End-to-End Encryption
-                    </Text>
-                    <Text style={styles.settingDescription}>
-                      All data is encrypted (Always On)
-                    </Text>
-                  </View>
-                </View>
-                <Switch
-                  value={dataEncryption}
-                  onValueChange={() => {}}
-                  disabled
-                  trackColor={{ false: "#E5E5EA", true: "#D32F2F" }}
-                  thumbColor="#FFFFFF"
-                />
-              </View>
-
-              <TouchableOpacity
-                style={styles.actionItem}
-                onPress={handleViewActivityLog}
-              >
-                <View style={styles.actionLeft}>
-                  <View style={[styles.iconContainer, styles.activityIcon]}>
-                    <Ionicons name="list" size={22} color="#00BCD4" />
-                  </View>
-                  <View style={styles.actionText}>
-                    <Text style={styles.actionLabel}>Recent Activity</Text>
-                    <Text style={styles.actionDescription}>
-                      View login history
-                    </Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Privacy & Data</Text>
-            <View style={styles.card}>
-              <TouchableOpacity
-                style={styles.actionItem}
-                onPress={handleDownloadData}
-              >
-                <View style={styles.actionLeft}>
-                  <View style={[styles.iconContainer, styles.downloadIcon]}>
-                    <Ionicons name="download" size={22} color="#0066CC" />
-                  </View>
-                  <View style={styles.actionText}>
-                    <Text style={styles.actionLabel}>Download My Data</Text>
-                    <Text style={styles.actionDescription}>
-                      Export all your information
-                    </Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionItem}
-                onPress={handleDataDeletion}
-              >
-                <View style={styles.actionLeft}>
-                  <View style={[styles.iconContainer, styles.deleteIcon]}>
-                    <Ionicons name="trash" size={22} color="#D32F2F" />
-                  </View>
-                  <View style={styles.actionText}>
-                    <Text style={[styles.actionLabel, styles.dangerText]}>
-                      Delete My Data
-                    </Text>
-                    <Text style={styles.actionDescription}>
-                      Permanently remove all data
-                    </Text>
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.complianceCard}>
-            <Ionicons
-              name="shield-checkmark-outline"
-              size={32}
-              color="#0066CC"
+            <SectionHeader
+              title="Password & Authentication"
+              subtitle="Manage your login security"
             />
-            <Text style={styles.complianceTitle}>HIPAA & GDPR Compliant</Text>
-            <Text style={styles.complianceText}>
-              Your data is protected with bank-level encryption and stored in
-              secure, HIPAA-compliant servers. We follow strict GDPR guidelines
-              to protect your privacy.
-            </Text>
+            <PremiumCard>
+              <ActionItem
+                icon="key-outline"
+                label="Change Password"
+                subtitle="Update your login password"
+                onPress={() => setShowPasswordModal(true)}
+              />
+              <ActionItem
+                icon="shield-outline"
+                label="Two-Factor Authentication"
+                subtitle="Add an extra layer of security"
+                onPress={() => setTwoFactorAuth(!twoFactorAuth)}
+                isLast={true}
+              />
+            </PremiumCard>
           </View>
 
-          <View style={styles.bottomSpacer} />
+          {/* Security Settings Section */}
+          <View style={styles.section}>
+            <SectionHeader
+              title="Security Settings"
+              subtitle="Control your security preferences"
+            />
+            <PremiumCard>
+              <SettingRow
+                icon="lock-closed-outline"
+                label="Data Encryption"
+                description="End-to-end encryption is always enabled"
+                value={dataEncryption}
+                onValueChange={() => {}}
+                iconColor={COLORS.success}
+              />
+              <SettingRow
+                icon="notifications-outline"
+                label="Login Alerts"
+                description="Notify me of new login attempts"
+                value={loginAlerts}
+                onValueChange={setLoginAlerts}
+                iconColor={COLORS.warning}
+                isLast={false}
+              />
+              <SettingRow
+                icon="timer-outline"
+                label="Auto Session Timeout"
+                description="Log me out after 30 minutes of inactivity"
+                value={sessionTimeout}
+                onValueChange={setSessionTimeout}
+                iconColor={COLORS.warning}
+                isLast={true}
+              />
+            </PremiumCard>
+          </View>
+
+          {/* Privacy & Data Section */}
+          <View style={styles.section}>
+            <SectionHeader
+              title="Privacy & Data"
+              subtitle="Manage your personal data"
+            />
+            <PremiumCard>
+              <ActionItem
+                icon="download-outline"
+                label="Download Your Data"
+                subtitle="Get a copy of all your data"
+                onPress={handleDownloadData}
+              />
+              <ActionItem
+                icon="document-text-outline"
+                label="View Activity Log"
+                subtitle="See your login history"
+                onPress={handleViewActivityLog}
+                isLast={false}
+              />
+              <ActionItem
+                icon="trash-outline"
+                label="Delete My Data"
+                subtitle="Permanently remove all information"
+                onPress={handleDataDeletion}
+                isDangerous={true}
+                isLast={true}
+              />
+            </PremiumCard>
+          </View>
+
+          {/* HIPAA & GDPR Compliance Card */}
+          <InfoCard
+            icon="shield-checkmark-outline"
+            title="HIPAA & GDPR Compliant"
+            description="Your data is protected with bank-level encryption and stored in secure, compliant servers. We follow strict privacy guidelines."
+            type="info"
+          />
+
+          <View style={{ height: 20 }} />
         </ScrollView>
       </View>
 
@@ -440,46 +435,42 @@ export default function PrivacySecurityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
+    paddingTop: 50,
   },
   header: {
-    backgroundColor: "#FFFFFF",
-    paddingTop: 60,
+    backgroundColor: COLORS.card,
+    paddingTop: 12,
     paddingBottom: 16,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
   },
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "#F5F5F7",
     justifyContent: "center",
     alignItems: "center",
   },
   headerTextContainer: {
     flex: 1,
-    alignItems: "center",
+    marginHorizontal: 12,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
     marginTop: 2,
   },
   placeholder: {
@@ -488,122 +479,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  section: {
+  scrollContent: {
     paddingHorizontal: 16,
-    marginTop: 24,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#8E8E93",
-    marginBottom: 12,
-    marginLeft: 4,
-  },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  settingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  settingLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  passwordIcon: { backgroundColor: "#FFF3E0" },
-  twoFactorIcon: { backgroundColor: "#E8F5E9" },
-  biometricIcon: { backgroundColor: "#E3F2FD" },
-  sessionIcon: { backgroundColor: "#F3E5F5" },
-  encryptionIcon: { backgroundColor: "#FFEBEE" },
-  activityIcon: { backgroundColor: "#E0F7FA" },
-  downloadIcon: { backgroundColor: "#E3F2FD" },
-  deleteIcon: { backgroundColor: "#FFEBEE" },
-  settingText: {
-    flex: 1,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 2,
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: "#8E8E93",
-  },
-  actionItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  actionLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  actionText: {
-    flex: 1,
-  },
-  actionLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 2,
-  },
-  actionDescription: {
-    fontSize: 13,
-    color: "#8E8E93",
-  },
-  dangerText: {
-    color: "#D32F2F",
-  },
-  complianceCard: {
-    backgroundColor: "#E3F2FD",
-    margin: 16,
-    marginTop: 24,
-    borderRadius: 12,
-    padding: 20,
-    alignItems: "center",
-  },
-  complianceTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#0066CC",
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  complianceText: {
-    fontSize: 14,
-    color: "#636366",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  bottomSpacer: {
-    height: 40,
+  section: {
+    marginBottom: 28,
   },
   // Modal Styles
   modalContainer: {
@@ -615,7 +497,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: "85%",
@@ -631,7 +513,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: COLORS.border,
   },
   modalTitleContainer: {
     flexDirection: "row",
@@ -640,14 +522,15 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   closeButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -659,64 +542,82 @@ const styles = StyleSheet.create({
   },
   formLabel: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
     marginBottom: 8,
+    letterSpacing: 0.3,
+    textTransform: "uppercase",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
     gap: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   modalInput: {
     flex: 1,
     fontSize: 16,
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
+    fontWeight: "500",
   },
   requirementsBox: {
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     padding: 16,
-    marginTop: 4,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   requirementsTitle: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 8,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginBottom: 12,
   },
   requirementText: {
     fontSize: 13,
-    color: "#636366",
-    marginBottom: 4,
+    color: COLORS.textSecondary,
+    marginBottom: 6,
+    fontWeight: "500",
+  },
+  requirementMet: {
+    color: COLORS.success,
+  },
+  requirementNotMet: {
+    color: COLORS.warning,
   },
   modalActions: {
     flexDirection: "row",
     padding: 20,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
+    borderTopColor: COLORS.border,
+    backgroundColor: COLORS.card,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   cancelButtonText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#8E8E93",
+    fontWeight: "700",
+    color: COLORS.textSecondary,
+    letterSpacing: 0.3,
   },
   submitButton: {
     flex: 1,
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
@@ -724,7 +625,8 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+    fontWeight: "700",
+    color: COLORS.card,
+    letterSpacing: 0.3,
   },
 });

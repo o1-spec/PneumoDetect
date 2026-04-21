@@ -2,14 +2,21 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import {
+  COLORS,
+  InfoCard,
+  PremiumCard,
+  PrimaryButton,
+  SectionHeader,
+  SettingRow,
+} from "../../components/premium/PremiumComponents";
 
 export default function NotificationsScreen() {
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -18,46 +25,91 @@ export default function NotificationsScreen() {
   const [weeklyReports, setWeeklyReports] = useState(false);
   const [monthlyDigest, setMonthlyDigest] = useState(true);
   const [criticalAlerts, setCriticalAlerts] = useState(true);
+  const [specialOffers, setSpecialOffers] = useState(false);
 
   const handleSave = () => {
-    Alert.alert("Success", "Notification preferences saved!");
+    Alert.alert("Success", "Notification preferences saved successfully!");
+  };
+
+  const handleReset = () => {
+    Alert.alert(
+      "Reset Preferences",
+      "Restore all notification settings to default?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: () => {
+            setEmailNotifications(true);
+            setPushNotifications(true);
+            setScanAlerts(true);
+            setWeeklyReports(false);
+            setMonthlyDigest(true);
+            setCriticalAlerts(true);
+            setSpecialOffers(false);
+            Alert.alert("Success", "Settings reset to defaults");
+          },
+        },
+      ],
+    );
   };
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Notifications</Text>
-            <Text style={styles.headerSubtitle}>Manage your alerts</Text>
+            <Text style={styles.headerSubtitle}>Manage your preferences</Text>
           </View>
           <View style={styles.placeholder} />
         </View>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Smart Notifications Info */}
+        <InfoCard
+          icon="bulb-outline"
+          title="Smart Notifications"
+          description="We'll only send you relevant updates about your scans and account activity."
+          type="info"
+        />
+
+        {/* Email Notifications Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Email Notifications</Text>
-          <View style={styles.card}>
+          <SectionHeader
+            title="Email Notifications"
+            subtitle="How we reach you via email"
+          />
+          <PremiumCard>
             <SettingRow
               icon="mail-outline"
               label="Email Notifications"
               description="Receive updates via email"
               value={emailNotifications}
               onValueChange={setEmailNotifications}
+              iconColor={COLORS.primary}
             />
             <SettingRow
-              icon="stats-chart-outline"
+              icon="document-text-outline"
               label="Weekly Reports"
               description="Summary of your activity"
               value={weeklyReports}
               onValueChange={setWeeklyReports}
+              iconColor={COLORS.warning}
+              isLast={false}
             />
             <SettingRow
               icon="calendar-outline"
@@ -65,19 +117,26 @@ export default function NotificationsScreen() {
               description="Monthly performance summary"
               value={monthlyDigest}
               onValueChange={setMonthlyDigest}
+              iconColor={COLORS.warning}
+              isLast={true}
             />
-          </View>
+          </PremiumCard>
         </View>
 
+        {/* Push Notifications Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Push Notifications</Text>
-          <View style={styles.card}>
+          <SectionHeader
+            title="Push Notifications"
+            subtitle="Real-time alerts on your device"
+          />
+          <PremiumCard>
             <SettingRow
               icon="phone-portrait-outline"
               label="Push Notifications"
               description="Get alerts on your device"
               value={pushNotifications}
               onValueChange={setPushNotifications}
+              iconColor={COLORS.primary}
             />
             <SettingRow
               icon="alert-circle-outline"
@@ -85,6 +144,8 @@ export default function NotificationsScreen() {
               description="Urgent scan notifications"
               value={scanAlerts}
               onValueChange={setScanAlerts}
+              iconColor={COLORS.danger}
+              isLast={false}
             />
             <SettingRow
               icon="warning-outline"
@@ -92,96 +153,92 @@ export default function NotificationsScreen() {
               description="High-priority notifications"
               value={criticalAlerts}
               onValueChange={setCriticalAlerts}
+              iconColor={COLORS.danger}
+              isLast={true}
             />
-          </View>
+          </PremiumCard>
         </View>
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
-          <Text style={styles.saveButtonText}>Save Preferences</Text>
-        </TouchableOpacity>
+        {/* Marketing Preferences Section */}
+        <View style={styles.section}>
+          <SectionHeader
+            title="Marketing"
+            subtitle="Optional promotional content"
+          />
+          <PremiumCard>
+            <SettingRow
+              icon="gift-outline"
+              label="Special Offers"
+              description="Receive exclusive deals and promotions"
+              value={specialOffers}
+              onValueChange={setSpecialOffers}
+              iconColor={COLORS.success}
+              isLast={true}
+            />
+          </PremiumCard>
+        </View>
 
-        <View style={styles.bottomSpacer} />
+        {/* Action Buttons */}
+        <View style={styles.buttonSection}>
+          <PrimaryButton
+            label="Save Preferences"
+            onPress={handleSave}
+            icon="checkmark-circle"
+          />
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={handleReset}
+          >
+            <Ionicons name="refresh-outline" size={18} color={COLORS.primary} />
+            <Text style={styles.secondaryButtonText}>Reset to Defaults</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ height: 20 }} />
       </ScrollView>
     </View>
   );
 }
 
-const SettingRow = ({
-  icon,
-  label,
-  description,
-  value,
-  onValueChange,
-}: {
-  icon: string;
-  label: string;
-  description: string;
-  value: boolean;
-  onValueChange: (value: boolean) => void;
-}) => (
-  <View style={styles.settingRow}>
-    <View style={styles.settingLeft}>
-      <View style={styles.iconContainer}>
-        <Ionicons name={icon as any} size={22} color="#0066CC" />
-      </View>
-      <View style={styles.settingText}>
-        <Text style={styles.settingLabel}>{label}</Text>
-        <Text style={styles.settingDescription}>{description}</Text>
-      </View>
-    </View>
-    <Switch
-      value={value}
-      onValueChange={onValueChange}
-      trackColor={{ false: "#E5E5EA", true: "#0066CC" }}
-      thumbColor="#FFFFFF"
-    />
-  </View>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
+    paddingTop: 50,
   },
   header: {
-    backgroundColor: "#FFFFFF",
-    paddingTop: 60,
+    backgroundColor: COLORS.card,
+    paddingTop: 12,
     paddingBottom: 16,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
   },
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: "#F5F5F7",
     justifyContent: "center",
     alignItems: "center",
   },
   headerTextContainer: {
     flex: 1,
-    alignItems: "center",
+    marginHorizontal: 12,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
     marginTop: 2,
   },
   placeholder: {
@@ -190,84 +247,35 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  section: {
+  scrollContent: {
     paddingHorizontal: 16,
-    marginTop: 24,
+    paddingTop: 16,
+    paddingBottom: 20,
   },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#8E8E93",
+  section: {
+    marginBottom: 28,
+  },
+  buttonSection: {
+    marginTop: 12,
     marginBottom: 12,
-    marginLeft: 4,
   },
-  card: {
-    backgroundColor: "#FFFFFF",
+  secondaryButton: {
+    flexDirection: "row",
+    backgroundColor: COLORS.card,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
     borderRadius: 12,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  settingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  settingLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#E3F2FD",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     justifyContent: "center",
     alignItems: "center",
-  },
-  settingText: {
-    flex: 1,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 2,
-  },
-  settingDescription: {
-    fontSize: 13,
-    color: "#8E8E93",
-  },
-  saveButton: {
-    flexDirection: "row",
-    backgroundColor: "#0066CC",
-    marginHorizontal: 16,
-    marginTop: 32,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    justifyContent: "center",
     gap: 8,
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    marginVertical: 12,
   },
-  saveButtonText: {
+  secondaryButtonText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  bottomSpacer: {
-    height: 40,
+    fontWeight: "800",
+    color: COLORS.primary,
+    letterSpacing: -0.3,
   },
 });
