@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
+import { PneumoLoader } from "../../components/premium";
 
 export default function ScanScreen() {
   useEffect(() => {
@@ -10,7 +11,7 @@ export default function ScanScreen() {
 
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#0066CC" />
+      <PneumoLoader size={64} />
     </View>
   );
 }

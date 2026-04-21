@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Card, SectionHeader, StatCard } from "../../components/premium";
+import { Card, SectionHeader, StatCard, PneumoLoader } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
@@ -164,11 +164,7 @@ export default function PatientDashboardScreen() {
           </View>
 
           {loading ? (
-            <ActivityIndicator
-              size="large"
-              color="#0B5ED7"
-              style={{ marginTop: 20 }}
-            />
+            <PneumoLoader size={48} color="#0B5ED7" style={{ marginTop: 20 }} />
           ) : recentScans.length > 0 ? (
             <View style={styles.scansList}>
               {recentScans.map((scan) => (

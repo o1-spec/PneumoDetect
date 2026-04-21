@@ -18,6 +18,7 @@ import { Scan } from "../../../types/api";
 import { formatDate, formatTime } from "../../../utils/dateFormatter";
 import { getErrorMessage } from "../../../utils/errorHandler";
 import { dialogManager } from "../../../utils/dialogManager";
+import { PneumoLoader } from "../../../components/premium";
 
 export default function AllScansScreen() {
   const { success, error: showError } = useToast();
@@ -314,7 +315,7 @@ export default function AllScansScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0066CC" />
+          <PneumoLoader size={48} color="#0B5ED7" />
         </View>
       ) : (
         <FlatList

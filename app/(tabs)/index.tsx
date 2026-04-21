@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { Card, SectionHeader, StatCard } from "../../components/premium";
+import { Card, SectionHeader, StatCard, PneumoLoader } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import {
   analyticsAPI,
@@ -197,7 +197,7 @@ export default function DashboardScreen() {
           </View>
         </View>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading dashboard...</Text>
+          <PneumoLoader size={64} color="#0B5ED7" />
         </View>
       </View>
     );

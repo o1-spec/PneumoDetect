@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { PremiumChip } from "../../components/premium";
+import { PremiumChip, PneumoLoader } from "../../components/premium";
 import { scansAPI } from "../../services/api.client";
 import { Scan } from "../../types/api";
 import { formatDate, formatTime } from "../../utils/dateFormatter";
@@ -135,7 +135,7 @@ export default function HistoryScreen() {
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#0066CC" />
+        <PneumoLoader size={48} color="#0B5ED7" />
       </View>
     );
   }
