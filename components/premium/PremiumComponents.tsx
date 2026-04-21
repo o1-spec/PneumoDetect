@@ -6,31 +6,23 @@ import {
     Text,
     TouchableOpacity,
     View,
-    ViewStyle,
+    ViewStyle
 } from "react-native";
 
-// Premium Color Palette for Healthcare App
 export const COLORS = {
-  primary: "#0B5ED7", // Medical Blue
-  success: "#10B981", // Success Green
-  danger: "#EF4444", // Alert Red
-  warning: "#F59E0B", // Warning Orange
-  background: "#FAFBFC", // Soft neutral background
-  card: "#FFFFFF", // Card white
-  border: "#E5E7EB", // Subtle border
-  textPrimary: "#111827", // Dark text
-  textSecondary: "#6B7280", // Secondary text
-  textTertiary: "#9CA3AF", // Tertiary text
-  icon: "#D1D5DB", // Icon placeholder
+  primary: "#0B5ED7",
+  success: "#10B981",
+  danger: "#EF4444",
+  warning: "#F59E0B",
+  background: "#FAFBFC",
+  card: "#FFFFFF",
+  border: "#E5E7EB",
+  textPrimary: "#111827",
+  textSecondary: "#6B7280",
+  textTertiary: "#9CA3AF",
+  icon: "#D1D5DB",
 };
 
-// ======================
-// REUSABLE COMPONENTS
-// ======================
-
-/**
- * PremiumCard - Base card component with proper shadow and spacing
- */
 export const PremiumCard = ({
   children,
   style,
@@ -304,12 +296,7 @@ export const StatCard = ({
   </View>
 );
 
-// ======================
-// STYLES
-// ======================
-
 const styles = StyleSheet.create({
-  // Card & Base
   card: {
     backgroundColor: COLORS.card,
     borderRadius: 12,
@@ -323,7 +310,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
 
-  // Icon Container
   iconContainer: {
     width: 44,
     height: 44,
@@ -332,7 +318,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  // Setting Row
   settingRow: {
     flexDirection: "row",
     alignItems: "center",

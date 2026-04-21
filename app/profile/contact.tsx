@@ -97,7 +97,6 @@ export default function ContactScreen() {
           subtitle="Choose your preferred contact method"
         />
         <PremiumCard>
-          {/* Phone Support */}
           <TouchableOpacity style={styles.contactMethod} onPress={handleCall}>
             <View style={styles.contactLeft}>
               <View
@@ -133,7 +132,6 @@ export default function ContactScreen() {
 
           <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
 
-          {/* Email Support */}
           <TouchableOpacity style={styles.contactMethod} onPress={handleEmail}>
             <View style={styles.contactLeft}>
               <View
@@ -172,7 +170,6 @@ export default function ContactScreen() {
 
           <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
 
-          {/* Website */}
           <TouchableOpacity
             style={styles.contactMethod}
             onPress={handleWebsite}
@@ -299,7 +296,6 @@ export default function ContactScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Response Time Info Card */}
         <InfoCard
           icon="time-outline"
           title="Response Time"

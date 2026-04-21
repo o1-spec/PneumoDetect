@@ -57,7 +57,6 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
@@ -79,7 +78,6 @@ export default function NotificationsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Smart Notifications Info */}
         <InfoCard
           icon="bulb-outline"
           title="Smart Notifications"
@@ -87,7 +85,6 @@ export default function NotificationsScreen() {
           type="info"
         />
 
-        {/* Email Notifications Section */}
         <View style={styles.section}>
           <SectionHeader
             title="Email Notifications"
@@ -123,11 +120,10 @@ export default function NotificationsScreen() {
           </PremiumCard>
         </View>
 
-        {/* Push Notifications Section */}
         <View style={styles.section}>
           <SectionHeader
             title="Push Notifications"
-            subtitle="Real-time alerts on your device"
+            subtitle="Instant alerts on your device"
           />
           <PremiumCard>
             <SettingRow

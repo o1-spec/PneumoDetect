@@ -142,7 +142,6 @@ export default function PrivacySecurityScreen() {
   return (
     <>
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <TouchableOpacity
@@ -164,7 +163,6 @@ export default function PrivacySecurityScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Security Alert Info */}
           <InfoCard
             icon="shield-checkmark-outline"
             title="Your Account is Secure"
@@ -172,7 +170,6 @@ export default function PrivacySecurityScreen() {
             type="success"
           />
 
-          {/* Password & Authentication Section */}
           <View style={styles.section}>
             <SectionHeader
               title="Password & Authentication"
@@ -195,11 +192,10 @@ export default function PrivacySecurityScreen() {
             </PremiumCard>
           </View>
 
-          {/* Security Settings Section */}
           <View style={styles.section}>
             <SectionHeader
               title="Security Settings"
-              subtitle="Control your security preferences"
+              subtitle="Additional security options"
             />
             <PremiumCard>
               <SettingRow
@@ -231,12 +227,8 @@ export default function PrivacySecurityScreen() {
             </PremiumCard>
           </View>
 
-          {/* Privacy & Data Section */}
           <View style={styles.section}>
-            <SectionHeader
-              title="Privacy & Data"
-              subtitle="Manage your personal data"
-            />
+            <SectionHeader title="Privacy & Data" subtitle="Manage your data" />
             <PremiumCard>
               <ActionItem
                 icon="download-outline"
@@ -262,7 +254,6 @@ export default function PrivacySecurityScreen() {
             </PremiumCard>
           </View>
 
-          {/* HIPAA & GDPR Compliance Card */}
           <InfoCard
             icon="shield-checkmark-outline"
             title="HIPAA & GDPR Compliant"

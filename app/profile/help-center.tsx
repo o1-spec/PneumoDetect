@@ -111,7 +111,6 @@ export default function HelpCenterScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Quick Action Section */}
         <SectionHeader title="Quick Actions" subtitle="Get help in seconds" />
         <PremiumCard>
           <PrimaryButton
@@ -121,7 +120,6 @@ export default function HelpCenterScreen() {
           />
         </PremiumCard>
 
-        {/* User Guide Section */}
         <SectionHeader title="User Guide" subtitle="Step-by-step tutorials" />
         <PremiumCard>
           {USER_GUIDE_SECTIONS.map((section, index) => (
@@ -177,7 +175,6 @@ export default function HelpCenterScreen() {
           ))}
         </PremiumCard>
 
-        {/* FAQ Section */}
         <SectionHeader
           title="Frequently Asked Questions"
           subtitle="Common questions answered"
@@ -223,7 +220,6 @@ export default function HelpCenterScreen() {
           ))}
         </PremiumCard>
 
-        {/* Support Info Card */}
         <InfoCard
           icon="help-buoy-outline"
           title="Still Need Help?"

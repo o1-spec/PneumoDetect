@@ -3,21 +3,21 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
-    Dimensions,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Card, SectionHeader, StatCard } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import {
-    analyticsAPI,
-    notificationsAPI,
-    scansAPI,
+  analyticsAPI,
+  notificationsAPI,
+  scansAPI,
 } from "../../services/api.client";
 import { AnalyticsStats, Scan, ScanResultStatistics } from "../../types/api";
 
@@ -40,7 +40,7 @@ export default function DashboardScreen() {
 
   const authContext = useContext(AuthContext);
   const userDisplayName = authContext?.user?.name || "Doctor";
-  const isAdmin = authContext?.user?.role === "ADMIN"; // Only admins see admin features
+  const isAdmin = authContext?.user?.role === "ADMIN";
 
   useEffect(() => {
     loadDashboardData();
@@ -144,11 +144,9 @@ export default function DashboardScreen() {
 
   // Calculate growth percentage
   const calculateGrowthPercentage = () => {
-    // If backend provides week-over-week data, use that
     if (stats?.weekGrowthPercentage !== undefined) {
       return stats.weekGrowthPercentage;
     }
-    // Fallback: calculate from previous week data if available
     if (stats?.previousWeekScans && stats?.totalScans) {
       const growth =
         ((stats.totalScans - stats.previousWeekScans) /
@@ -156,7 +154,6 @@ export default function DashboardScreen() {
         100;
       return growth;
     }
-    // No data available
     return null;
   };
 
@@ -235,7 +232,6 @@ export default function DashboardScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        {/* Welcome Card with Gradient */}
         <LinearGradient
           colors={["#0B5ED7", "#0B5ED7", "#1E6FDD"]}
           start={{ x: 0, y: 0 }}
@@ -258,7 +254,6 @@ export default function DashboardScreen() {
           </View>
         </LinearGradient>
 
-        {/* Quick Actions */}
         <View style={styles.section}>
           <SectionHeader
             title="Quick Actions"
@@ -334,7 +329,6 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        {/* Statistics */}
         <View style={styles.section}>
           <SectionHeader
             title="Scan Overview"
@@ -384,7 +378,6 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* Weekly Activity Chart */}
         <View style={styles.section}>
           <SectionHeader title="Weekly Activity" subtitle="7-day scan trend" />
           <Card elevated="light">
@@ -654,10 +647,10 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
     alignItems: "center",
-    backdropFilter: "blur(10px)",
+    flexShrink: 0,
   },
   section: {
     paddingHorizontal: 20,
