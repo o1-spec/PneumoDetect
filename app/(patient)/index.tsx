@@ -14,7 +14,7 @@ import {
 import { Card, SectionHeader, StatCard, PneumoLoader } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import { scansAPI } from "../../services/api.client";
+import { scansAPI, notificationsAPI } from "../../services/api.client";
 import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
@@ -24,6 +24,7 @@ export default function PatientDashboardScreen() {
   const [recentScans, setRecentScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const [stats, setStats] = useState({
     totalScans: 0,
     normalScans: 0,
@@ -64,6 +65,13 @@ export default function PatientDashboardScreen() {
     } finally {
       setLoading(false);
     }
+
+    // Load notification count
+    try {
+      const data = await notificationsAPI.getAll();
+      const unread = Array.isArray(data) ? data.filter((n: any) => !n.read).length : 0;
+      setNotificationCount(unread);
+    } catch {}
   };
 
   const onRefresh = async () => {
@@ -87,6 +95,19 @@ export default function PatientDashboardScreen() {
             <Text style={styles.headerTitle}>Dashboard</Text>
             <Text style={styles.headerSubtitle}>Track your health updates</Text>
           </View>
+          <TouchableOpacity
+            style={styles.notificationButton}
+            onPress={() => router.push("/(patient)/notifications")}
+          >
+            <Ionicons name="notifications-outline" size={24} color="#0B5ED7" />
+            {notificationCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {notificationCount > 9 ? "9+" : notificationCount}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -285,6 +306,36 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     marginTop: 4,
     fontWeight: "500",
+  },
+  notificationButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#EFF6FF",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+  },
+  badge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    backgroundColor: "#EF4444",
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+  badgeText: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    fontWeight: "800",
   },
   content: {
     flex: 1,

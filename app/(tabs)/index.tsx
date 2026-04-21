@@ -12,7 +12,14 @@ import {
   View,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import { Card, SectionHeader, StatCard, PneumoLoader } from "../../components/premium";
+import { Card } from "../../components/premium";
+import { PneumoLoader } from "../../components/premium/PneumoLoader";
+import {
+  QuickActions,
+  ScanOverview,
+  SystemStatusCard,
+  WelcomeBanner,
+} from "../../components/dashboard";
 import { AuthContext } from "../../hooks/useAuth";
 import {
   analyticsAPI,
@@ -232,154 +239,19 @@ export default function DashboardScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        <LinearGradient
-          colors={["#0B5ED7", "#0B5ED7", "#1E6FDD"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.welcomeGradient}
-        >
-          <View style={styles.welcomeContent}>
-            <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeGreeting}>Welcome back!</Text>
-              <Text style={styles.welcomeName}>{userDisplayName}</Text>
-              <Text style={styles.welcomeSubtext}>
-                {notificationCount > 0
-                  ? `${notificationCount} updates waiting`
-                  : "All systems operational"}
-              </Text>
-            </View>
-            <View style={styles.welcomeIconCircle}>
-              <Ionicons name="medical" size={48} color="#FFFFFF" />
-            </View>
-          </View>
-        </LinearGradient>
-
+        <WelcomeBanner
+          userDisplayName={userDisplayName}
+          notificationCount={notificationCount}
+        />
+        <QuickActions isAdmin={isAdmin} />
+        <ScanOverview
+          stats={stats}
+          growthPercentage={growthPercentage}
+        />
         <View style={styles.section}>
-          <SectionHeader
-            title="Quick Actions"
-            subtitle="Get started in seconds"
-          />
-          <View style={styles.quickActionsGrid}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push("/analysis/upload")}
-            >
-              <View
-                style={[
-                  styles.actionIconBg,
-                  { backgroundColor: "rgba(11, 94, 215, 0.1)" },
-                ]}
-              >
-                <Ionicons name="add-circle-outline" size={28} color="#0B5ED7" />
-              </View>
-              <Text style={styles.actionButtonText}>New Scan</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push("/(tabs)/history")}
-            >
-              <View
-                style={[
-                  styles.actionIconBg,
-                  { backgroundColor: "rgba(16, 185, 129, 0.1)" },
-                ]}
-              >
-                <Ionicons name="time-outline" size={28} color="#10B981" />
-              </View>
-              <Text style={styles.actionButtonText}>History</Text>
-            </TouchableOpacity>
-          </View>
-          {isAdmin && (
-            <View style={styles.quickActionsGrid}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => router.push("/(tabs)/(admin)/all-scans")}
-              >
-                <View
-                  style={[
-                    styles.actionIconBg,
-                    { backgroundColor: "rgba(59, 130, 246, 0.1)" },
-                  ]}
-                >
-                  <Ionicons
-                    name="bar-chart-outline"
-                    size={28}
-                    color="#3B82F6"
-                  />
-                </View>
-                <Text style={styles.actionButtonText}>All Scans</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => router.push("/(tabs)/(admin)/users")}
-              >
-                <View
-                  style={[
-                    styles.actionIconBg,
-                    { backgroundColor: "rgba(168, 85, 247, 0.1)" },
-                  ]}
-                >
-                  <Ionicons name="people-outline" size={28} color="#A855F7" />
-                </View>
-                <Text style={styles.actionButtonText}>Users</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <SectionHeader
-            title="Scan Overview"
-            subtitle="This month's statistics"
-          />
-          <View style={styles.statsContainer}>
-            <View style={styles.statRow}>
-              <StatCard
-                icon="document-text-outline"
-                title="Total Scans"
-                value={stats?.totalScans || 0}
-                trend={
-                  growthPercentage !== null
-                    ? {
-                        value: Math.abs(growthPercentage),
-                        isPositive: growthPercentage >= 0,
-                      }
-                    : undefined
-                }
-                color="#0B5ED7"
-                backgroundColor="rgba(11, 94, 215, 0.08)"
-              />
-              <StatCard
-                icon="checkmark-circle-outline"
-                title="Completed"
-                value={stats?.completedScans || 0}
-                color="#10B981"
-                backgroundColor="rgba(16, 185, 129, 0.08)"
-              />
-            </View>
-            <View style={styles.statRow}>
-              <StatCard
-                icon="warning-outline"
-                title="Pneumonia"
-                value={stats?.failedScans || 0}
-                color="#EF4444"
-                backgroundColor="rgba(239, 68, 68, 0.08)"
-              />
-              <StatCard
-                icon="time-outline"
-                title="Processing"
-                value={stats?.processingScans || 0}
-                color="#F59E0B"
-                backgroundColor="rgba(245, 158, 11, 0.08)"
-              />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <SectionHeader title="Weekly Activity" subtitle="7-day scan trend" />
+          <Text style={styles.sectionTitle}>Weekly Activity</Text>
+          <Text style={styles.headerSubtitle}>7-day scan trend</Text>
+          <View style={{ height: 16 }} />
           <Card elevated="light">
             <LineChart
               data={chartData}
@@ -495,44 +367,7 @@ export default function DashboardScreen() {
           )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>System Status</Text>
-          <View style={styles.statusCard}>
-            <View style={styles.statusRow}>
-              <View style={styles.statusIndicator}>
-                <View style={[styles.statusDot, styles.statusActive]} />
-                <Text style={styles.statusText}>AI Model</Text>
-              </View>
-              <Text style={styles.statusValue}>
-                {typeof systemStatus?.aiModel === "string"
-                  ? systemStatus.aiModel
-                  : "Operational"}
-              </Text>
-            </View>
-            <View style={styles.statusRow}>
-              <View style={styles.statusIndicator}>
-                <View style={[styles.statusDot, styles.statusActive]} />
-                <Text style={styles.statusText}>Database</Text>
-              </View>
-              <Text style={styles.statusValue}>
-                {typeof systemStatus?.database === "string"
-                  ? systemStatus.database
-                  : "Connected"}
-              </Text>
-            </View>
-            <View style={styles.statusRow}>
-              <View style={styles.statusIndicator}>
-                <View style={[styles.statusDot, styles.statusActive]} />
-                <Text style={styles.statusText}>Storage</Text>
-              </View>
-              <Text style={styles.statusValue}>
-                {typeof systemStatus?.storage === "string"
-                  ? systemStatus.storage
-                  : "78% Used"}
-              </Text>
-            </View>
-          </View>
-        </View>
+        <SystemStatusCard systemStatus={systemStatus} />
 
         <View style={styles.bottomSpacer} />
       </ScrollView>

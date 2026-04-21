@@ -59,6 +59,12 @@ export default function PatientLayout() {
           href: null,
         }}
       />
+    <Tabs.Screen
+        name="notifications"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

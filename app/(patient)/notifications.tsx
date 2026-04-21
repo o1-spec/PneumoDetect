@@ -16,12 +16,12 @@ import { dialogManager } from "../../utils/dialogManager";
 import { useToast } from "../../hooks/useToast";
 import { PneumoLoader } from "../../components/premium/PneumoLoader";
 
-export default function NotificationsScreen() {
+export default function PatientNotificationsScreen() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const { error: showError, success: showSuccess, info: showInfo } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
 
   useFocusEffect(
     useCallback(() => {
@@ -71,7 +71,7 @@ export default function NotificationsScreen() {
     try {
       await notificationsAPI.markAllAsRead();
       setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, isRead: true })),
+        prev.map((notif) => ({ ...notif, read: true })),
       );
       showSuccess("All notifications marked as read");
     } catch (err) {
@@ -92,36 +92,6 @@ export default function NotificationsScreen() {
             try {
               await notificationsAPI.delete(id);
               setNotifications((prev) => prev.filter((n) => n.id !== id));
-            } catch (err) {
-              showError(getErrorMessage(err));
-            }
-          },
-        },
-      ],
-    });
-  };
-
-  const handleClearAll = () => {
-    if (notifications.length === 0) {
-      showInfo("There are no notifications to clear.");
-      return;
-    }
-
-    dialogManager.show({
-      title: "Clear All Notifications",
-      message: "Are you sure you want to delete all notifications? This action cannot be undone.",
-      buttons: [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Clear All",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await Promise.all(
-                notifications.map((n) => notificationsAPI.delete(n.id)),
-              );
-              setNotifications([]);
-              showSuccess("All notifications cleared");
             } catch (err) {
               showError(getErrorMessage(err));
             }
@@ -159,13 +129,8 @@ export default function NotificationsScreen() {
                       text: "Mark All as Read",
                       onPress: handleMarkAllAsRead,
                     },
-                    {
-                      text: "Clear All",
-                      onPress: handleClearAll,
-                      style: "destructive",
-                    },
                     { text: "Cancel", style: "cancel" },
-                  ]
+                  ],
                 })
               }
             >
@@ -190,8 +155,8 @@ export default function NotificationsScreen() {
           </View>
           <Text style={styles.emptyTitle}>No Notifications</Text>
           <Text style={styles.emptyText}>
-            You're all caught up! We'll notify you when something important
-            happens.
+            You're all caught up! We'll notify you when your scan results are
+            ready.
           </Text>
         </View>
       ) : (
@@ -255,7 +220,7 @@ const NotificationCard = ({
   >
     <TouchableOpacity style={styles.cardContent} onPress={onPress}>
       <View style={styles.notificationIcon}>
-        <Ionicons name="notifications" size={24} color="#0066CC" />
+        <Ionicons name="notifications" size={24} color="#0B5ED7" />
       </View>
       <View style={styles.notificationContent}>
         <Text
@@ -345,18 +310,18 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     color: "#6B7280",
     marginBottom: 12,
     marginLeft: 4,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   notificationCard: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
@@ -370,7 +335,7 @@ const styles = StyleSheet.create({
   unreadCard: {
     borderLeftWidth: 4,
     borderLeftColor: "#0B5ED7",
-    backgroundColor: "#F0F9FF",
+    backgroundColor: "#EFF6FF",
   },
   notificationIcon: {
     width: 48,
@@ -379,37 +344,25 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: "#DBEAFE",
     borderWidth: 1,
-    borderColor: "#DBEAFE",
+    borderColor: "#BFDBFE",
   },
   notificationContent: {
     flex: 1,
   },
-  notificationHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
   notificationTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
     color: "#111827",
-    flex: 1,
+    marginBottom: 4,
   },
   unreadTitle: {
     fontWeight: "800",
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#0B5ED7",
-    marginLeft: 8,
+    color: "#0B5ED7",
   },
   notificationMessage: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#6B7280",
     lineHeight: 20,
     marginBottom: 6,
@@ -445,7 +398,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: 15,
     color: "#6B7280",
     textAlign: "center",
     lineHeight: 24,
