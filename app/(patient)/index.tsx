@@ -119,29 +119,36 @@ export default function PatientDashboardScreen() {
           <SectionHeader title="Your Activity" subtitle="Scan statistics" />
           <View style={styles.statsContainer}>
             <View style={styles.statRow}>
-              <StatCard
-                icon="document-text-outline"
-                title="Total Scans"
-                value={stats.totalScans}
-                color="#0B5ED7"
-                backgroundColor="rgba(11, 94, 215, 0.08)"
-              />
-              <StatCard
-                icon="checkmark-circle-outline"
-                title="Normal"
-                value={stats.normalScans}
-                color="#10B981"
-                backgroundColor="rgba(16, 185, 129, 0.08)"
-              />
+              <View style={{ flex: 1 }}>
+                <StatCard
+                  icon="document-text-outline"
+                  title="Total Scans"
+                  value={stats.totalScans}
+                  color="#0B5ED7"
+                  backgroundColor="rgba(11, 94, 215, 0.08)"
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <StatCard
+                  icon="checkmark-circle-outline"
+                  title="Normal"
+                  value={stats.normalScans}
+                  color="#10B981"
+                  backgroundColor="rgba(16, 185, 129, 0.08)"
+                />
+              </View>
             </View>
             <View style={styles.statRow}>
-              <StatCard
-                icon="alert-circle-outline"
-                title="Concerns"
-                value={stats.pneumoniaScans}
-                color="#EF4444"
-                backgroundColor="rgba(239, 68, 68, 0.08)"
-              />
+              <View style={{ flex: 1 }}>
+                <StatCard
+                  icon="alert-circle-outline"
+                  title="Concerns"
+                  value={stats.pneumoniaScans}
+                  color="#EF4444"
+                  backgroundColor="rgba(239, 68, 68, 0.08)"
+                />
+              </View>
+              <View style={{ flex: 1 }} />
             </View>
           </View>
         </View>

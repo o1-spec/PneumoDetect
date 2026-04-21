@@ -2,7 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,11 +24,19 @@ export default function PatientProfileScreen() {
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
   if (!authContext) {
     return <Text>Auth context not available</Text>;
   }
 
-  const { user, logout, updateProfile } = authContext;
+  const { user, logout, updateProfile, changePassword } = authContext;
 
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -73,6 +83,30 @@ export default function PatientProfileScreen() {
         },
       },
     ]);
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      showError("Please fill in all password fields");
+      return;
+    }
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      showError("New passwords do not match");
+      return;
+    }
+
+    try {
+      setIsChangingPassword(true);
+      await changePassword(passwordData);
+      success("Password successfully changed!");
+      setIsPasswordModalVisible(false);
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      const msg = getErrorMessage(error) || "Failed to change password";
+      showError(msg);
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -232,7 +266,7 @@ export default function PatientProfileScreen() {
 
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={() => router.push("/(auth)/forgot-password")}
+              onPress={() => setIsPasswordModalVisible(true)}
             >
               <View style={[styles.actionIconContainer, { backgroundColor: "rgba(11, 94, 215, 0.1)" }]}>
                 <Ionicons name="key-outline" size={18} color="#0B5ED7" />
@@ -269,13 +303,88 @@ export default function PatientProfileScreen() {
               onPress={handleSave}
               disabled={loading}
             >
-              <Text style={styles.saveBtnText}>
-                {loading ? "Saving..." : "Save Changes"}
-              </Text>
+              {loading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <Text style={styles.saveBtnText}>Save Changes</Text>
+              )}
             </TouchableOpacity>
           </View>
         )}
       </ScrollView>
+
+      {/* Change Password Modal */}
+      <Modal
+        visible={isPasswordModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsPasswordModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Change Password</Text>
+              <TouchableOpacity onPress={() => setIsPasswordModalVisible(false)}>
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Current Password</Text>
+              <TextInput
+                style={styles.input}
+                value={passwordData.currentPassword}
+                onChangeText={(text) =>
+                  setPasswordData({ ...passwordData, currentPassword: text })
+                }
+                secureTextEntry
+                placeholder="Enter current password"
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>New Password</Text>
+              <TextInput
+                style={styles.input}
+                value={passwordData.newPassword}
+                onChangeText={(text) =>
+                  setPasswordData({ ...passwordData, newPassword: text })
+                }
+                secureTextEntry
+                placeholder="Enter new password"
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Confirm New Password</Text>
+              <TextInput
+                style={styles.input}
+                value={passwordData.confirmPassword}
+                onChangeText={(text) =>
+                  setPasswordData({ ...passwordData, confirmPassword: text })
+                }
+                secureTextEntry
+                placeholder="Confirm new password"
+                placeholderTextColor="#9CA3AF"
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.actionBtn, styles.saveBtn, { marginTop: 10 }]}
+              onPress={handleChangePassword}
+              disabled={isChangingPassword}
+            >
+              {isChangingPassword ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <Text style={styles.saveBtnText}>Update Password</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -458,6 +567,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: "center",
+    justifyContent: "center",
   },
   cancelBtn: {
     backgroundColor: "#F3F4F6",
@@ -479,5 +589,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#FFFFFF",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 24,
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#111827",
+    letterSpacing: -0.3,
   },
 });
