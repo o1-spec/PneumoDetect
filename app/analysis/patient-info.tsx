@@ -30,7 +30,7 @@ export default function PatientInfoScreen() {
   const [patientName, setPatientName] = useState("");
   const [age, setAge] = useState("");
   const [sex, setSex] = useState<"MALE" | "FEMALE" | "">("");
-  const { error: showError } = useToast();
+  const { success, error: showError } = useToast();
 
   useEffect(() => {
     loadPatients();
@@ -71,6 +71,7 @@ export default function PatientInfoScreen() {
         age: parseInt(age),
         gender: sex as "MALE" | "FEMALE",
       });
+      success("Patient record created successfully!");
       setSelectedPatient(newPatient);
       setPatients([...patients, newPatient]);
     } catch (err) {
@@ -93,6 +94,8 @@ export default function PatientInfoScreen() {
         selectedPatient.id,
         imageUri as string,
       );
+
+      success("X-ray uploaded! Starting analysis...");
 
       // Navigate to processing screen with the scan ID
       router.replace({

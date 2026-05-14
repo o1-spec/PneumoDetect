@@ -9,7 +9,7 @@ import { getErrorMessage } from "../../utils/errorHandler";
 export default function ProcessingScreen() {
   const params = useLocalSearchParams();
   const { scanId } = params;
-  const { info, error: showError } = useToast();
+  const { info, success, error: showError } = useToast();
   const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("Initializing...");
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function ProcessingScreen() {
           setProgress(100);
           setStatusText("Analysis complete!");
           polling = false;
-          info("Scan analysis completed!");
+          success("Scan analysis completed!");
 
           // Navigate to results
           setTimeout(() => {

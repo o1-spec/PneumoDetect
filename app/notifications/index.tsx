@@ -21,7 +21,7 @@ export default function NotificationsScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const unreadCount = notifications.filter((n) => !n.read).length;
-  const { error: showError, success: showSuccess, info: showInfo } = useToast();
+  const { error: showError, success, info } = useToast();
 
   useFocusEffect(
     useCallback(() => {
@@ -71,9 +71,9 @@ export default function NotificationsScreen() {
     try {
       await notificationsAPI.markAllAsRead();
       setNotifications((prev) =>
-        prev.map((notif) => ({ ...notif, isRead: true })),
+        prev.map((notif) => ({ ...notif, read: true })),
       );
-      showSuccess("All notifications marked as read");
+      success("All notifications marked as read");
     } catch (err) {
       showError(getErrorMessage(err));
     }
@@ -92,6 +92,7 @@ export default function NotificationsScreen() {
             try {
               await notificationsAPI.delete(id);
               setNotifications((prev) => prev.filter((n) => n.id !== id));
+              success("Notification deleted");
             } catch (err) {
               showError(getErrorMessage(err));
             }
@@ -103,7 +104,7 @@ export default function NotificationsScreen() {
 
   const handleClearAll = () => {
     if (notifications.length === 0) {
-      showInfo("There are no notifications to clear.");
+      info("There are no notifications to clear.");
       return;
     }
 
@@ -121,7 +122,7 @@ export default function NotificationsScreen() {
                 notifications.map((n) => notificationsAPI.delete(n.id)),
               );
               setNotifications([]);
-              showSuccess("All notifications cleared");
+              success("All notifications cleared");
             } catch (err) {
               showError(getErrorMessage(err));
             }

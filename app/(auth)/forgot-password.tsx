@@ -18,7 +18,7 @@ import { useToast } from "../../hooks/useToast";
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const { error: showError, success: showSuccess } = useToast();
+  const { error: showError, success } = useToast();
 
   const handleResetPassword = async () => {
     if (!email) {
@@ -37,7 +37,7 @@ export default function ForgotPasswordScreen() {
     // Simulate API call
     setTimeout(() => {
       setLoading(false);
-      showSuccess("Password reset link has been sent to your email.");
+      success("Password reset link has been sent to your email.");
       setTimeout(() => router.back(), 2000);
     }, 1500);
   };

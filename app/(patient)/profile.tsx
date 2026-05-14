@@ -20,7 +20,7 @@ import { dialogManager } from "../../utils/dialogManager";
 
 export default function PatientProfileScreen() {
   const authContext = useContext(AuthContext);
-  const { success, error: showError } = useToast();
+  const { success, warning, error: showError } = useToast();
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -79,6 +79,7 @@ export default function PatientProfileScreen() {
           onPress: async () => {
             try {
               await logout();
+              warning("Logged out successfully");
               router.replace("/(auth)/login");
             } catch (error) {
               showError("Logout failed");
