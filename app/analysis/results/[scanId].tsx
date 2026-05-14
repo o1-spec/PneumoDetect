@@ -32,6 +32,7 @@ export default function ResultsScreen() {
     scanDate,
     result,
     confidence,
+    heatmapUrl,
   } = params;
 
   useEffect(() => {
@@ -176,7 +177,7 @@ export default function ResultsScreen() {
             onPress={() =>
               router.push({
                 pathname: "/analysis/results/explainable",
-                params: { scanId, imageUri, result, confidence },
+                params: { scanId, imageUri, result, confidence, heatmapUrl },
               })
             }
           >
