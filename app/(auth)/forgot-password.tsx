@@ -2,13 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { AuthHeader } from "../../components/auth/AuthHeader";
 import { AuthInput } from "../../components/auth/AuthInput";
@@ -59,14 +59,12 @@ export default function ForgotPasswordScreen() {
           <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
         </TouchableOpacity>
 
-        {/* Header */}
         <AuthHeader
           icon="key-outline"
           title="Reset Password"
           subtitle="Enter your email address and we'll send you a reset link"
         />
 
-        {/* Form */}
         <View style={styles.form}>
           <AuthInput
             label="Email Address"
@@ -79,7 +77,6 @@ export default function ForgotPasswordScreen() {
             onChangeText={setEmail}
           />
 
-          {/* Send Button */}
           <PremiumButton
             variant="primary"
             size="lg"
@@ -91,7 +88,6 @@ export default function ForgotPasswordScreen() {
             Send Reset Link
           </PremiumButton>
 
-          {/* Back to Sign In */}
           <TouchableOpacity
             style={styles.backToSignIn}
             onPress={() => router.back()}
@@ -101,7 +97,6 @@ export default function ForgotPasswordScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Info Box */}
         <View style={styles.infoBox}>
           <View style={styles.infoIconWrapper}>
             <Ionicons name="information-circle" size={20} color="#0B5ED7" />

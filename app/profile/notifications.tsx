@@ -2,22 +2,22 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  COLORS,
-  InfoCard,
-  PremiumCard,
-  PrimaryButton,
-  SectionHeader,
-  SettingRow,
+    COLORS,
+    InfoCard,
+    PremiumCard,
+    PrimaryButton,
+    SectionHeader,
+    SettingRow,
 } from "../../components/premium/PremiumComponents";
-import { dialogManager } from "../../utils/dialogManager";
 import { useToast } from "../../hooks/useToast";
+import { dialogManager } from "../../utils/dialogManager";
 
 export default function NotificationsScreen() {
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -158,7 +158,6 @@ export default function NotificationsScreen() {
           </PremiumCard>
         </View>
 
-        {/* Marketing Preferences Section */}
         <View style={styles.section}>
           <SectionHeader
             title="Marketing"
@@ -177,7 +176,6 @@ export default function NotificationsScreen() {
           </PremiumCard>
         </View>
 
-        {/* Action Buttons */}
         <View style={styles.buttonSection}>
           <PrimaryButton
             label="Save Preferences"

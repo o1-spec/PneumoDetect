@@ -2,13 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext, useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { AuthHeader } from "../../components/auth/AuthHeader";
 import { AuthInput } from "../../components/auth/AuthInput";
@@ -103,14 +103,12 @@ export default function LoginScreen() {
           <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
         </TouchableOpacity>
 
-        {/* Header */}
         <AuthHeader
           icon="log-in-outline"
           title="Welcome Back"
           subtitle="Sign in to your PneumoDetect account"
         />
 
-        {/* Form */}
         <View style={styles.form}>
           <AuthInput
             label="Email Address"
@@ -143,7 +141,6 @@ export default function LoginScreen() {
             onTogglePassword={() => setShowPassword(!showPassword)}
           />
 
-          {/* Forgot Password */}
           <TouchableOpacity
             onPress={() => router.push("/(auth)/forgot-password")}
             style={styles.forgotPasswordButton}
@@ -151,7 +148,6 @@ export default function LoginScreen() {
             <Text style={styles.forgotPasswordText}>Forgot password?</Text>
           </TouchableOpacity>
 
-          {/* Login Button */}
           <PremiumButton
             variant="primary"
             size="lg"
@@ -172,7 +168,6 @@ export default function LoginScreen() {
           </View>
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             Secure AI-powered pneumonia detection for clinical use.

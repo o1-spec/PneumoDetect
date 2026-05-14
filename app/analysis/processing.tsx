@@ -1,12 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-    Animated,
-    StyleSheet,
-    Text,
-    View
-} from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
 import { getErrorMessage } from "../../utils/errorHandler";
@@ -84,7 +79,6 @@ export default function ProcessingScreen() {
         }
 
         if (polling) {
-          // Wait before polling again
           await new Promise((resolve) => setTimeout(resolve, 2000));
           pollCount++;
         }

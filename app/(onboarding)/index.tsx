@@ -79,20 +79,16 @@ export default function OnboardingScreen() {
   const completeOnboarding = async () => {
     setLoading(true);
     try {
-      // Call backend API to mark onboarding as complete
       await api.post("/users/onboarding/complete");
 
-      // Update auth context with new flag
       if (authContext?.refreshUser) {
         await authContext.refreshUser();
       }
 
       success("Welcome aboard!");
 
-      // Wait a moment for state to update
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Route based on updated user role
       const updatedRole = authContext?.user?.role;
       if (updatedRole === "PATIENT") {
         router.replace("/(patient)");

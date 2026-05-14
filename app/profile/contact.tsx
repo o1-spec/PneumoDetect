@@ -2,25 +2,24 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Linking,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  COLORS,
-  InfoCard,
-  PremiumCard,
-  PrimaryButton,
-  SectionHeader,
+    COLORS,
+    InfoCard,
+    PremiumCard,
+    PrimaryButton,
+    SectionHeader,
 } from "../../components/premium/PremiumComponents";
+import { useToast } from "../../hooks/useToast";
 import { messagesAPI } from "../../services/api.client";
 import { dialogManager } from "../../utils/dialogManager";
-import { useToast } from "../../hooks/useToast";
 
 export default function ContactScreen() {
   const [subject, setSubject] = useState("");
@@ -40,7 +39,8 @@ export default function ContactScreen() {
 
       dialogManager.show({
         title: "Message Sent",
-        message: "Thank you for contacting us. We'll get back to you within 24 hours.",
+        message:
+          "Thank you for contacting us. We'll get back to you within 24 hours.",
         buttons: [
           {
             text: "OK",
@@ -270,7 +270,6 @@ export default function ContactScreen() {
           </View>
         </PremiumCard>
 
-        {/* Social Links Section */}
         <SectionHeader
           title="Follow Us"
           subtitle="Stay updated with our latest news"

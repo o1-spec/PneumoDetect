@@ -45,10 +45,8 @@ export default function WelcomeScreen() {
       colors={["#FAFBFC", "#F3F4F6", "#E5E7EB"]}
       style={styles.container}
     >
-      {/* Decorative Top Circle */}
       <View style={styles.topDecor} />
 
-      {/* Logo Section */}
       <View style={styles.logoContainer}>
         <View style={styles.logoCircle}>
           <Ionicons name="medical" size={60} color="#0B5ED7" />
@@ -57,7 +55,6 @@ export default function WelcomeScreen() {
         <Text style={styles.tagline}>AI-Powered Pneumonia Detection</Text>
       </View>
 
-      {/* Features Section */}
       <View style={styles.featuresContainer}>
         <FeatureItem
           icon="flash-outline"
@@ -76,7 +73,6 @@ export default function WelcomeScreen() {
         />
       </View>
 
-      {/* CTA Buttons */}
       <View style={styles.buttonContainer}>
         <PremiumButton variant="primary" size="lg" onPress={handleGetStarted}>
           Get Started
@@ -87,7 +83,6 @@ export default function WelcomeScreen() {
         </PremiumButton>
       </View>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <Ionicons name="shield-checkmark-outline" size={16} color="#0B5ED7" />
         <Text style={styles.footerText}>
@@ -126,8 +121,6 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     paddingHorizontal: 24,
   },
-
-  /* Decorative Elements */
   topDecor: {
     position: "absolute",
     top: -80,
@@ -137,8 +130,6 @@ const styles = StyleSheet.create({
     borderRadius: 140,
     backgroundColor: "rgba(11, 94, 215, 0.08)",
   },
-
-  /* Logo Section */
   logoContainer: {
     alignItems: "center",
     marginTop: 20,
@@ -178,7 +169,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  /* Features Section */
   featuresContainer: {
     width: "100%",
     gap: 12,
@@ -228,15 +218,11 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     lineHeight: 18,
   },
-
-  /* Button Section */
   buttonContainer: {
     width: "100%",
     gap: 12,
     marginBottom: 16,
   },
-
-  /* Footer */
   footer: {
     flexDirection: "row",
     alignItems: "center",
