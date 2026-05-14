@@ -38,6 +38,7 @@ export interface User {
   avatarUrl?: string;
   isVerified: boolean;
   isActive: boolean;
+  onboardingCompleted: boolean;
   createdAt: string;
   updatedAt: string;
 }

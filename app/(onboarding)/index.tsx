@@ -5,7 +5,8 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { PremiumButton } from "../../components/auth/PremiumButton";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import { storeOnboardingFlag } from "../../utils/secureStorage";
+import api from "../../services/api";
+import { getErrorMessage } from "../../utils/errorHandler";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -54,7 +55,7 @@ export default function OnboardingScreen() {
   const [currentScreen, setCurrentScreen] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const { success } = useToast();
+  const { success, error: showError } = useToast();
   const authContext = useContext(AuthContext);
 
   const handleNext = () => {
@@ -78,10 +79,19 @@ export default function OnboardingScreen() {
   const completeOnboarding = async () => {
     setLoading(true);
     try {
-      await storeOnboardingFlag(true);
+      // Call backend API to mark onboarding as complete
+      await api.post("/users/onboarding/complete");
+
+      // Update auth context with new flag
+      if (authContext?.refreshUser) {
+        await authContext.refreshUser();
+      }
+
       success("Welcome aboard!");
       router.replace("/(tabs)");
     } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -104,10 +114,11 @@ export default function OnboardingScreen() {
         scrollEventThrottle={16}
         onScroll={handleScroll}
         showsHorizontalScrollIndicator={false}
-        scrollEnabled={false}
+        scrollEnabled={true}
+        decelerationRate="fast"
       >
         {SCREENS.map((s) => (
-          <View style={styles.screen}>
+          <View key={s.id} style={styles.screen}>
             <View style={styles.screenContent}>
               <View style={styles.iconContainer}>
                 <View
@@ -149,16 +160,27 @@ export default function OnboardingScreen() {
               loading={loading}
               disabled={loading}
               onPress={handleGetStarted}
+              style={{ flex: 1 }}
             >
               Get Started
             </PremiumButton>
           ) : (
             <>
-              <PremiumButton variant="outline" size="lg" onPress={handleSkip}>
+              <PremiumButton
+                variant="outline"
+                size="lg"
+                onPress={handleSkip}
+                style={{ flex: 1 }}
+              >
                 Skip
               </PremiumButton>
 
-              <PremiumButton variant="primary" size="lg" onPress={handleNext}>
+              <PremiumButton
+                variant="primary"
+                size="lg"
+                onPress={handleNext}
+                style={{ flex: 1 }}
+              >
                 Next
               </PremiumButton>
             </>
@@ -175,6 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFBFC",
   },
   screen: {
+    width: SCREEN_WIDTH,
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 20,
@@ -263,5 +286,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 12,
+    width: "100%",
   },
 });

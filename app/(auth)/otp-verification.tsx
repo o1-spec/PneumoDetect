@@ -16,7 +16,6 @@ import { PremiumButton } from "../../components/auth/PremiumButton";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { getErrorMessage } from "../../utils/errorHandler";
-import { hasSeenOnboarding } from "../../utils/secureStorage";
 
 export default function OTPVerificationScreen() {
   const router = useRouter();
@@ -35,7 +34,7 @@ export default function OTPVerificationScreen() {
     return <Text>Auth context not available</Text>;
   }
 
-  const { verifyOTP, resendOTP } = authContext;
+  const { verifyOTP, resendOTP, refreshUser } = authContext;
 
   React.useEffect(() => {
     return () => {
@@ -72,12 +71,18 @@ export default function OTPVerificationScreen() {
 
     try {
       await verifyOTP({ email, otp });
+
+      // Refresh user data to get complete profile (name, role, onboardingCompleted flag)
+      await refreshUser();
+
       success("Email verified successfully!");
 
-      const seenOnboarding = await hasSeenOnboarding();
-      if (seenOnboarding) {
+      // Check if user has completed onboarding (from server)
+      if (authContext?.user?.onboardingCompleted) {
+        // User already completed onboarding - go to dashboard
         router.replace("/(tabs)");
       } else {
+        // New user - show onboarding
         router.replace("/(onboarding)");
       }
     } catch (err) {
