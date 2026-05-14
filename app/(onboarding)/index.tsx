@@ -88,9 +88,20 @@ export default function OnboardingScreen() {
       }
 
       success("Welcome aboard!");
-      router.replace("/(tabs)");
+
+      // Wait a moment for state to update
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Route based on updated user role
+      const updatedRole = authContext?.user?.role;
+      if (updatedRole === "PATIENT") {
+        router.replace("/(patient)");
+      } else {
+        router.replace("/(tabs)");
+      }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
+      console.error("[Onboarding Error]", errorMessage, error);
       showError(errorMessage);
     } finally {
       setLoading(false);

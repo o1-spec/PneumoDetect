@@ -5,7 +5,6 @@ import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { PremiumButton } from "../components/auth/PremiumButton";
 import { AuthContext } from "../hooks/useAuth";
-import { hasSeenOnboarding } from "../utils/secureStorage";
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -13,14 +12,14 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     checkAuthStatus();
-  }, [authContext?.isSignedIn]);
+  }, [authContext?.isSignedIn, authContext?.user?.onboardingCompleted]);
 
   const checkAuthStatus = async () => {
     if (authContext?.isLoading) return;
 
     if (authContext?.isSignedIn) {
-      const seenOnboarding = await hasSeenOnboarding();
-      if (!seenOnboarding) {
+      // Check server-side onboarding flag
+      if (!authContext.user?.onboardingCompleted) {
         router.replace("/(onboarding)");
       } else {
         // Route based on user role
