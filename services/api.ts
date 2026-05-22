@@ -13,9 +13,11 @@ declare global {
   var authLogoutEvent: (() => void) | undefined;
 }
 
-// Platform-specific base URL
-const API_URL =
-  Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000";
+// Platform-specific base URL (Production Render App)
+const API_URL = "https://pneumodetect-backend.onrender.com";
+
+// Development URL:
+// const API_URL = Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000";
 
 /**
  * Create axios instance with default config
