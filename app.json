@@ -9,7 +9,12 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow PneumoDetect to access your camera to capture chest X-ray images for AI analysis.",
+        "NSPhotoLibraryUsageDescription": "Allow PneumoDetect to access your photos to select chest X-ray images for AI analysis.",
+        "NSPhotoLibraryAddUsageDescription": "Allow PneumoDetect to save generated AI X-ray scan report sheets to your photo library."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +24,12 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "output": "static",
@@ -39,7 +49,14 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow PneumoDetect to access your photos to select chest X-ray images for AI analysis.",
+          "cameraPermission": "Allow PneumoDetect to access your camera to capture chest X-ray images for AI analysis."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

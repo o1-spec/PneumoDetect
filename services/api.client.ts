@@ -137,10 +137,24 @@ export const scansAPI = {
   upload: async (patientId: string, imageUri: string): Promise<Scan> => {
     const formData = new FormData();
     formData.append("patientId", patientId);
+
+    // Extract filename and determine MIME type from imageUri dynamically
+    const filename = imageUri.split("/").pop() || `scan-${Date.now()}.jpg`;
+    const match = /\.(\w+)$/.exec(filename);
+    const ext = match ? match[1].toLowerCase() : "jpg";
+    
+    // Support png and jpeg MIME types dynamically
+    let type = "image/jpeg";
+    if (ext === "png") {
+      type = "image/png";
+    } else if (ext === "gif") {
+      type = "image/gif";
+    }
+
     formData.append("image", {
       uri: imageUri,
-      type: "image/jpeg",
-      name: `scan-${Date.now()}.jpg`,
+      type,
+      name: filename.includes(".") ? filename : `${filename}.${ext}`,
     } as any);
 
     const response = await api.post<Scan>("/scans/upload", formData, {

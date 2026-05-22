@@ -68,6 +68,17 @@ export default function UploadScreen() {
       return;
     }
 
+    // Security check: Validate file extension is PNG or JPG/JPEG strictly
+    const filename = selectedImage.split("/").pop() || "";
+    const match = /\.(\w+)$/.exec(filename);
+    const ext = match ? match[1].toLowerCase() : "";
+    const allowedExtensions = ["jpg", "jpeg", "png"];
+    
+    if (ext && !allowedExtensions.includes(ext)) {
+      showError("Invalid file type. Only JPG, JPEG, and PNG images are allowed.");
+      return;
+    }
+
     router.push({
       pathname: "/analysis/patient-info",
       params: { imageUri: selectedImage },

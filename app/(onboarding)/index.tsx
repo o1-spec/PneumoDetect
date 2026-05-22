@@ -7,6 +7,7 @@ import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import api from "../../services/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { logger } from "../../utils/logger";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -97,7 +98,7 @@ export default function OnboardingScreen() {
       }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-      console.error("[Onboarding Error]", errorMessage, error);
+      logger.error("Onboarding completion failed", { error: String(error) });
       showError(errorMessage);
     } finally {
       setLoading(false);
