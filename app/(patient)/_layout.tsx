@@ -1,12 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 import React from "react";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../hooks/useAuth";
 import { PneumoLoader } from "../../components/premium";
 
 export default function PatientLayout() {
   const { user, isLoading, isSignedIn } = useAuth();
+  const insets = useSafeAreaInsets();
 
   if (isLoading) {
     return (
@@ -19,6 +21,15 @@ export default function PatientLayout() {
   if (!isSignedIn || user?.role !== "PATIENT") {
     return <Redirect href="/" />;
   }
+
+  // Calculate dynamic heights and paddings to prevent clipping on both Android & iOS gesture bars
+  const tabHeight = Platform.OS === "ios"
+    ? (insets.bottom > 0 ? 88 : 64)
+    : (insets.bottom > 0 ? 76 : 64);
+    
+  const tabPaddingBottom = Platform.OS === "ios"
+    ? (insets.bottom > 0 ? insets.bottom + 4 : 8)
+    : (insets.bottom > 0 ? insets.bottom + 6 : 8);
 
   return (
     <Tabs
@@ -39,6 +50,8 @@ export default function PatientLayout() {
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 4,
+          height: tabHeight,
+          paddingBottom: tabPaddingBottom,
         },
         headerShown: false,
       }}

@@ -19,6 +19,7 @@ import {
   WelcomeBanner,
 } from "../../components/dashboard";
 import { PneumoLoader } from "../../components/premium/PneumoLoader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthContext } from "../../hooks/useAuth";
 import {
   analyticsAPI,
@@ -30,6 +31,7 @@ import { AnalyticsStats, Scan, ScanResultStatistics } from "../../types/api";
 const screenWidth = Dimensions.get("window").width;
 
 export default function DashboardScreen() {
+  const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
   const [scanResults, setScanResults] = useState<ScanResultStatistics | null>(
     null,
@@ -183,7 +185,7 @@ export default function DashboardScreen() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
           <View style={styles.headerContent}>
             <View>
               <Text style={styles.headerTitle}>Dashboard</Text>
@@ -211,7 +213,7 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <View>
             <Text style={styles.headerTitle}>Dashboard</Text>
@@ -266,7 +268,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
