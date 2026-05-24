@@ -5,7 +5,7 @@ interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
   padded?: boolean;
-  elevated?: "light" | "medium" | "heavy";
+  elevated?: "none" | "light" | "medium" | "heavy";
   border?: boolean;
   backgroundColor?: string;
 }

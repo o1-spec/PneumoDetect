@@ -3,19 +3,18 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Card, SectionHeader, StatCard, PneumoLoader } from "../../components/premium";
+import { Card, PneumoLoader, SectionHeader, StatCard } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import { scansAPI, notificationsAPI } from "../../services/api.client";
+import { notificationsAPI, scansAPI } from "../../services/api.client";
 import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
@@ -73,7 +72,7 @@ export default function PatientDashboardScreen() {
       const data = await notificationsAPI.getAll();
       const unread = Array.isArray(data) ? data.filter((n: any) => !n.read).length : 0;
       setNotificationCount(unread);
-    } catch {}
+    } catch { }
   };
 
   const onRefresh = async () => {
@@ -255,7 +254,7 @@ export default function PatientDashboardScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Important Notes</Text>
-          <Card elevated="light" backgroundColor="rgba(11, 94, 215, 0.08)">
+          <Card border={false} elevated="none" backgroundColor="rgba(11, 94, 215, 0.08)">
             <View style={styles.infoContent}>
               <Ionicons name="information-circle" size={24} color="#0B5ED7" />
               <View style={styles.infoTextContainer}>
@@ -406,6 +405,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#111827",
     letterSpacing: -0.3,
+    paddingBottom: 10,
   },
   viewAllText: {
     fontSize: 14,

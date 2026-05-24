@@ -204,7 +204,7 @@ export default function PatientScanDetailsScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Next Steps</Text>
-          <Card elevated="light" backgroundColor="rgba(245, 158, 11, 0.08)">
+          <Card border={false} elevated="none" backgroundColor="rgba(245, 158, 11, 0.08)">
             <View style={styles.recommendationHeader}>
               <Ionicons name="bulb-outline" size={24} color="#D97706" />
               <Text style={styles.recommendationTitle}>Recommendations</Text>
@@ -241,7 +241,7 @@ export default function PatientScanDetailsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Card elevated="light" backgroundColor="rgba(11, 94, 215, 0.08)">
+          <Card border={false} elevated="none" backgroundColor="rgba(11, 94, 215, 0.08)">
             <View style={styles.disclaimerContainer}>
               <Ionicons name="information-circle" size={24} color="#0B5ED7" />
               <View style={styles.disclaimerContent}>

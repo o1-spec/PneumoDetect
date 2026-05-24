@@ -18,23 +18,7 @@ import { AuthProvider } from "../hooks/useAuth";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-const oldTextRender = (Text as any).render;
-(Text as any).render = function (...args: any[]) {
-  const origin = oldTextRender.call(this, ...args);
-  if (!origin) return origin;
-  
-  // Avoid re-cloning and brand-new array reference allocations if the element already has a font family,
-  // which prevents React Navigation / third-party component infinite state update depth loops.
-  const userStyle = origin.props?.style;
-  const flatStyle = StyleSheet.flatten(userStyle);
-  if (flatStyle?.fontFamily) {
-    return origin;
-  }
-
-  return React.cloneElement(origin, {
-    style: [styles.defaultFont, userStyle],
-  });
-};
+// Font loading completed, layout is ready
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -45,9 +29,12 @@ export default function RootLayout() {
     PlusJakartaSans_800ExtraBold,
   });
 
+  const splashHidden = React.useRef(false);
+
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
+    if ((loaded || error) && !splashHidden.current) {
+      splashHidden.current = true;
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [loaded, error]);
 

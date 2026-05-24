@@ -15,7 +15,11 @@ export default function AdminLayout() {
     );
   }
 
-  if (!isSignedIn || user?.role !== "ADMIN") {
+  if (!isSignedIn) {
+    return <Redirect href="/" />;
+  }
+
+  if (user?.role !== "ADMIN") {
     return <Redirect href="/(tabs)" />;
   }
 
