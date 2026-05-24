@@ -80,7 +80,6 @@ export default function PatientProfileScreen() {
             try {
               await logout();
               warning("Logged out successfully");
-              router.replace("/(auth)/login");
             } catch (error) {
               showError("Logout failed");
             }

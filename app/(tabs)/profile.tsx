@@ -81,7 +81,6 @@ export default function ProfileScreen() {
             try {
               await authContext?.logout();
               warning("Logged out successfully");
-              router.replace("/(auth)/login");
             } catch (err) {
               showError(getErrorMessage(err));
             }
@@ -107,7 +106,6 @@ export default function ProfileScreen() {
             try {
               await authContext?.clearSession();
               success("Session cleared! Starting fresh...");
-              router.replace("/(auth)/login");
             } catch (err) {
               showError(getErrorMessage(err));
             }
