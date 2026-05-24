@@ -1,27 +1,22 @@
-import { Stack, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { Redirect, Stack } from "expo-router";
+import React from "react";
 import { View } from "react-native";
 import { useAuth } from "../../../hooks/useAuth";
 import { PneumoLoader } from "../../../components/premium";
 
 export default function AdminLayout() {
   const { user, isLoading, isSignedIn } = useAuth();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (!isSignedIn || user?.role !== "ADMIN") {
-        router.replace("/(tabs)");
-      }
-    }
-  }, [user, isLoading, isSignedIn]);
-
-  if (isLoading || !isSignedIn || user?.role !== "ADMIN") {
+  if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F5F5F7" }}>
         <PneumoLoader size={64} />
       </View>
     );
+  }
+
+  if (!isSignedIn || user?.role !== "ADMIN") {
+    return <Redirect href="/(tabs)" />;
   }
 
   return (

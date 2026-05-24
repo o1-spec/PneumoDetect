@@ -1,29 +1,26 @@
-import { Stack, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { Redirect, Stack } from "expo-router";
+import React from "react";
 import { View } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
 import { PneumoLoader } from "../../components/premium";
 
 export default function AnalysisLayout() {
   const { user, isLoading, isSignedIn } = useAuth();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (!isSignedIn) {
-        router.replace("/");
-      } else if (user?.role === "PATIENT") {
-        router.replace("/(patient)");
-      }
-    }
-  }, [user, isLoading, isSignedIn]);
-
-  if (isLoading || !isSignedIn || user?.role === "PATIENT") {
+  if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#FAFBFC" }}>
         <PneumoLoader size={64} />
       </View>
     );
+  }
+
+  if (!isSignedIn) {
+    return <Redirect href="/" />;
+  }
+
+  if (user?.role === "PATIENT") {
+    return <Redirect href="/(patient)" />;
   }
 
   return (

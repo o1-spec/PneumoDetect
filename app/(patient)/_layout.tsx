@@ -1,28 +1,23 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { Redirect, Tabs } from "expo-router";
+import React from "react";
 import { View } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
 import { PneumoLoader } from "../../components/premium";
 
 export default function PatientLayout() {
   const { user, isLoading, isSignedIn } = useAuth();
-  const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading) {
-      if (!isSignedIn || user?.role !== "PATIENT") {
-        router.replace("/");
-      }
-    }
-  }, [user, isLoading, isSignedIn]);
-
-  if (isLoading || !isSignedIn || user?.role !== "PATIENT") {
+  if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#FAFBFC" }}>
         <PneumoLoader size={64} />
       </View>
     );
+  }
+
+  if (!isSignedIn || user?.role !== "PATIENT") {
+    return <Redirect href="/" />;
   }
 
   return (
