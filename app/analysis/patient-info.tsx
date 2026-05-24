@@ -14,12 +14,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { patientsAPI, scansAPI } from "../../services/api.client";
 import { Patient } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 import { useToast } from "../../hooks/useToast";
 
 export default function PatientInfoScreen() {
+  const insets = useSafeAreaInsets();
   const { imageUri } = useLocalSearchParams();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
@@ -116,7 +118,7 @@ export default function PatientInfoScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -422,7 +424,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingTop: 60,
     paddingBottom: 16,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,

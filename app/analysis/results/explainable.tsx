@@ -11,8 +11,10 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ExplainableAIScreen() {
+  const insets = useSafeAreaInsets();
   const { scanId, imageUri, result, confidence, heatmapUrl } = useLocalSearchParams();
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [opacity, setOpacity] = useState(0.6);
@@ -24,7 +26,7 @@ export default function ExplainableAIScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -170,7 +172,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingTop: 60,
     paddingBottom: 16,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,

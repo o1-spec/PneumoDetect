@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { notificationsAPI } from "../../services/api.client";
 import { Notification } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
@@ -17,6 +18,7 @@ import { useToast } from "../../hooks/useToast";
 import { PneumoLoader } from "../../components/premium/PneumoLoader";
 
 export default function PatientNotificationsScreen() {
+  const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -103,7 +105,7 @@ export default function PatientNotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
@@ -253,7 +255,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",

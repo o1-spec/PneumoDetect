@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
@@ -19,6 +20,7 @@ import { getErrorMessage } from "../../utils/errorHandler";
 import { dialogManager } from "../../utils/dialogManager";
 
 export default function PatientProfileScreen() {
+  const insets = useSafeAreaInsets();
   const authContext = useContext(AuthContext);
   const { success, warning, error: showError } = useToast();
   const [editMode, setEditMode] = useState(false);
@@ -115,7 +117,7 @@ export default function PatientProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <Text style={styles.title}>My Profile</Text>
         {!editMode && (
           <TouchableOpacity
@@ -400,7 +402,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: "row",

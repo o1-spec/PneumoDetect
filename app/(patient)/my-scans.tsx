@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PremiumChip } from "../../components/premium";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
@@ -17,6 +18,7 @@ import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function PatientMyScansScreen() {
+  const insets = useSafeAreaInsets();
   const { error: showError } = useToast();
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,7 @@ export default function PatientMyScansScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
@@ -207,7 +209,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",

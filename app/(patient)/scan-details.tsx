@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "../../components/premium";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
@@ -17,6 +18,7 @@ import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function PatientScanDetailsScreen() {
+  const insets = useSafeAreaInsets();
   const { scanId } = useLocalSearchParams();
   const { error: showError } = useToast();
   const [scan, setScan] = useState<Scan | null>(null);
@@ -52,7 +54,7 @@ export default function PatientScanDetailsScreen() {
   if (!scan) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
@@ -76,7 +78,7 @@ export default function PatientScanDetailsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
@@ -271,7 +273,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 16,
     paddingHorizontal: 20,
     flexDirection: "row",

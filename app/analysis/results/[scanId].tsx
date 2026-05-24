@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "../../../components/premium";
 import { InfoRow } from "../../../components/InfoRow";
 import { PatientNotesModal } from "../../../components/PatientNotesModal";
@@ -16,6 +17,7 @@ import { useToast } from "../../../hooks/useToast";
 import { scansAPI } from "../../../services/api.client";
 
 export default function ResultsScreen() {
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
   const { info } = useToast();
   const [notesModalVisible, setNotesModalVisible] = useState(false);
@@ -58,7 +60,7 @@ export default function ResultsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.replace("/(tabs)")}
@@ -231,7 +233,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingTop: 60,
     paddingBottom: 20,
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,

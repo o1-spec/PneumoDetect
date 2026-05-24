@@ -120,18 +120,18 @@ export const patientsAPI = {
  */
 export const scansAPI = {
   getAll: async (): Promise<Scan[]> => {
-    const response = await api.get<Scan[]>("/scans");
-    return response.data;
+    const response = await api.get<any>("/scans");
+    return response.data && response.data.scans ? response.data.scans : response.data;
   },
 
   getByPatientId: async (patientId: string): Promise<Scan[]> => {
-    const response = await api.get<Scan[]>(`/scans/patient/${patientId}`);
-    return response.data;
+    const response = await api.get<any>(`/scans/patient/${patientId}`);
+    return response.data && response.data.scans ? response.data.scans : response.data;
   },
 
   getById: async (id: string): Promise<Scan> => {
-    const response = await api.get<Scan>(`/scans/${id}`);
-    return response.data;
+    const response = await api.get<any>(`/scans/${id}`);
+    return response.data && response.data.scan ? response.data.scan : response.data;
   },
 
   upload: async (patientId: string, imageUri: string): Promise<Scan> => {
@@ -157,25 +157,25 @@ export const scansAPI = {
       name: filename.includes(".") ? filename : `${filename}.${ext}`,
     } as any);
 
-    const response = await api.post<Scan>("/scans/upload", formData, {
+    const response = await api.post<any>("/scans/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
-    return response.data;
+    return response.data && response.data.scan ? response.data.scan : response.data;
   },
 
   process: async (scanId: string): Promise<Scan> => {
-    const response = await api.post<Scan>(`/scans/${scanId}/process`);
-    return response.data;
+    const response = await api.post<any>(`/scans/${scanId}/process`);
+    return response.data && response.data.scan ? response.data.scan : response.data;
   },
 
   update: async (
     id: string,
     data: { result?: string; notes?: string },
   ): Promise<Scan> => {
-    const response = await api.patch<Scan>(`/scans/${id}`, data);
-    return response.data;
+    const response = await api.patch<any>(`/scans/${id}`, data);
+    return response.data && response.data.scan ? response.data.scan : response.data;
   },
 
   delete: async (id: string): Promise<void> => {
@@ -189,7 +189,7 @@ export const scansAPI = {
    */
   getMyScans: async (): Promise<any> => {
     const response = await api.get("/scans/patient/my-scans/list");
-    return response.data;
+    return response.data && response.data.scans ? response.data.scans : response.data;
   },
 
   /**
@@ -199,7 +199,7 @@ export const scansAPI = {
    */
   getScanPatientView: async (scanId: string): Promise<any> => {
     const response = await api.get(`/scans/patient/${scanId}/view`);
-    return response.data;
+    return response.data && response.data.scan ? response.data.scan : response.data;
   },
 
   /**
@@ -211,7 +211,7 @@ export const scansAPI = {
     const response = await api.patch(`/scans/patient/${scanId}/notes`, {
       notes,
     });
-    return response.data;
+    return response.data && response.data.scan ? response.data.scan : response.data;
   },
 };
 

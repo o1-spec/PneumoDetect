@@ -10,10 +10,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "../../components/premium";
 import { useToast } from "../../hooks/useToast";
 
 export default function UploadScreen() {
+  const insets = useSafeAreaInsets();
   const { warning, error: showError, info } = useToast();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -91,7 +93,7 @@ export default function UploadScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Ionicons name="arrow-back" size={24} color="#0066CC" />
@@ -232,7 +234,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",

@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useToast } from "../../../hooks/useToast";
 import { scansAPI } from "../../../services/api.client";
 import { Scan } from "../../../types/api";
@@ -21,6 +22,7 @@ import { dialogManager } from "../../../utils/dialogManager";
 import { PneumoLoader } from "../../../components/premium";
 
 export default function AllScansScreen() {
+  const insets = useSafeAreaInsets();
   const { success, error: showError } = useToast();
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,7 +203,7 @@ export default function AllScansScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
@@ -346,7 +348,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5EA",

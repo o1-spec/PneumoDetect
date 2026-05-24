@@ -12,6 +12,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LineChart } from "react-native-chart-kit";
 import { analyticsAPI } from "../../../services/api.client";
 import {
@@ -25,6 +26,7 @@ import { useToast } from "../../../hooks/useToast";
 const screenWidth = Dimensions.get("window").width;
 
 export default function AnalyticsScreen() {
+  const insets = useSafeAreaInsets();
   const [dashboardData, setDashboardData] = useState<DashboardMetrics | null>(
     null,
   );
@@ -86,7 +88,7 @@ export default function AnalyticsScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
@@ -436,7 +438,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: "#FFFFFF",
-    paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5EA",

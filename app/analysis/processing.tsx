@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
 import { getErrorMessage } from "../../utils/errorHandler";
@@ -103,6 +103,24 @@ export default function ProcessingScreen() {
           <Ionicons name="alert-circle" size={64} color="#D32F2F" />
           <Text style={styles.errorTitle}>Processing Error</Text>
           <Text style={styles.errorMessage}>{error}</Text>
+          
+          <View style={styles.errorButtonsContainer}>
+            <TouchableOpacity
+              style={styles.errorButtonSecondary}
+              onPress={() => router.replace("/(tabs)")}
+            >
+              <Ionicons name="home-outline" size={18} color="#0066CC" />
+              <Text style={styles.errorButtonSecondaryText}>Dashboard</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.errorButtonPrimary}
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back-outline" size={18} color="#FFFFFF" />
+              <Text style={styles.errorButtonPrimaryText}>Go Back</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ) : (
         <View style={styles.content}>
@@ -319,5 +337,55 @@ const styles = StyleSheet.create({
     color: "#636366",
     textAlign: "center",
     marginTop: 8,
+    paddingHorizontal: 16,
+  },
+  errorButtonsContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 32,
+    width: "100%",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  errorButtonPrimary: {
+    flex: 1,
+    maxWidth: 160,
+    backgroundColor: "#0066CC",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  errorButtonSecondary: {
+    flex: 1,
+    maxWidth: 160,
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "#E5E5EA",
+  },
+  errorButtonPrimaryText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  errorButtonSecondaryText: {
+    color: "#0066CC",
+    fontSize: 14,
+    fontWeight: "bold",
   },
 });
