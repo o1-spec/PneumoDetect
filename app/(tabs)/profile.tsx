@@ -39,9 +39,9 @@ export default function ProfileScreen() {
         setUserEmail(authContext.user.email || "");
         setUserPhone(authContext.user.phone || "");
         setUserSpecialization(authContext.user.specialization || "");
+        loadStats();
+        loadNotificationCount();
       }
-      loadStats();
-      loadNotificationCount();
     }, [authContext?.user]),
   );
 
