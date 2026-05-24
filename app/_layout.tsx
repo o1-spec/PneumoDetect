@@ -21,16 +21,18 @@ SplashScreen.preventAutoHideAsync();
 const oldTextRender = (Text as any).render;
 (Text as any).render = function (...args: any[]) {
   const origin = oldTextRender.call(this, ...args);
-  return React.cloneElement(origin, {
-    style: [styles.defaultFont, origin.props.style],
-  });
-};
+  if (!origin) return origin;
+  
+  // Avoid re-cloning and brand-new array reference allocations if the element already has a font family,
+  // which prevents React Navigation / third-party component infinite state update depth loops.
+  const userStyle = origin.props?.style;
+  const flatStyle = StyleSheet.flatten(userStyle);
+  if (flatStyle?.fontFamily) {
+    return origin;
+  }
 
-const oldTextInputRender = (TextInput as any).render;
-(TextInput as any).render = function (...args: any[]) {
-  const origin = oldTextInputRender.call(this, ...args);
   return React.cloneElement(origin, {
-    style: [styles.defaultFont, origin.props.style],
+    style: [styles.defaultFont, userStyle],
   });
 };
 

@@ -162,7 +162,7 @@ export default function ProcessingScreen() {
               completed={progress >= 40}
             />
             <StepItem
-              icon="brain-outline"
+              icon="hardware-chip-outline"
               label="AI Analysis"
               completed={progress >= 60}
             />
