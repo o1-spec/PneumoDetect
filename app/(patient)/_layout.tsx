@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import React from "react";
 import { Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,9 +18,7 @@ export default function PatientLayout() {
     );
   }
 
-  if (!isSignedIn || user?.role !== "PATIENT") {
-    return <Redirect href="/" />;
-  }
+
 
   // Calculate dynamic heights and paddings to prevent clipping on both Android & iOS gesture bars
   const tabHeight = Platform.OS === "ios"

@@ -6,19 +6,110 @@ import {
   PlusJakartaSans_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/plus-jakarta-sans";
-import { Stack } from "expo-router";
+import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
-import { StyleSheet, Text, TextInput } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import "react-native-reanimated";
 import { DialogContainer } from "../components/DialogContainer";
 import { ToastContainer } from "../components/ToastContainer";
-import { AuthProvider } from "../hooks/useAuth";
+import { AuthProvider, useAuth } from "../hooks/useAuth";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 // Font loading completed, layout is ready
+
+function AppContent() {
+  const { user, isLoading, isSignedIn } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+  const isRedirecting = React.useRef(false);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+    const inPatientGroup = segments[0] === "(patient)";
+    const inTabsGroup = segments[0] === "(tabs)";
+    const inOnboardingGroup = segments[0] === "(onboarding)";
+    
+    // Top-level custom clinicians-only layout folders
+    const inPatientsGroup = segments[0] === "patients";
+    const inAnalysisGroup = segments[0] === "analysis";
+
+    const inProtectedGroup = inPatientGroup || inTabsGroup || inOnboardingGroup || inPatientsGroup || inAnalysisGroup;
+
+    // Reset redirect lock once we have arrived at our correct target segment
+    if (!isSignedIn) {
+      if (segments.join("/") === "" || inAuthGroup) {
+        isRedirecting.current = false;
+      }
+    } else {
+      if (!user?.onboardingCompleted) {
+        if (inOnboardingGroup) {
+          isRedirecting.current = false;
+        }
+      } else {
+        if (user?.role === "PATIENT") {
+          if (inPatientGroup) {
+            isRedirecting.current = false;
+          }
+        } else {
+          if (inTabsGroup || inPatientsGroup || inAnalysisGroup) {
+            isRedirecting.current = false;
+          }
+        }
+      }
+    }
+
+    if (!isSignedIn) {
+      // If not signed in and in a protected group, redirect to login screen
+      if (inProtectedGroup && !isRedirecting.current) {
+        isRedirecting.current = true;
+        router.replace("/(auth)/login");
+      }
+    } else {
+      // If signed in:
+      if (!user?.onboardingCompleted) {
+        if (!inOnboardingGroup && !isRedirecting.current) {
+          isRedirecting.current = true;
+          router.replace("/(onboarding)");
+        }
+      } else {
+        // If onboarding is completed, route based on role:
+        if (user?.role === "PATIENT") {
+          if (!inPatientGroup && !isRedirecting.current) {
+            isRedirecting.current = true;
+            router.replace("/(patient)");
+          }
+        } else {
+          // Clinician or Admin
+          if (!inTabsGroup && !inPatientsGroup && !inAnalysisGroup && !isRedirecting.current) {
+            isRedirecting.current = true;
+            router.replace("/(tabs)");
+          }
+        }
+      }
+    }
+  }, [isSignedIn, isLoading, segments.join("/"), user?.role, user?.onboardingCompleted]);
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: "fade",
+      }}
+    >
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(onboarding)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(patient)" />
+      <Stack.Screen name="+not-found" />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -44,19 +135,7 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: "fade",
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="(patient)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <AppContent />
       <ToastContainer />
       <DialogContainer />
     </AuthProvider>

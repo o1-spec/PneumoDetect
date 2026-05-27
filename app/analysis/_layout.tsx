@@ -1,4 +1,4 @@
-import { Redirect, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 import { useAuth } from "../../hooks/useAuth";
@@ -15,13 +15,7 @@ export default function AnalysisLayout() {
     );
   }
 
-  if (!isSignedIn) {
-    return <Redirect href="/" />;
-  }
 
-  if (user?.role === "PATIENT") {
-    return <Redirect href="/(patient)" />;
-  }
 
   return (
     <Stack

@@ -1,4 +1,4 @@
-import { Redirect, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
 import { View } from "react-native";
 import { useAuth } from "../../../hooks/useAuth";
@@ -15,13 +15,7 @@ export default function AdminLayout() {
     );
   }
 
-  if (!isSignedIn) {
-    return <Redirect href="/" />;
-  }
 
-  if (user?.role !== "ADMIN") {
-    return <Redirect href="/(tabs)" />;
-  }
 
   return (
     <Stack
