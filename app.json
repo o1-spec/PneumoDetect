@@ -2,6 +2,7 @@
   "expo": {
     "name": "PneumoDetect",
     "slug": "PneumoDetect",
+    "owner": "o1-spec",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,6 +11,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.o1spec.PneumoDetect",
       "infoPlist": {
         "NSCameraUsageDescription": "Allow PneumoDetect to access your camera to capture chest X-ray images for AI analysis.",
         "NSPhotoLibraryUsageDescription": "Allow PneumoDetect to access your photos to select chest X-ray images for AI analysis.",
