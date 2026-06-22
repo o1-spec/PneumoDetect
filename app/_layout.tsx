@@ -55,7 +55,7 @@ function AppContent() {
         }
       } else {
         if (user?.role === "PATIENT") {
-          if (inPatientGroup) {
+          if (inPatientGroup || inProfileGroup) {
             isRedirecting.current = false;
           }
         } else {
@@ -82,7 +82,7 @@ function AppContent() {
       } else {
         // If onboarding is completed, route based on role:
         if (user?.role === "PATIENT") {
-          if (!inPatientGroup && !isRedirecting.current) {
+          if (!inPatientGroup && !inProfileGroup && !isRedirecting.current) {
             isRedirecting.current = true;
             router.replace("/(patient)");
           }
