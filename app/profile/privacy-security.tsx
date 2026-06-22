@@ -11,6 +11,7 @@ import {
   View,
 } from "react-native";
 import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "../../components/premium";
 import { activityAPI } from "../../services/api.client";
 import { LoginRecord } from "../../types/api";
@@ -23,6 +24,7 @@ import { dialogManager } from "../../utils/dialogManager";
 import { useToast } from "../../hooks/useToast";
 
 export default function SecurityScreen() {
+  const insets = useSafeAreaInsets();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [loadingActivity, setLoadingActivity] = useState(false);
 
@@ -108,7 +110,7 @@ export default function SecurityScreen() {
     <>
       <View style={styles.container}>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
           <View style={styles.headerContent}>
             <TouchableOpacity
               style={styles.backButton}
@@ -383,7 +385,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: COLORS.card,
-    paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,

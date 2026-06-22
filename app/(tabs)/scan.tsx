@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { PneumoLoader } from "../../components/premium";
+import { COLORS } from "../../constants/Theme";
 
 export default function ScanScreen() {
   useEffect(() => {
-    // Redirect to upload screen
     router.replace("/analysis/upload");
   }, []);
 
@@ -21,6 +21,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
 });

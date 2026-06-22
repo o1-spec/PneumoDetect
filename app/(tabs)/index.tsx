@@ -213,26 +213,17 @@ export default function ClinicalWorkspaceScreen() {
                 </TouchableOpacity>
               </View>
             ) : (
-              // Default simulated high-fidelity mock if no scans exist
+              // Empty state when no scans exist
               <View style={styles.heroCard}>
-                <View style={styles.heroCardRow}>
-                  <XrayThumbnail width={120} height={120} />
-                  
-                  <View style={styles.heroInfo}>
-                    <Text style={styles.patientIdLabel}>Patient ID #92041</Text>
-                    <Text style={styles.patientMetaText}>Male, 61 yrs</Text>
-                    
-                    <View style={styles.heroFindingContainer}>
-                      <Text style={[styles.heroFindingText, styles.textDanger]}>
-                        Pneumonia Suspected
-                      </Text>
-                      <Text style={styles.heroConfidenceText}>
-                        92% • High Confidence
-                      </Text>
-                    </View>
+                <View style={styles.emptyHeroContent}>
+                  <View style={styles.emptyHeroIconContainer}>
+                    <Ionicons name="medical-outline" size={40} color={COLORS.primary} />
                   </View>
+                  <Text style={styles.emptyHeroTitle}>No Analyses Yet</Text>
+                  <Text style={styles.emptyHeroSubtitle}>
+                    Upload a chest X-ray to run the first AI screening.
+                  </Text>
                 </View>
-
                 <TouchableOpacity 
                   style={styles.heroActionButton}
                   onPress={() => router.push("/analysis/upload")}
@@ -538,6 +529,35 @@ const styles = StyleSheet.create({
   },
   textSuccess: {
     color: COLORS.success,
+  },
+  emptyHeroContent: {
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  emptyHeroIconContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  emptyHeroTitle: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
+  },
+  emptyHeroSubtitle: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    marginTop: 6,
+    fontWeight: "500",
+    lineHeight: 18,
+    paddingHorizontal: 16,
+    marginBottom: 8,
   },
   emptyQueueState: {
     backgroundColor: COLORS.card,

@@ -3,19 +3,23 @@ import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { patientsAPI } from "../../services/api.client";
 import { Patient } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 import { useToast } from "../../hooks/useToast";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function PatientsScreen() {
+  const insets = useSafeAreaInsets();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,12 +27,10 @@ export default function PatientsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const { error: showError } = useToast();
 
-  // Load patients on mount
   useEffect(() => {
     loadPatients();
   }, []);
 
-  // Filter patients based on search query
   useEffect(() => {
     if (searchQuery.trim()) {
       const filtered = patients.filter(
@@ -74,14 +76,14 @@ export default function PatientsScreen() {
       }
     >
       <View style={styles.avatarContainer}>
-        <Ionicons name="person-circle" size={50} color="#0066CC" />
+        <Ionicons name="person-circle" size={50} color={COLORS.primary} />
       </View>
 
       <View style={styles.patientInfo}>
         <Text style={styles.patientName}>{item.name}</Text>
         <Text style={styles.patientId}>ID: {item.idNumber}</Text>
         <View style={styles.patientMeta}>
-          <Ionicons name="calendar-outline" size={12} color="#8E8E93" />
+          <Ionicons name="calendar-outline" size={12} color={COLORS.textTertiary} />
           <Text style={styles.metaText}>{item.age} years old</Text>
           <Text style={styles.metaText}>• {item.gender}</Text>
         </View>
@@ -94,31 +96,34 @@ export default function PatientsScreen() {
         </View>
       )}
 
-      <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+      <Ionicons name="chevron-forward" size={20} color={COLORS.textTertiary} />
     </TouchableOpacity>
   );
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="person-outline" size={64} color="#C7C7CC" />
+      <View style={styles.emptyIconCircle}>
+        <Ionicons name="person-outline" size={36} color={COLORS.textTertiary} />
+      </View>
       <Text style={styles.emptyText}>
         {searchQuery ? "No patients found" : "No patients yet"}
       </Text>
       <Text style={styles.emptySubtext}>
-        {searchQuery ? "Try a different search" : "Create your first patient"}
+        {searchQuery ? "Try a different search" : "Create your first patient record"}
       </Text>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View>
             <Text style={styles.headerTitle}>Patients</Text>
@@ -136,45 +141,39 @@ export default function PatientsScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Search */}
       <View style={styles.searchContainer}>
-        <Ionicons
-          name="search"
-          size={20}
-          color="#8E8E93"
-          style={styles.searchIcon}
-        />
+        <Ionicons name="search" size={18} color={COLORS.textTertiary} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search by name or ID..."
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={COLORS.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={20} color="#8E8E93" />
+            <Ionicons name="close-circle" size={18} color={COLORS.textTertiary} />
           </TouchableOpacity>
         )}
       </View>
 
-      <FlatList
-        data={filteredPatients}
-        renderItem={renderPatientCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={renderEmpty}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
-
-      {loading && !refreshing && (
-        <View style={styles.loadingOverlay}>
-          <View style={styles.loadingBox}>
-            <Text style={styles.loadingText}>Loading patients...</Text>
-          </View>
+      {loading && !refreshing ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
+      ) : (
+        <FlatList
+          data={filteredPatients}
+          renderItem={renderPatientCard}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={renderEmpty}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
       )}
     </View>
   );
@@ -183,18 +182,18 @@ export default function PatientsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 60,
+    paddingHorizontal: SPACING.md,
     paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -203,62 +202,69 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 20,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: "500",
   },
   addButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
+    ...SHADOWS.light,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: 16,
-    marginVertical: 12,
-    paddingHorizontal: 12,
-    backgroundColor: "#F5F5F7",
-    borderRadius: 12,
-    height: 44,
-    gap: 8,
-  },
-  searchIcon: {
-    marginRight: 4,
+    marginHorizontal: SPACING.md,
+    marginTop: 16,
+    marginBottom: 8,
+    paddingHorizontal: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    height: 46,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    color: "#1C1C1E",
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    fontWeight: "500",
   },
   listContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: SPACING.md,
     paddingVertical: 12,
     flexGrow: 1,
   },
   patientCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   avatarContainer: {
     marginRight: 12,
@@ -268,14 +274,15 @@ const styles = StyleSheet.create({
   },
   patientName: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   patientId: {
     fontSize: 13,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginBottom: 6,
+    fontWeight: "500",
   },
   patientMeta: {
     flexDirection: "row",
@@ -284,10 +291,11 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textTertiary,
+    fontWeight: "500",
   },
   scanBadge: {
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primaryLight,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -296,51 +304,48 @@ const styles = StyleSheet.create({
   },
   scanBadgeText: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#0066CC",
+    fontWeight: "800",
+    color: COLORS.primary,
   },
   scanBadgeLabel: {
     fontSize: 10,
-    color: "#0066CC",
+    color: COLORS.primary,
+    fontWeight: "600",
   },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 32,
+    paddingTop: 80,
+  },
+  emptyIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
   },
   emptyText: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginTop: 16,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginTop: 8,
     textAlign: "center",
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 8,
     textAlign: "center",
+    fontWeight: "500",
+    lineHeight: 20,
   },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+  loadingContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  loadingBox: {
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 12,
-  },
-  loadingText: {
-    fontSize: 14,
-    color: "#1C1C1E",
-    fontWeight: "500",
   },
 });

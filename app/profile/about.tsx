@@ -9,10 +9,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 import { Card } from "../../components/premium";
 
 export default function AboutScreen() {
+  const insets = useSafeAreaInsets();
   const handlePrivacyPolicy = () => {
     router.push("/profile/privacy-policy");
   };
@@ -28,7 +30,7 @@ export default function AboutScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
@@ -120,7 +122,6 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: COLORS.card,
-    paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,

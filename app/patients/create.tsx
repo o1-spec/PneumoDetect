@@ -2,21 +2,25 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useToast } from "../../hooks/useToast";
 import { patientsAPI } from "../../services/api.client";
 import { CreatePatientRequest } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function CreatePatientScreen() {
+  const insets = useSafeAreaInsets();
   const { success, error: showError } = useToast();
   const [formData, setFormData] = useState<CreatePatientRequest>({
     idNumber: "",
@@ -29,7 +33,6 @@ export default function CreatePatientScreen() {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
     if (!formData.idNumber.trim()) {
       newErrors.idNumber = "Patient ID is required";
     }
@@ -39,16 +42,12 @@ export default function CreatePatientScreen() {
     if (!formData.age || formData.age < 0 || formData.age > 150) {
       newErrors.age = "Please enter a valid age";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleCreate = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     try {
       setLoading(true);
       await patientsAPI.create(formData);
@@ -66,12 +65,10 @@ export default function CreatePatientScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0066CC" />
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>New Patient</Text>
         <View style={styles.placeholder} />
@@ -83,97 +80,65 @@ export default function CreatePatientScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Info banner */}
         <View style={styles.infoCard}>
-          <Ionicons name="person-add" size={24} color="#0066CC" />
-          <Text style={styles.infoText}>Add a new patient to the system</Text>
+          <Ionicons name="person-add-outline" size={22} color={COLORS.primary} />
+          <Text style={styles.infoText}>Add a new patient record to the clinical system</Text>
         </View>
 
         <View style={styles.form}>
+          {/* Patient ID */}
           <View style={styles.formGroup}>
             <Text style={styles.label}>
               Patient ID <Text style={styles.required}>*</Text>
             </Text>
-            <View
-              style={[
-                styles.inputContainer,
-                errors.idNumber && styles.inputError,
-              ]}
-            >
-              <Ionicons
-                name="finger-print"
-                size={20}
-                color="#8E8E93"
-                style={styles.inputIcon}
-              />
+            <View style={[styles.inputContainer, errors.idNumber && styles.inputError]}>
+              <Ionicons name="finger-print" size={20} color={COLORS.textTertiary} />
               <TextInput
                 style={styles.input}
                 placeholder="e.g., PT-12345"
-                placeholderTextColor="#C7C7CC"
+                placeholderTextColor={COLORS.textTertiary}
                 value={formData.idNumber}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, idNumber: text })
-                }
+                onChangeText={(text) => setFormData({ ...formData, idNumber: text })}
                 autoCapitalize="characters"
               />
             </View>
-            {errors.idNumber && (
-              <Text style={styles.errorText}>{errors.idNumber}</Text>
-            )}
+            {errors.idNumber && <Text style={styles.errorText}>{errors.idNumber}</Text>}
           </View>
 
+          {/* Full Name */}
           <View style={styles.formGroup}>
             <Text style={styles.label}>
               Full Name <Text style={styles.required}>*</Text>
             </Text>
-            <View
-              style={[styles.inputContainer, errors.name && styles.inputError]}
-            >
-              <Ionicons
-                name="person"
-                size={20}
-                color="#8E8E93"
-                style={styles.inputIcon}
-              />
+            <View style={[styles.inputContainer, errors.name && styles.inputError]}>
+              <Ionicons name="person-outline" size={20} color={COLORS.textTertiary} />
               <TextInput
                 style={styles.input}
                 placeholder="e.g., John Doe"
-                placeholderTextColor="#C7C7CC"
+                placeholderTextColor={COLORS.textTertiary}
                 value={formData.name}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, name: text })
-                }
+                onChangeText={(text) => setFormData({ ...formData, name: text })}
                 autoCapitalize="words"
               />
             </View>
             {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
           </View>
 
+          {/* Age + Gender Row */}
           <View style={styles.row}>
             <View style={[styles.formGroup, { flex: 1 }]}>
               <Text style={styles.label}>
                 Age <Text style={styles.required}>*</Text>
               </Text>
-              <View
-                style={[
-                  styles.inputContainer,
-                  { flex: 1 },
-                  errors.age && styles.inputError,
-                ]}
-              >
-                <Ionicons
-                  name="calendar"
-                  size={20}
-                  color="#8E8E93"
-                  style={styles.inputIcon}
-                />
+              <View style={[styles.inputContainer, errors.age && styles.inputError]}>
+                <Ionicons name="calendar-outline" size={20} color={COLORS.textTertiary} />
                 <TextInput
                   style={styles.input}
                   placeholder="Age"
-                  placeholderTextColor="#C7C7CC"
+                  placeholderTextColor={COLORS.textTertiary}
                   value={formData.age.toString()}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, age: parseInt(text) || 0 })
-                  }
+                  onChangeText={(text) => setFormData({ ...formData, age: parseInt(text) || 0 })}
                   keyboardType="number-pad"
                   maxLength={3}
                 />
@@ -185,47 +150,21 @@ export default function CreatePatientScreen() {
               <Text style={styles.label}>Gender</Text>
               <View style={styles.genderButtons}>
                 <TouchableOpacity
-                  style={[
-                    styles.genderButton,
-                    formData.gender === "MALE" && styles.genderButtonActive,
-                  ]}
+                  style={[styles.genderButton, formData.gender === "MALE" && styles.genderButtonActive]}
                   onPress={() => setFormData({ ...formData, gender: "MALE" })}
                 >
-                  <Ionicons
-                    name="male"
-                    size={20}
-                    color={formData.gender === "MALE" ? "#FFFFFF" : "#0066CC"}
-                  />
-                  <Text
-                    style={[
-                      styles.genderButtonText,
-                      formData.gender === "MALE" &&
-                        styles.genderButtonTextActive,
-                    ]}
-                  >
+                  <Ionicons name="male" size={18} color={formData.gender === "MALE" ? "#FFFFFF" : COLORS.primary} />
+                  <Text style={[styles.genderButtonText, formData.gender === "MALE" && styles.genderButtonTextActive]}>
                     Male
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[
-                    styles.genderButton,
-                    formData.gender === "FEMALE" && styles.genderButtonActive,
-                  ]}
+                  style={[styles.genderButton, formData.gender === "FEMALE" && styles.genderButtonActive]}
                   onPress={() => setFormData({ ...formData, gender: "FEMALE" })}
                 >
-                  <Ionicons
-                    name="female"
-                    size={20}
-                    color={formData.gender === "FEMALE" ? "#FFFFFF" : "#0066CC"}
-                  />
-                  <Text
-                    style={[
-                      styles.genderButtonText,
-                      formData.gender === "FEMALE" &&
-                        styles.genderButtonTextActive,
-                    ]}
-                  >
+                  <Ionicons name="female" size={18} color={formData.gender === "FEMALE" ? "#FFFFFF" : COLORS.primary} />
+                  <Text style={[styles.genderButtonText, formData.gender === "FEMALE" && styles.genderButtonTextActive]}>
                     Female
                   </Text>
                 </TouchableOpacity>
@@ -234,16 +173,17 @@ export default function CreatePatientScreen() {
           </View>
         </View>
 
+        {/* Submit */}
         <TouchableOpacity
           style={[styles.createButton, loading && styles.createButtonDisabled]}
           onPress={handleCreate}
           disabled={loading}
         >
           {loading ? (
-            <Text style={styles.createButtonText}>Creating...</Text>
+            <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
             <>
-              <Ionicons name="person-add" size={20} color="#FFFFFF" />
+              <Ionicons name="person-add-outline" size={20} color="#FFFFFF" />
               <Text style={styles.createButtonText}>Create Patient</Text>
             </>
           )}
@@ -256,26 +196,32 @@ export default function CreatePatientScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 60,
+    paddingHorizontal: SPACING.md,
     paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   placeholder: {
     width: 40,
@@ -284,23 +230,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: SPACING.md,
     paddingVertical: 20,
   },
   infoCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#E3F2FD",
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: COLORS.primaryLight,
+    padding: 14,
+    borderRadius: BORDER_RADIUS.md,
     marginBottom: 24,
     gap: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   infoText: {
     flex: 1,
     fontSize: 14,
-    color: "#0066CC",
-    fontWeight: "500",
+    color: COLORS.primary,
+    fontWeight: "600",
   },
   form: {
     gap: 20,
@@ -311,46 +259,45 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#1C1C1E",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
   },
   required: {
-    color: "#D32F2F",
+    color: COLORS.danger,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 56,
-    gap: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    paddingHorizontal: 14,
+    height: 52,
+    gap: 10,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: COLORS.border,
   },
   inputError: {
-    borderColor: "#D32F2F",
-  },
-  inputIcon: {
-    marginRight: 4,
+    borderColor: COLORS.danger,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    color: "#1C1C1E",
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    fontWeight: "500",
   },
   errorText: {
     fontSize: 12,
-    color: "#D32F2F",
+    color: COLORS.danger,
     marginTop: 4,
+    fontWeight: "600",
   },
   row: {
     flexDirection: "row",
-    gap: 0,
   },
   genderButtons: {
     flexDirection: "row",
     gap: 8,
+    flex: 1,
   },
   genderButton: {
     flex: 1,
@@ -358,33 +305,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    height: 52,
   },
   genderButtonActive: {
-    backgroundColor: "#0066CC",
-    borderColor: "#0066CC",
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   genderButtonText: {
     fontSize: 14,
-    fontWeight: "500",
-    color: "#0066CC",
+    fontWeight: "600",
+    color: COLORS.primary,
   },
   genderButtonTextActive: {
     color: "#FFFFFF",
   },
   createButton: {
     flexDirection: "row",
-    backgroundColor: "#0066CC",
-    paddingVertical: 16,
-    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 15,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     marginBottom: 24,
+    ...SHADOWS.light,
   },
   createButtonDisabled: {
     opacity: 0.6,
@@ -392,6 +341,6 @@ const styles = StyleSheet.create({
   createButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
 });

@@ -17,6 +17,7 @@ import { Scan } from "../../types/api";
 import { formatDate } from "../../utils/dateFormatter";
 import { useToast } from "../../hooks/useToast";
 import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Helper component to render chest X-ray thumbnails or placeholder mockups
 const XrayThumbnail = ({ uri, width = 64, height = 64 }: { uri?: string; width?: number; height?: number }) => {
@@ -48,6 +49,7 @@ const XrayThumbnail = ({ uri, width = 64, height = 64 }: { uri?: string; width?:
 };
 
 export default function CasesScreen() {
+  const insets = useSafeAreaInsets();
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -182,7 +184,7 @@ export default function CasesScreen() {
   return (
     <View style={styles.container}>
       {/* Registry Top Header */}
-      <View style={styles.registryHeaderTitleContainer}>
+      <View style={[styles.registryHeaderTitleContainer, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <Text style={styles.registryHeaderTitle}>Case Registry</Text>
         <Text style={styles.registryHeaderSubtitle}>{scans.length} total patient screening cases</Text>
       </View>
@@ -268,7 +270,6 @@ const styles = StyleSheet.create({
   },
   registryHeaderTitleContainer: {
     paddingHorizontal: 20,
-    paddingTop: 60,
     paddingBottom: 16,
     backgroundColor: COLORS.card,
   },
