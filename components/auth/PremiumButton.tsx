@@ -84,11 +84,11 @@ const styles = StyleSheet.create({
   /* Variants */
   primary: {
     backgroundColor: COLORS.primary,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 6,
+    shadowColor: "rgba(15, 23, 42, 0.1)",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   secondary: {
     backgroundColor: COLORS.primaryLight,

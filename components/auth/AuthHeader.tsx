@@ -1,6 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { COLORS, SPACING } from "../../constants/Theme";
+import { Ionicons } from "@expo/vector-icons";
 
 interface AuthHeaderProps {
   title: string;
@@ -9,25 +10,19 @@ interface AuthHeaderProps {
 }
 
 /**
- * Premium auth screen header with icon and messaging
+ * Professional clinical header with brand identifier and messaging
  */
 export const AuthHeader: React.FC<AuthHeaderProps> = ({
   title,
   subtitle,
-  icon,
 }) => {
   return (
     <View style={styles.container}>
-      {icon && (
-        <View style={styles.iconWrapper}>
-          <View style={styles.iconBackground}>
-            <Ionicons name={icon as any} size={32} color="#0B5ED7" />
-          </View>
-        </View>
-      )}
-
+      <View style={styles.brandRow}>
+        <Ionicons name="pulse-outline" size={14} color={COLORS.primary} style={styles.brandIcon} />
+        <Text style={styles.brandText}>PNEUMODETECT AI</Text>
+      </View>
       <Text style={styles.title}>{title}</Text>
-
       {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
     </View>
   );
@@ -35,34 +30,36 @@ export const AuthHeader: React.FC<AuthHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    marginBottom: 32,
+    alignItems: "flex-start",
+    width: "100%",
+    marginBottom: 20,
+    paddingTop: 8,
   },
-  iconWrapper: {
-    marginBottom: 24,
-  },
-  iconBackground: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#F0F4FF",
-    justifyContent: "center",
+  brandRow: {
+    flexDirection: "row",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#E0E7FF",
+    marginBottom: 6,
+  },
+  brandIcon: {
+    marginRight: 6,
+  },
+  brandText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: COLORS.primary,
+    letterSpacing: 1.5,
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 8,
+    color: COLORS.textPrimary,
+    marginBottom: 6,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 15,
-    color: "#6B7280",
-    textAlign: "center",
-    lineHeight: 22,
-    maxWidth: 280,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+    textAlign: "left",
   },
 });

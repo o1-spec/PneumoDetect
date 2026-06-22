@@ -14,6 +14,7 @@ import { AuthHeader } from "../../components/auth/AuthHeader";
 import { AuthInput } from "../../components/auth/AuthInput";
 import { PremiumButton } from "../../components/auth/PremiumButton";
 import { useToast } from "../../hooks/useToast";
+import { COLORS, SHADOWS, BORDER_RADIUS } from "../../constants/Theme";
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
@@ -56,13 +57,12 @@ export default function ForgotPasswordScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
+          <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
 
         <AuthHeader
-          icon="key-outline"
-          title="Reset Password"
-          subtitle="Enter your email address and we'll send you a reset link"
+          title="Reset Access"
+          subtitle="Enter your email to receive recovery instructions"
         />
 
         <View style={styles.form}>
@@ -92,14 +92,14 @@ export default function ForgotPasswordScreen() {
             style={styles.backToSignIn}
             onPress={() => router.back()}
           >
-            <Ionicons name="chevron-back" size={16} color="#0B5ED7" />
+            <Ionicons name="chevron-back" size={16} color={COLORS.primary} />
             <Text style={styles.backToSignInText}>Back to Sign In</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoBox}>
           <View style={styles.infoIconWrapper}>
-            <Ionicons name="information-circle" size={20} color="#0B5ED7" />
+            <Ionicons name="information-circle" size={20} color={COLORS.primary} />
           </View>
           <Text style={styles.infoText}>
             If an account exists with this email, you will receive password
@@ -114,7 +114,7 @@ export default function ForgotPasswordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
     paddingTop: 50,
   },
   scrollContent: {
@@ -126,13 +126,14 @@ const styles = StyleSheet.create({
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 10,
-    backgroundColor: "#FFFFFF",
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.card,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   form: {
     marginBottom: 32,
@@ -148,16 +149,16 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   backToSignInText: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: "600",
   },
   infoBox: {
     flexDirection: "row",
-    backgroundColor: "#F0F4FF",
+    backgroundColor: COLORS.primaryLight,
     borderWidth: 1,
-    borderColor: "#E0E7FF",
-    borderRadius: 10,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.md,
     padding: 14,
     gap: 12,
   },
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: "#0B5ED7",
+    color: COLORS.primary,
     lineHeight: 19,
     fontWeight: "500",
   },

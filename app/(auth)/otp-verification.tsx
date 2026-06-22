@@ -16,6 +16,7 @@ import { PremiumButton } from "../../components/auth/PremiumButton";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { COLORS, BORDER_RADIUS, SHADOWS } from "../../constants/Theme";
 
 export default function OTPVerificationScreen() {
   const router = useRouter();
@@ -132,12 +133,11 @@ export default function OTPVerificationScreen() {
             router.canGoBack() ? router.back() : router.push("/(auth)/signup")
           }
         >
-          <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
+          <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
 
         <AuthHeader
-          icon="mail-outline"
-          title="Verify Email"
+          title="Verify Access"
           subtitle={`We sent a 6-digit code to ${email}`}
         />
 
@@ -201,7 +201,7 @@ export default function OTPVerificationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
     paddingTop: 50,
   },
   scrollContent: {
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   otpLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#111827",
+    color: COLORS.textPrimary,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -230,22 +230,22 @@ const styles = StyleSheet.create({
   otpInput: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#111827",
-    backgroundColor: "#FFFFFF",
+    color: COLORS.textPrimary,
+    backgroundColor: COLORS.card,
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 10,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.md,
     paddingHorizontal: 16,
     paddingVertical: 12,
     textAlign: "center",
     letterSpacing: 6,
   },
   otpInputError: {
-    borderColor: "#EF4444",
-    backgroundColor: "#FEE2E2",
+    borderColor: COLORS.danger,
+    backgroundColor: COLORS.dangerLight,
   },
   errorText: {
-    color: "#EF4444",
+    color: COLORS.danger,
     fontSize: 12,
     fontWeight: "500",
     marginTop: 8,
@@ -259,18 +259,18 @@ const styles = StyleSheet.create({
   resendText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#6B7280",
+    color: COLORS.textSecondary,
   },
   resendLink: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0B5ED7",
+    color: COLORS.primary,
   },
   resendLinkDisabled: {
     opacity: 0.5,
   },
   resendTimerText: {
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     fontSize: 14,
     fontWeight: "500",
   },

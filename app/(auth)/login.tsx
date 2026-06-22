@@ -105,10 +105,39 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <AuthHeader
-          icon="log-in-outline"
-          title="Welcome Back"
-          subtitle="Sign in to your PneumoDetect account"
+          title="Chest X-Ray Analysis"
+          subtitle="Sign in to access AI-assisted diagnostic tools"
         />
+
+        {/* Radiology Visual Mockup */}
+        <View style={styles.radiologyVisual}>
+          <View style={styles.radiologyScanHeader}>
+            <View style={styles.radiologyScanDot} />
+            <Text style={styles.radiologyScanHeaderText}>SYS-STATUS: ACTIVE // DIAGNOSTIC_ENGINE</Text>
+          </View>
+          <View style={styles.radiologyScanBody}>
+            {/* Styled skeletal/lung-like clinical visual using UI shapes */}
+            <View style={styles.xrayFrame}>
+              <View style={styles.ribCageLeft}>
+                <View style={[styles.ribLine, { width: 22, transform: [{ rotate: "15deg" }] }]} />
+                <View style={[styles.ribLine, { width: 26, transform: [{ rotate: "10deg" }] }]} />
+                <View style={[styles.ribLine, { width: 24, transform: [{ rotate: "5deg" }] }]} />
+              </View>
+              <View style={styles.ribCageCenter}>
+                <View style={styles.spineLine} />
+              </View>
+              <View style={styles.ribCageRight}>
+                <View style={[styles.ribLine, { width: 22, transform: [{ rotate: "-15deg" }] }]} />
+                <View style={[styles.ribLine, { width: 26, transform: [{ rotate: "-10deg" }] }]} />
+                <View style={[styles.ribLine, { width: 24, transform: [{ rotate: "-5deg" }] }]} />
+              </View>
+            </View>
+            <View style={styles.radiologyMeta}>
+              <Text style={styles.radiologyMetaTitle}>PneumoDetect AI Engine</Text>
+              <Text style={styles.radiologyMetaSub}>High-resolution scan screening ready</Text>
+            </View>
+          </View>
+        </View>
 
         <View style={styles.form}>
           <AuthInput
@@ -159,6 +188,22 @@ export default function LoginScreen() {
           >
             Sign In
           </PremiumButton>
+
+          {/* Trust Signals */}
+          <View style={styles.trustSignals}>
+            <View style={styles.trustItem}>
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+              <Text style={styles.trustText}>AI-assisted diagnosis support</Text>
+            </View>
+            <View style={styles.trustItem}>
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+              <Text style={styles.trustText}>Explainable Grad-CAM analysis</Text>
+            </View>
+            <View style={styles.trustItem}>
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+              <Text style={styles.trustText}>Secure encrypted patient data</Text>
+            </View>
+          </View>
 
           {/* Sign Up Link */}
           <View style={styles.signupContainer}>
@@ -233,6 +278,110 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: 14,
     fontWeight: "600",
+  },
+  radiologyVisual: {
+    backgroundColor: "#1E293B",
+    borderRadius: BORDER_RADIUS.md,
+    padding: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+  radiologyScanHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#334155",
+    paddingBottom: 6,
+  },
+  radiologyScanDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.secondary,
+    marginRight: 6,
+  },
+  radiologyScanHeaderText: {
+    fontSize: 9,
+    fontFamily: Platform.OS === "ios" ? "CourierNewPS-BoldMT" : "monospace",
+    color: "#94A3B8",
+    letterSpacing: 1,
+  },
+  radiologyScanBody: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  xrayFrame: {
+    width: 70,
+    height: 44,
+    backgroundColor: "#0F172A",
+    borderRadius: 6,
+    flexDirection: "row",
+    padding: 6,
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "#475569",
+  },
+  ribCageLeft: {
+    alignItems: "flex-end",
+    gap: 4,
+  },
+  ribCageCenter: {
+    width: 2,
+    height: "100%",
+    backgroundColor: "#475569",
+    alignSelf: "center",
+  },
+  ribCageRight: {
+    alignItems: "flex-start",
+    gap: 4,
+  },
+  ribLine: {
+    height: 2,
+    backgroundColor: "#334155",
+    opacity: 0.8,
+  },
+  spineLine: {
+    width: 2,
+    height: "100%",
+    backgroundColor: COLORS.secondary,
+    opacity: 0.6,
+  },
+  radiologyMeta: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  radiologyMetaTitle: {
+    color: "#F8FAFC",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  radiologyMetaSub: {
+    color: "#94A3B8",
+    fontSize: 11,
+    marginTop: 2,
+  },
+  trustSignals: {
+    backgroundColor: "#F8FAFC",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 12,
+    marginBottom: 20,
+    gap: 8,
+  },
+  trustItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  trustText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
   },
   footer: {
     flex: 1,

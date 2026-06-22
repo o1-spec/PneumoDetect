@@ -40,7 +40,8 @@ export default function SignUpScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"CLINICIAN" | "PATIENT">("CLINICIAN");
-  const [specialization, setSpecialization] = useState("");
+  const [subRole, setSubRole] = useState<"Doctor" | "Radiologist" | "Nurse" | "Researcher" | "Patient">("Doctor");
+  const [specialization, setSpecialization] = useState("General Practice");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState<"MALE" | "FEMALE" | "OTHER">("MALE");
   const [showPassword, setShowPassword] = useState(false);
@@ -51,6 +52,22 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { success, error: showError } = useToast();
+
+  const handleSubRoleSelect = (selectedSub: "Doctor" | "Radiologist" | "Nurse" | "Researcher" | "Patient") => {
+    setSubRole(selectedSub);
+    if (selectedSub === "Patient") {
+      setRole("PATIENT");
+    } else {
+      setRole("CLINICIAN");
+      if (selectedSub === "Radiologist") {
+        setSpecialization("Radiology");
+      } else if (selectedSub === "Doctor") {
+        setSpecialization("General Practice");
+      } else {
+        setSpecialization(selectedSub);
+      }
+    }
+  };
 
   const authContext = useContext(AuthContext);
   if (!authContext) {
@@ -171,9 +188,10 @@ export default function SignUpScreen() {
         </TouchableOpacity>
 
         <AuthHeader
-          icon="person-add-outline"
-          title="Create Account"
-          subtitle="Join PneumoDetect AI today"
+          title={subRole === "Patient" ? "Create Patient Account" : "Create Clinical Account"}
+          subtitle={subRole === "Patient"
+            ? "Access your diagnostic reports securely."
+            : "Join healthcare professionals using AI-assisted pneumonia screening."}
         />
 
         <View style={styles.form}>
@@ -214,51 +232,41 @@ export default function SignUpScreen() {
             onChangeText={setPhone}
           />
 
-          <Text style={styles.roleLabel}>Account Type</Text>
-          <View style={styles.roleButtonsContainer}>
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                role === "CLINICIAN" && styles.roleButtonActive,
-              ]}
-              onPress={() => setRole("CLINICIAN")}
-            >
-              <Ionicons
-                name="medical"
-                size={24}
-                color={role === "CLINICIAN" ? COLORS.primary : COLORS.textSecondary}
-              />
-              <Text
-                style={[
-                  styles.roleButtonText,
-                  role === "CLINICIAN" && styles.roleButtonTextActive,
-                ]}
-              >
-                Clinician
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.roleButton,
-                role === "PATIENT" && styles.roleButtonActive,
-              ]}
-              onPress={() => setRole("PATIENT")}
-            >
-              <Ionicons
-                name="person-circle-outline"
-                size={24}
-                color={role === "PATIENT" ? COLORS.primary : COLORS.textSecondary}
-              />
-              <Text
-                style={[
-                  styles.roleButtonText,
-                  role === "PATIENT" && styles.roleButtonTextActive,
-                ]}
-              >
-                Patient
-              </Text>
-            </TouchableOpacity>
+          <Text style={styles.roleLabel}>Account Type / Clinical Role</Text>
+          <View style={styles.subRoleContainer}>
+            {[
+              { id: "Doctor", label: "Doctor", icon: "medical-outline" },
+              { id: "Radiologist", label: "Radiologist", icon: "images-outline" },
+              { id: "Nurse", label: "Nurse", icon: "pulse-outline" },
+              { id: "Researcher", label: "Researcher", icon: "flask-outline" },
+              { id: "Patient", label: "Patient", icon: "person-outline" },
+            ].map((item) => {
+              const isActive = subRole === item.id;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.subRoleCard,
+                    isActive && styles.subRoleCardActive,
+                  ]}
+                  onPress={() => handleSubRoleSelect(item.id as any)}
+                >
+                  <Ionicons
+                    name={item.icon as any}
+                    size={16}
+                    color={isActive ? COLORS.primary : COLORS.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.subRoleCardText,
+                      isActive && styles.subRoleCardTextActive,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {role === "CLINICIAN" && (
@@ -502,34 +510,33 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     marginBottom: 8,
   },
-  roleButtonsContainer: {
+  subRoleContainer: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 4,
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 8,
   },
-  roleButton: {
-    flex: 1,
+  subRoleCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    paddingVertical: 12,
+    gap: 6,
+    paddingVertical: 10,
     paddingHorizontal: 12,
     borderWidth: 1.5,
     borderColor: COLORS.border,
     borderRadius: BORDER_RADIUS.md,
     backgroundColor: COLORS.card,
   },
-  roleButtonActive: {
+  subRoleCardActive: {
     borderColor: COLORS.primary,
     backgroundColor: COLORS.primaryLight,
   },
-  roleButtonText: {
-    fontSize: 14,
+  subRoleCardText: {
+    fontSize: 13,
     fontWeight: "600",
     color: COLORS.textSecondary,
   },
-  roleButtonTextActive: {
+  subRoleCardTextActive: {
     color: COLORS.primary,
   },
   selectorButton: {
