@@ -2,26 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-    Linking,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import {
-    COLORS,
-    InfoCard,
-    PremiumCard,
-    PrimaryButton,
-    SectionHeader,
-} from "../../components/premium/PremiumComponents";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { COLORS, BORDER_RADIUS, SHADOWS } from "../../constants/Theme";
+import { Card } from "../../components/premium";
 import { useToast } from "../../hooks/useToast";
 import { messagesAPI } from "../../services/api.client";
 import { dialogManager } from "../../utils/dialogManager";
 
 export default function ContactScreen() {
+  const insets = useSafeAreaInsets();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,8 +36,7 @@ export default function ContactScreen() {
 
       dialogManager.show({
         title: "Message Sent",
-        message:
-          "Thank you for contacting us. We'll get back to you within 24 hours.",
+        message: "Thank you for contacting us. We'll get back to you within 24 hours.",
         buttons: [
           {
             text: "OK",
@@ -59,21 +55,14 @@ export default function ContactScreen() {
     }
   };
 
-  const handleCall = () => {
-    Linking.openURL("tel:+2347058266972");
-  };
-
   const handleEmail = () => {
-    Linking.openURL("mailto:oluwafemionadokun@gmail.com");
-  };
-
-  const handleWebsite = () => {
-    Linking.openURL("https://pneumoscan.vercel.app");
+    Linking.openURL("mailto:support@pneumodetect.ai");
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
@@ -83,7 +72,7 @@ export default function ContactScreen() {
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Contact Support</Text>
-            <Text style={styles.headerSubtitle}>We're here to help</Text>
+            <Text style={styles.headerSubtitle}>Clinical Help Desk</Text>
           </View>
           <View style={styles.placeholder} />
         </View>
@@ -94,217 +83,82 @@ export default function ContactScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <SectionHeader
-          title="Get in Touch"
-          subtitle="Choose your preferred contact method"
-        />
-        <PremiumCard>
-          <TouchableOpacity style={styles.contactMethod} onPress={handleCall}>
-            <View style={styles.contactLeft}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: COLORS.success + "20" },
-                ]}
-              >
-                <Ionicons name="call" size={24} color={COLORS.success} />
-              </View>
-              <View style={styles.contactText}>
-                <Text
-                  style={[styles.contactLabel, { color: COLORS.textPrimary }]}
-                >
-                  Phone Support
-                </Text>
-                <Text style={[styles.contactValue, { color: COLORS.primary }]}>
-                  +234 705 826 6972
-                </Text>
-                <Text
-                  style={[styles.contactHours, { color: COLORS.textSecondary }]}
-                >
-                  Mon-Fri, 9AM-6PM EST
-                </Text>
-              </View>
-            </View>
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={COLORS.textTertiary}
-            />
-          </TouchableOpacity>
-
-          <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
-
-          <TouchableOpacity style={styles.contactMethod} onPress={handleEmail}>
-            <View style={styles.contactLeft}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: COLORS.primary + "20" },
-                ]}
-              >
+        {/* Support Channels */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Direct Inquiry</Text>
+          <TouchableOpacity style={styles.emailCard} onPress={handleEmail}>
+            <View style={styles.emailCardContent}>
+              <View style={styles.iconContainer}>
                 <Ionicons name="mail" size={24} color={COLORS.primary} />
               </View>
-              <View style={styles.contactText}>
-                <Text
-                  style={[styles.contactLabel, { color: COLORS.textPrimary }]}
-                >
-                  Email Support
-                </Text>
-                <Text
-                  style={[styles.contactValue, { color: COLORS.primary }]}
-                  numberOfLines={1}
-                >
-                  oluwafemionadokun@gmail.com
-                </Text>
-                <Text
-                  style={[styles.contactHours, { color: COLORS.textSecondary }]}
-                >
-                  Response within 24 hours
-                </Text>
+              <View style={styles.emailInfo}>
+                <Text style={styles.emailLabel}>Email Support</Text>
+                <Text style={styles.emailAddress}>support@pneumodetect.ai</Text>
+                <Text style={styles.emailAvailability}>Response within 24 hours</Text>
               </View>
             </View>
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={COLORS.textTertiary}
-            />
-          </TouchableOpacity>
-
-          <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
-
-          <TouchableOpacity
-            style={styles.contactMethod}
-            onPress={handleWebsite}
-          >
-            <View style={styles.contactLeft}>
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: COLORS.warning + "20" },
-                ]}
-              >
-                <Ionicons name="globe" size={24} color={COLORS.warning} />
-              </View>
-              <View style={styles.contactText}>
-                <Text
-                  style={[styles.contactLabel, { color: COLORS.textPrimary }]}
-                >
-                  Website
-                </Text>
-                <Text style={[styles.contactValue, { color: COLORS.primary }]}>
-                  pneumoscan.ai
-                </Text>
-                <Text
-                  style={[styles.contactHours, { color: COLORS.textSecondary }]}
-                >
-                  Visit our website
-                </Text>
-              </View>
-            </View>
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={COLORS.textTertiary}
-            />
-          </TouchableOpacity>
-        </PremiumCard>
-
-        <SectionHeader
-          title="Send Us a Message"
-          subtitle="We'll get back to you soon"
-        />
-        <PremiumCard>
-          <View style={styles.formGroup}>
-            <Text style={[styles.formLabel, { color: COLORS.textPrimary }]}>
-              Subject
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  backgroundColor: COLORS.background,
-                  borderColor: COLORS.border,
-                  color: COLORS.textPrimary,
-                },
-              ]}
-              placeholder="What can we help you with?"
-              placeholderTextColor={COLORS.textTertiary}
-              value={subject}
-              onChangeText={setSubject}
-            />
-          </View>
-
-          <View style={[styles.divider, { backgroundColor: COLORS.border }]} />
-
-          <View style={styles.formGroup}>
-            <Text style={[styles.formLabel, { color: COLORS.textPrimary }]}>
-              Message
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                styles.textArea,
-                {
-                  backgroundColor: COLORS.background,
-                  borderColor: COLORS.border,
-                  color: COLORS.textPrimary,
-                },
-              ]}
-              placeholder="Describe your issue or question..."
-              placeholderTextColor={COLORS.textTertiary}
-              value={message}
-              onChangeText={setMessage}
-              multiline
-              numberOfLines={6}
-              textAlignVertical="top"
-            />
-          </View>
-
-          <View style={styles.formGroup}>
-            <PrimaryButton
-              label={loading ? "Sending..." : "Send Message"}
-              icon="send"
-              onPress={handleSendMessage}
-              disabled={loading}
-            />
-          </View>
-        </PremiumCard>
-
-        <SectionHeader
-          title="Follow Us"
-          subtitle="Stay updated with our latest news"
-        />
-        <View style={styles.socialContainer}>
-          <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: "#1DA1F2" }]}
-          >
-            <Ionicons name="logo-twitter" size={24} color={COLORS.card} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: "#0A66C2" }]}
-          >
-            <Ionicons name="logo-linkedin" size={24} color={COLORS.card} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: "#1877F2" }]}
-          >
-            <Ionicons name="logo-facebook" size={24} color={COLORS.card} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.socialButton, { backgroundColor: "#E4405F" }]}
-          >
-            <Ionicons name="logo-instagram" size={24} color={COLORS.card} />
+            <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
           </TouchableOpacity>
         </View>
 
-        <InfoCard
-          icon="time-outline"
-          title="Response Time"
-          description="We typically respond to messages within 24 hours. For urgent matters, please call our phone support line."
-          type="info"
-        />
+        {/* Message Form */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Send message from workspace</Text>
+          <View style={styles.formCard}>
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Subject</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="What is this regarding?"
+                  placeholderTextColor={COLORS.textTertiary}
+                  value={subject}
+                  onChangeText={setSubject}
+                />
+              </View>
+            </View>
 
-        <View style={{ height: 20 }} />
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Message</Text>
+              <View style={[styles.inputContainer, styles.textAreaContainer]}>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Describe your issue or question in detail..."
+                  placeholderTextColor={COLORS.textTertiary}
+                  value={message}
+                  onChangeText={setMessage}
+                  multiline
+                  numberOfLines={6}
+                  textAlignVertical="top"
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+              onPress={handleSendMessage}
+              disabled={loading}
+            >
+              <Ionicons name="paper-plane-outline" size={18} color="#FFFFFF" />
+              <Text style={styles.submitButtonText}>
+                {loading ? "Sending Message..." : "Submit Support Message"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Support Alert Notice */}
+        <Card elevated="light" style={styles.alertCard}>
+          <View style={styles.alertHeader}>
+            <Ionicons name="information-circle-outline" size={20} color={COLORS.primary} />
+            <Text style={styles.alertTitle}>Response Times</Text>
+          </View>
+          <Text style={styles.alertText}>
+            Our clinical decision support staff reviews messages Monday through Friday. If you are experiencing a technical platform failure or need account recovery support, please reach out via email for priority routing.
+          </Text>
+        </Card>
+
+        <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
   );
@@ -314,14 +168,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    paddingTop: 50,
   },
   header: {
     backgroundColor: COLORS.card,
-    paddingTop: 12,
     paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -333,25 +186,25 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTextContainer: {
     flex: 1,
-    marginHorizontal: 12,
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "800",
     color: COLORS.textPrimary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
   },
   headerSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.textSecondary,
-    fontWeight: "500",
     marginTop: 2,
+    fontWeight: "500",
   },
   placeholder: {
     width: 40,
@@ -360,176 +213,149 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   section: {
-    marginBottom: 28,
+    marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 12,
+    fontWeight: "800",
     color: COLORS.textSecondary,
-    marginBottom: 12,
-    letterSpacing: 0.3,
+    marginBottom: 10,
+    letterSpacing: 0.5,
     textTransform: "uppercase",
   },
-  card: {
-    backgroundColor: COLORS.card,
-    borderRadius: 12,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: COLORS.border,
-  },
-  contactMethod: {
+  emailCard: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
-  contactLeft: {
+  emailCardContent: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 16,
     flex: 1,
   },
   iconContainer: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
-  phoneIcon: {
-    backgroundColor: COLORS.success + "20",
-  },
-  emailIcon: {
-    backgroundColor: COLORS.primary + "20",
-  },
-  webIcon: {
-    backgroundColor: COLORS.warning + "20",
-  },
-  contactText: {
+  emailInfo: {
     flex: 1,
   },
-  contactLabel: {
-    fontSize: 16,
+  emailLabel: {
+    fontSize: 14,
     fontWeight: "700",
     color: COLORS.textPrimary,
-    marginBottom: 4,
   },
-  contactValue: {
-    fontSize: 14,
+  emailAddress: {
+    fontSize: 15,
+    fontWeight: "800",
     color: COLORS.primary,
-    marginBottom: 2,
-    fontWeight: "600",
+    marginTop: 2,
   },
-  contactHours: {
-    fontSize: 12,
+  emailAvailability: {
+    fontSize: 11,
     color: COLORS.textSecondary,
     fontWeight: "500",
+    marginTop: 2,
+  },
+  formCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    ...SHADOWS.light,
   },
   formGroup: {
-    padding: 16,
+    marginBottom: 16,
   },
   formLabel: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 12,
+    fontWeight: "800",
     color: COLORS.textPrimary,
     marginBottom: 8,
     letterSpacing: 0.3,
     textTransform: "uppercase",
   },
-  input: {
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: COLORS.background,
     borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    color: COLORS.textPrimary,
+    paddingHorizontal: 14,
+    height: 50,
     borderWidth: 1,
     borderColor: COLORS.border,
-    fontWeight: "500",
+  },
+  textAreaContainer: {
+    height: 120,
+    paddingVertical: 12,
+    alignItems: "flex-start",
+  },
+  input: {
+    flex: 1,
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
   },
   textArea: {
-    height: 120,
-    paddingTop: 16,
+    height: "100%",
   },
-  sendButton: {
+  submitButton: {
     flexDirection: "row",
     backgroundColor: COLORS.primary,
-    margin: 16,
     borderRadius: 12,
-    padding: 16,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    marginTop: 8,
   },
-  sendButtonDisabled: {
-    backgroundColor: COLORS.textTertiary,
-    shadowOpacity: 0.1,
+  submitButtonDisabled: {
+    opacity: 0.6,
   },
-  sendButtonText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.card,
-    letterSpacing: 0.3,
+  submitButtonText: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: "#FFFFFF",
   },
-  locationInfo: {
-    flexDirection: "row",
+  alertCard: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
     padding: 16,
-    gap: 12,
+    backgroundColor: COLORS.card,
+    ...SHADOWS.light,
   },
-  locationIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.primary + "15",
-    justifyContent: "center",
+  alertHeader: {
+    flexDirection: "row",
     alignItems: "center",
-  },
-  locationText: {
-    flex: 1,
-  },
-  locationName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
+    gap: 8,
     marginBottom: 8,
   },
-  locationAddress: {
+  alertTitle: {
     fontSize: 14,
+    fontWeight: "800",
+    color: COLORS.primary,
+  },
+  alertText: {
+    fontSize: 13,
     color: COLORS.textSecondary,
     lineHeight: 20,
-    fontWeight: "500",
-  },
-  socialContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 16,
-    marginBottom: 28,
-  },
-  socialButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 3,
+    fontWeight: "600",
   },
   bottomSpacer: {
     height: 40,

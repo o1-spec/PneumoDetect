@@ -2,45 +2,15 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
-    Linking,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
-const TEAM_MEMBERS = [
-  {
-    name: "Onadokun Oluwafemi",
-    role: "AI Lead, Product Manager, Lead Developer & Chief Medical Officer",
-    icon: "person-circle",
-    color: "#0066CC",
-  },
-];
-
-const FEATURES = [
-  {
-    icon: "flash",
-    title: "Fast Analysis",
-    description: "Get results in seconds with our advanced AI model",
-  },
-  {
-    icon: "shield-checkmark",
-    title: "HIPAA Compliant",
-    description: "Your data is secure and meets healthcare standards",
-  },
-  {
-    icon: "analytics",
-    title: "94.5% Accuracy",
-    description: "Trained on thousands of validated chest X-rays",
-  },
-  {
-    icon: "people",
-    title: "Team Collaboration",
-    description: "Share and review scans with your medical team",
-  },
-];
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
+import { Card } from "../../components/premium";
 
 export default function AboutScreen() {
   const handlePrivacyPolicy = () => {
@@ -57,124 +27,49 @@ export default function AboutScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>About</Text>
-            <Text style={styles.headerSubtitle}>PneumoScan AI</Text>
+            <Text style={styles.headerSubtitle}>App Information</Text>
           </View>
           <View style={styles.placeholder} />
         </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* App Title & Logo */}
         <View style={styles.appInfoSection}>
           <View style={styles.appIcon}>
-            <Ionicons name="medical" size={48} color="#0066CC" />
+            <Ionicons name="medical-outline" size={48} color={COLORS.primary} />
           </View>
-          <Text style={styles.appName}>PneumoScan AI</Text>
-          <Text style={styles.appVersion}>Version 1.0.0</Text>
+          <Text style={styles.appName}>PneumoDetect AI</Text>
+          <Text style={styles.appVersion}>Version 1.0</Text>
           <Text style={styles.appTagline}>
-            AI-Powered Pneumonia Detection System
+            AI-powered pneumonia detection for chest X-ray screening.
           </Text>
         </View>
 
+        {/* Clinical Intent Notice */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Our Mission</Text>
-          <View style={styles.card}>
-            <Text style={styles.missionText}>
-              PneumoScan AI is dedicated to revolutionizing pneumonia diagnosis
-              through cutting-edge artificial intelligence. Our mission is to
-              provide healthcare professionals with fast, accurate, and reliable
-              diagnostic tools to improve patient outcomes worldwide.
+          <Card elevated="light" style={styles.card}>
+            <Text style={styles.bodyText}>
+              Developed as a clinical decision support platform.
             </Text>
-          </View>
+          </Card>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Key Features</Text>
-          <View style={styles.card}>
-            {FEATURES.map((feature, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.featureItem,
-                  index === FEATURES.length - 1 && styles.lastItem,
-                ]}
-              >
-                <View style={styles.featureIcon}>
-                  <Ionicons
-                    name={feature.icon as any}
-                    size={24}
-                    color="#0066CC"
-                  />
-                </View>
-                <View style={styles.featureText}>
-                  <Text style={styles.featureTitle}>{feature.title}</Text>
-                  <Text style={styles.featureDescription}>
-                    {feature.description}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Our Team</Text>
-          <View style={styles.teamGrid}>
-            {TEAM_MEMBERS.map((member, index) => (
-              <View key={index} style={styles.teamCard}>
-                <View
-                  style={[
-                    styles.teamIcon,
-                    { backgroundColor: `${member.color}15` },
-                  ]}
-                >
-                  <Ionicons
-                    name={member.icon as any}
-                    size={28}
-                    color={member.color}
-                  />
-                </View>
-                <Text style={styles.teamName}>{member.name}</Text>
-                <Text style={styles.teamRole}>{member.role}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Our Impact</Text>
-          <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>10,000+</Text>
-              <Text style={styles.statLabel}>Scans Analyzed</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>94.5%</Text>
-              <Text style={styles.statLabel}>Accuracy Rate</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>500+</Text>
-              <Text style={styles.statLabel}>Healthcare Providers</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Text style={styles.statValue}>50+</Text>
-              <Text style={styles.statLabel}>Countries Served</Text>
-            </View>
-          </View>
-        </View>
-
+        {/* Legal Links Card */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Legal & Compliance</Text>
-          <View style={styles.card}>
+          <View style={styles.menuCard}>
             <TouchableOpacity
               style={styles.legalItem}
               onPress={handlePrivacyPolicy}
@@ -182,32 +77,33 @@ export default function AboutScreen() {
               <Ionicons
                 name="document-text-outline"
                 size={20}
-                color="#0066CC"
+                color={COLORS.primary}
               />
               <Text style={styles.legalText}>Privacy Policy</Text>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.legalItem} onPress={handleTerms}>
-              <Ionicons name="shield-outline" size={20} color="#0066CC" />
+              <Ionicons name="shield-outline" size={20} color={COLORS.primary} />
               <Text style={styles.legalText}>Terms of Service</Text>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.legalItem} onPress={handleLicense}>
-              <Ionicons name="key-outline" size={20} color="#0066CC" />
+              <Ionicons name="key-outline" size={20} color={COLORS.primary} />
               <Text style={styles.legalText}>Open Source Licenses</Text>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
             </TouchableOpacity>
           </View>
         </View>
 
+        {/* Copyright */}
         <View style={styles.copyright}>
           <Text style={styles.copyrightText}>
-            © 2024 PneumoScan AI. All rights reserved.
+            © 2026 PneumoDetect AI. All rights reserved.
           </Text>
           <Text style={styles.copyrightSubtext}>
-            Made with ❤️ for healthcare professionals
+            Clinical Decision Support System
           </Text>
         </View>
 
@@ -220,19 +116,15 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingTop: 60,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -244,7 +136,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -254,13 +146,15 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 2,
+    fontWeight: "500",
   },
   placeholder: {
     width: 40,
@@ -269,175 +163,92 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   appInfoSection: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     alignItems: "center",
-    paddingVertical: 40,
+    paddingVertical: 36,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
     marginBottom: 24,
+    ...SHADOWS.light,
   },
   appIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 24,
-    backgroundColor: "#E3F2FD",
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
+    ...SHADOWS.light,
   },
   appName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 22,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
     marginBottom: 4,
+    letterSpacing: -0.5,
   },
   appVersion: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
+    fontWeight: "700",
     marginBottom: 8,
   },
   appTagline: {
     fontSize: 14,
-    color: "#636366",
+    color: COLORS.textSecondary,
     textAlign: "center",
     paddingHorizontal: 32,
+    fontWeight: "600",
+    lineHeight: 20,
   },
   section: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     marginBottom: 24,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#8E8E93",
+    fontSize: 12,
+    fontWeight: "800",
+    color: COLORS.textSecondary,
     marginBottom: 12,
-    marginLeft: 4,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.card,
     padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...SHADOWS.light,
   },
-  missionText: {
-    fontSize: 15,
-    color: "#636366",
-    lineHeight: 24,
-    textAlign: "justify",
-  },
-  featureItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
-  },
-  lastItem: {
-    borderBottomWidth: 0,
-  },
-  featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#E3F2FD",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
-  },
-  featureText: {
-    flex: 1,
-    paddingTop: 4,
-  },
-  featureTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1C1C1E",
-    marginBottom: 4,
-  },
-  featureDescription: {
+  bodyText: {
     fontSize: 14,
-    color: "#8E8E93",
-    lineHeight: 20,
-  },
-  teamGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  teamCard: {
-    width: "48%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  teamIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  teamName: {
-    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 22,
+    textAlign: "center",
     fontWeight: "600",
-    color: "#1C1C1E",
-    textAlign: "center",
-    marginBottom: 4,
   },
-  teamRole: {
-    fontSize: 12,
-    color: "#8E8E93",
-    textAlign: "center",
-  },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-  },
-  statCard: {
-    width: "48%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statValue: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#0066CC",
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#8E8E93",
-    textAlign: "center",
+  menuCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   legalItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    padding: 16,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F5F5F7",
+    borderBottomColor: COLORS.border,
   },
   legalText: {
     flex: 1,
     fontSize: 15,
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
+    fontWeight: "600",
   },
   copyright: {
     alignItems: "center",
@@ -445,12 +256,14 @@ const styles = StyleSheet.create({
   },
   copyrightText: {
     fontSize: 13,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
+    fontWeight: "600",
     marginBottom: 4,
   },
   copyrightSubtext: {
-    fontSize: 12,
-    color: "#C7C7CC",
+    fontSize: 11,
+    color: COLORS.textTertiary,
+    fontWeight: "600",
   },
   bottomSpacer: {
     height: 40,

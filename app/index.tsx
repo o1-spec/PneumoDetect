@@ -94,7 +94,7 @@ export default function WelcomeScreen() {
       <View style={styles.footer}>
         <Ionicons name="shield-checkmark" size={16} color={COLORS.primary} />
         <Text style={styles.footerText}>
-          Secure • HIPAA Encrypted Data
+          Secure Encrypted Patient Data
         </Text>
       </View>
     </LinearGradient>

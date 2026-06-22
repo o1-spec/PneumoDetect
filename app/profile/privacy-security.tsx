@@ -10,14 +10,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  ActionItem,
-  COLORS,
-  InfoCard,
-  PremiumCard,
-  SectionHeader,
-  SettingRow,
-} from "../../components/premium/PremiumComponents";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
+import { Card } from "../../components/premium";
 import { activityAPI } from "../../services/api.client";
 import { LoginRecord } from "../../types/api";
 import {
@@ -28,11 +22,7 @@ import {
 import { dialogManager } from "../../utils/dialogManager";
 import { useToast } from "../../hooks/useToast";
 
-export default function PrivacySecurityScreen() {
-  const [dataEncryption, setDataEncryption] = useState(true);
-  const [loginAlerts, setLoginAlerts] = useState(true);
-  const [sessionTimeout, setSessionTimeout] = useState(true);
-  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
+export default function SecurityScreen() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [loadingActivity, setLoadingActivity] = useState(false);
 
@@ -92,9 +82,9 @@ export default function PrivacySecurityScreen() {
         })
         .join("\n\n");
 
-      dialogManager.show({ title: "Recent Activity", message: activityText });
+      dialogManager.show({ title: "Recent Activity Logs", message: activityText });
     } catch (error) {
-      showError("Failed to load activity history. Please try again.");
+      showError("Failed to load activity history");
     } finally {
       setLoadingActivity(false);
     }
@@ -102,36 +92,13 @@ export default function PrivacySecurityScreen() {
 
   const handleDataDeletion = () => {
     dialogManager.show({
-      title: "Request Data Deletion",
-      message: "This will permanently delete all your data from our servers. This action cannot be undone.\n\nAre you sure you want to proceed?",
+      title: "Request Account Deletion",
+      message: "To delete your clinical account and permanently remove your records, please contact our support desk directly at support@pneumodetect.ai or file an issue in the Support panel.",
       buttons: [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Delete My Data",
-          style: "destructive",
-          onPress: () =>
-            dialogManager.show({
-              title: "Confirmation Required",
-              message: "We've sent a confirmation email to verify this request.",
-            })
-        },
-      ],
-    });
-  };
-
-  const handleDownloadData = () => {
-    dialogManager.show({
-      title: "Download Your Data",
-      message: "We'll prepare a copy of all your data and send it to your email within 24 hours.",
-      buttons: [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Request Download",
-          onPress: () =>
-            dialogManager.show({
-              title: "Request Sent",
-              message: "You'll receive an email when your data is ready.",
-            })
+          text: "Contact Support",
+          onPress: () => router.push("/profile/contact"),
         },
       ],
     });
@@ -140,6 +107,7 @@ export default function PrivacySecurityScreen() {
   return (
     <>
       <View style={styles.container}>
+        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerContent}>
             <TouchableOpacity
@@ -149,8 +117,8 @@ export default function PrivacySecurityScreen() {
               <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
             </TouchableOpacity>
             <View style={styles.headerTextContainer}>
-              <Text style={styles.headerTitle}>Privacy & Security</Text>
-              <Text style={styles.headerSubtitle}>Protect your account</Text>
+              <Text style={styles.headerTitle}>Security</Text>
+              <Text style={styles.headerSubtitle}>Account Access Settings</Text>
             </View>
             <View style={styles.placeholder} />
           </View>
@@ -161,108 +129,95 @@ export default function PrivacySecurityScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <InfoCard
-            icon="shield-checkmark-outline"
-            title="Your Account is Secure"
-            description="End-to-end encryption protects all your data. Manage your security settings below."
-            type="success"
-          />
+          {/* Security Summary Alert */}
+          <Card elevated="light" style={styles.summaryCard}>
+            <View style={styles.summaryHeader}>
+              <Ionicons name="shield-checkmark" size={20} color={COLORS.success} />
+              <Text style={styles.summaryTitle}>Clinical Access Safeguards</Text>
+            </View>
+            <Text style={styles.summaryText}>
+              All scan data and patient credentials are secured locally. Configure passwords and MFA settings below.
+            </Text>
+          </Card>
 
+          {/* Access Actions Grid */}
           <View style={styles.section}>
-            <SectionHeader
-              title="Password & Authentication"
-              subtitle="Manage your login security"
-            />
-            <PremiumCard>
-              <ActionItem
-                icon="key-outline"
-                label="Change Password"
-                subtitle="Update your login password"
+            <Text style={styles.sectionTitle}>Sign In Credentials</Text>
+            <View style={styles.menuCard}>
+              
+              {/* Change Password */}
+              <TouchableOpacity
+                style={styles.menuItem}
                 onPress={() => setShowPasswordModal(true)}
-              />
-              <ActionItem
-                icon="shield-outline"
-                label="Two-Factor Authentication"
-                subtitle="Add an extra layer of security"
-                onPress={() => setTwoFactorAuth(!twoFactorAuth)}
-                isLast={true}
-              />
-            </PremiumCard>
+              >
+                <View style={styles.itemLeft}>
+                  <Ionicons name="key-outline" size={22} color={COLORS.primary} />
+                  <View>
+                    <Text style={styles.itemTitle}>Change Password</Text>
+                    <Text style={styles.itemSubtitle}>Update credentials regularly</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
+              </TouchableOpacity>
+
+              {/* Two-Factor Authentication (Disabled placeholder) */}
+              <View style={[styles.menuItem, styles.disabledItem]}>
+                <View style={styles.itemLeft}>
+                  <Ionicons name="shield-outline" size={22} color={COLORS.textTertiary} />
+                  <View>
+                    <Text style={[styles.itemTitle, styles.disabledText]}>Two-Factor Authentication — Coming soon</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
           </View>
 
+          {/* Data & Logs Settings */}
           <View style={styles.section}>
-            <SectionHeader
-              title="Security Settings"
-              subtitle="Additional security options"
-            />
-            <PremiumCard>
-              <SettingRow
-                icon="lock-closed-outline"
-                label="Data Encryption"
-                description="End-to-end encryption is always enabled"
-                value={dataEncryption}
-                onValueChange={() => {}}
-                iconColor={COLORS.success}
-              />
-              <SettingRow
-                icon="notifications-outline"
-                label="Login Alerts"
-                description="Notify me of new login attempts"
-                value={loginAlerts}
-                onValueChange={setLoginAlerts}
-                iconColor={COLORS.warning}
-                isLast={false}
-              />
-              <SettingRow
-                icon="timer-outline"
-                label="Auto Session Timeout"
-                description="Log me out after 30 minutes of inactivity"
-                value={sessionTimeout}
-                onValueChange={setSessionTimeout}
-                iconColor={COLORS.warning}
-                isLast={true}
-              />
-            </PremiumCard>
-          </View>
-
-          <View style={styles.section}>
-            <SectionHeader title="Privacy & Data" subtitle="Manage your data" />
-            <PremiumCard>
-              <ActionItem
-                icon="download-outline"
-                label="Download Your Data"
-                subtitle="Get a copy of all your data"
-                onPress={handleDownloadData}
-              />
-              <ActionItem
-                icon="document-text-outline"
-                label="View Activity Log"
-                subtitle="See your login history"
+            <Text style={styles.sectionTitle}>Clinical Logs & Account Removal</Text>
+            <View style={styles.menuCard}>
+              
+              {/* Active Sessions */}
+              <TouchableOpacity
+                style={styles.menuItem}
                 onPress={handleViewActivityLog}
-                isLast={false}
-              />
-              <ActionItem
-                icon="trash-outline"
-                label="Delete My Data"
-                subtitle="Permanently remove all information"
+              >
+                <View style={styles.itemLeft}>
+                  <Ionicons name="document-text-outline" size={22} color={COLORS.primary} />
+                  <View>
+                    <Text style={styles.itemTitle}>Recent Activity Logs</Text>
+                    <Text style={styles.itemSubtitle}>View your authentication logs</Text>
+                  </View>
+                </View>
+                {loadingActivity ? (
+                  <View style={{ marginRight: 4 }}>
+                    <Text style={{ fontSize: 12, color: COLORS.textTertiary }}>Loading...</Text>
+                  </View>
+                ) : (
+                  <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
+                )}
+              </TouchableOpacity>
+
+              {/* Delete Account */}
+              <TouchableOpacity
+                style={styles.menuItem}
                 onPress={handleDataDeletion}
-                isDangerous={true}
-                isLast={true}
-              />
-            </PremiumCard>
+              >
+                <View style={styles.itemLeft}>
+                  <Ionicons name="trash-outline" size={22} color="#EF4444" />
+                  <View>
+                    <Text style={[styles.itemTitle, { color: "#EF4444" }]}>Delete Account Request</Text>
+                    <Text style={styles.itemSubtitle}>Contact clinical support desk</Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <InfoCard
-            icon="shield-checkmark-outline"
-            title="HIPAA & GDPR Compliant"
-            description="Your data is protected with bank-level encryption and stored in secure, compliant servers. We follow strict privacy guidelines."
-            type="info"
-          />
-
-          <View style={{ height: 20 }} />
         </ScrollView>
       </View>
 
+      {/* Change Password Modal */}
       <Modal
         visible={showPasswordModal}
         animationType="slide"
@@ -278,7 +233,7 @@ export default function PrivacySecurityScreen() {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <View style={styles.modalTitleContainer}>
-                <Ionicons name="key-outline" size={24} color="#0066CC" />
+                <Ionicons name="key-outline" size={22} color={COLORS.primary} />
                 <Text style={styles.modalTitle}>Change Password</Text>
               </View>
               <TouchableOpacity
@@ -425,42 +380,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    paddingTop: 50,
   },
   header: {
     backgroundColor: COLORS.card,
-    paddingTop: 12,
+    paddingTop: 60,
     paddingBottom: 16,
-    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingHorizontal: 16,
   },
   backButton: {
     width: 40,
     height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTextContainer: {
     flex: 1,
-    marginHorizontal: 12,
+    alignItems: "center",
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "800",
     color: COLORS.textPrimary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
   },
   headerSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.textSecondary,
-    fontWeight: "500",
     marginTop: 2,
+    fontWeight: "500",
   },
   placeholder: {
     width: 40,
@@ -469,12 +426,85 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
+  },
+  summaryCard: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    marginBottom: 24,
+    backgroundColor: COLORS.card,
+    ...SHADOWS.light,
+  },
+  summaryHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  summaryTitle: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: COLORS.success,
+  },
+  summaryText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+    fontWeight: "600",
   },
   section: {
-    marginBottom: 28,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: COLORS.textSecondary,
+    marginBottom: 10,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+  menuCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  disabledItem: {
+    backgroundColor: COLORS.background,
+    opacity: 0.8,
+  },
+  disabledText: {
+    color: COLORS.textTertiary,
+  },
+  itemLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    fontWeight: "700",
+  },
+  itemSubtitle: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+    marginTop: 2,
   },
   // Modal Styles
   modalContainer: {
@@ -510,7 +540,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "800",
     color: COLORS.textPrimary,
     letterSpacing: -0.3,
@@ -530,8 +560,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   formLabel: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 12,
+    fontWeight: "800",
     color: COLORS.textPrimary,
     marginBottom: 8,
     letterSpacing: 0.3,
@@ -543,16 +573,16 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingHorizontal: 16,
-    height: 56,
+    height: 50,
     gap: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
   modalInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.textPrimary,
-    fontWeight: "500",
+    fontWeight: "600",
   },
   requirementsBox: {
     backgroundColor: COLORS.background,
@@ -563,22 +593,16 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
   },
   requirementsTitle: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "800",
     color: COLORS.textPrimary,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   requirementText: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.textSecondary,
     marginBottom: 6,
-    fontWeight: "500",
-  },
-  requirementMet: {
-    color: COLORS.success,
-  },
-  requirementNotMet: {
-    color: COLORS.warning,
+    fontWeight: "600",
   },
   modalActions: {
     flexDirection: "row",
@@ -592,14 +616,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderColor: COLORS.border,
   },
   cancelButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
     color: COLORS.textSecondary,
     letterSpacing: 0.3,
@@ -608,13 +632,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.primary,
     borderRadius: 12,
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
   },
   submitButtonText: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "800",
     color: COLORS.card,
     letterSpacing: 0.3,
   },

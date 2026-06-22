@@ -10,14 +10,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MenuItem } from "../../components/MenuItem";
-import { StatCard } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import { analyticsAPI, notificationsAPI } from "../../services/api.client";
+import { analyticsAPI, scansAPI } from "../../services/api.client";
 import { AnalyticsStats } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 import { dialogManager } from "../../utils/dialogManager";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function ProfileScreen() {
   const authContext = useContext(AuthContext);
@@ -25,7 +26,8 @@ export default function ProfileScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<AnalyticsStats | null>(null);
-  const [notificationCount, setNotificationCount] = useState(0);
+  const [lastActivity, setLastActivity] = useState<string>("No activity yet");
+  const insets = useSafeAreaInsets();
 
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
@@ -40,7 +42,7 @@ export default function ProfileScreen() {
         setUserPhone(authContext.user.phone || "");
         setUserSpecialization(authContext.user.specialization || "");
         loadStats();
-        loadNotificationCount();
+        loadLastActivity();
       }
     }, [authContext?.user]),
   );
@@ -50,62 +52,52 @@ export default function ProfileScreen() {
       const data = await analyticsAPI.getStats();
       setStats(data);
     } catch (err) {
-      // Silent fail for stats
+      setStats(null);
     }
   };
 
-  const loadNotificationCount = async () => {
+  const loadLastActivity = async () => {
     try {
-      const notifications = await notificationsAPI.getAll();
-      const unreadCount = notifications.filter((n) => !n.read).length;
-      setNotificationCount(unreadCount);
-    } catch (err) {
-      // Silent fail - keep count as 0
-      setNotificationCount(0);
+      const scans = await scansAPI.getAll();
+      if (scans && scans.length > 0) {
+        const sorted = [...scans].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const latest = sorted[0];
+        const date = new Date(latest.createdAt);
+        const today = new Date();
+        
+        if (date.toDateString() === today.toDateString()) {
+          setLastActivity("Today");
+        } else {
+          setLastActivity(date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric"
+          }));
+        }
+      } else {
+        setLastActivity("No activity yet");
+      }
+    } catch (error) {
+      setLastActivity("No activity yet");
     }
   };
 
   const handleLogout = () => {
     dialogManager.show({
       title: "Logout",
-      message: "Are you sure you want to logout from PneumoDetect?",
+      message: "Are you sure you want to sign out from PneumoDetect?",
       buttons: [
         {
           text: "Cancel",
           style: "cancel",
         },
         {
-          text: "Logout",
+          text: "Sign Out",
           style: "destructive",
           onPress: async () => {
             try {
               await authContext?.logout();
-              warning("Logged out successfully");
-            } catch (err) {
-              showError(getErrorMessage(err));
-            }
-          },
-        },
-      ],
-    });
-  };
-
-  const handleClearSession = () => {
-    dialogManager.show({
-      title: "Clear Session",
-      message: "This will delete all stored data (token, user info, onboarding flag) for fresh testing. You'll be logged out.",
-      buttons: [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Clear All Data",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await authContext?.clearSession();
-              success("Session cleared! Starting fresh...");
+              warning("Signed out successfully");
             } catch (err) {
               showError(getErrorMessage(err));
             }
@@ -132,123 +124,65 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleDownloadReports = () => {
-    dialogManager.show({
-      title: "Download Reports",
-      message: "Download all your medical reports?",
-      buttons: [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Download",
-          onPress: () =>
-            success("Reports will be downloaded shortly"),
-        },
-      ]
-    });
-  };
+  const displaySpecialization = authContext?.user?.specialization || "Internal Medicine";
 
   return (
     <>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.topSpacer} />
-
-        <View style={styles.profileHeader}>
+        {/* Profile Card Header */}
+        <View style={[styles.profileHeader, { paddingTop: insets.top > 0 ? insets.top + 16 : 32 }]}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person" size={60} color="#FFFFFF" />
+            <Ionicons name="person-outline" size={44} color="#FFFFFF" />
           </View>
           <Text style={styles.userName}>
-            {authContext?.user?.name || "User"}
+            {authContext?.user?.name || "Dr. Oluwafemi"}
           </Text>
-          <Text style={styles.userEmail}>{authContext?.user?.email || ""}</Text>
-          {authContext?.user?.role && (
-            <View style={styles.roleBadge}>
-              <Ionicons name="shield-checkmark" size={14} color="#FFFFFF" />
-              <Text style={styles.roleText}>
-                {authContext.user.role === "ADMIN"
-                  ? "Administrator"
-                  : authContext.user.role === "CLINICIAN"
-                    ? "Clinician"
-                    : "Patient"}
-              </Text>
+          <Text style={styles.userEmail}>
+            {displaySpecialization}
+          </Text>
+          {authContext?.user?.email ? (
+            <Text style={styles.userEmailSub}>{authContext.user.email}</Text>
+          ) : null}
+        </View>
+
+        {/* Clinical Activity Summary */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Clinical Activity Summary</Text>
+          <View style={styles.activitySummaryCard}>
+            <View style={styles.activityRow}>
+              <Text style={styles.activityLabel}>Cases Reviewed</Text>
+              <Text style={styles.activityValue}>{stats?.completedScans || 0}</Text>
             </View>
-          )}
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.statsGrid}>
-            <StatCard
-              icon="document-text-outline"
-              title="Total Scans"
-              value={stats?.totalScans || 0}
-              color="#0B5ED7"
-              backgroundColor="rgba(11, 94, 215, 0.08)"
-            />
-            <StatCard
-              icon="checkmark-circle-outline"
-              title="Completed"
-              value={stats?.completedScans || 0}
-              color="#10B981"
-              backgroundColor="rgba(16, 185, 129, 0.08)"
-            />
-          </View>
-          <View style={styles.statsGrid}>
-            <StatCard
-              icon="analytics-outline"
-              title="Avg Confidence"
-              value={`${Math.round(stats?.averageConfidence || 0)}%`}
-              color="#F59E0B"
-              backgroundColor="rgba(245, 158, 11, 0.08)"
-            />
+            <View style={styles.activityDivider} />
+            <View style={styles.activityRow}>
+              <Text style={styles.activityLabel}>Scans Analyzed</Text>
+              <Text style={styles.activityValue}>{stats?.totalScans || 0}</Text>
+            </View>
+            <View style={styles.activityDivider} />
+            <View style={styles.activityRow}>
+              <Text style={styles.activityLabel}>Last Activity</Text>
+              <Text style={styles.activityValueText}>{lastActivity}</Text>
+            </View>
           </View>
         </View>
 
+        {/* Settings Menu List */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
           <View style={styles.menuCard}>
             <MenuItem
               icon="person-outline"
-              label="Edit Profile"
+              label="Account"
               onPress={() => setShowEditModal(true)}
             />
             <MenuItem
-              icon="notifications-outline"
-              label="Notifications"
-              badge={
-                notificationCount > 0 ? String(notificationCount) : undefined
-              }
-              onPress={() => router.push("/profile/notifications")}
-            />
-            <MenuItem
               icon="lock-closed-outline"
-              label="Privacy & Security"
+              label="Security"
               onPress={() => router.push("/profile/privacy-security")}
             />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
-          <View style={styles.menuCard}>
-            <MenuItem
-              icon="download-outline"
-              label="Download Reports"
-              onPress={handleDownloadReports}
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
-          <View style={styles.menuCard}>
             <MenuItem
               icon="help-circle-outline"
-              label="Help Center"
+              label="Support"
               onPress={() => router.push("/profile/help-center")}
-            />
-            <MenuItem
-              icon="mail-outline"
-              label="Contact Support"
-              onPress={() => router.push("/profile/contact")}
             />
             <MenuItem
               icon="information-circle-outline"
@@ -258,22 +192,16 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        {/* Sign Out Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out-outline" size={20} color="#D32F2F" />
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>Sign Out</Text>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          style={styles.clearSessionButton}
-          onPress={handleClearSession}
-        >
-          <Ionicons name="trash-bin-outline" size={20} color="#FF9800" />
-          <Text style={styles.clearSessionText}>Clear Session (Testing)</Text>
-        </TouchableOpacity> */}
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
+      {/* Account Edit Profile Modal */}
       <Modal
         visible={showEditModal}
         animationType="slide"
@@ -293,13 +221,13 @@ export default function ProfileScreen() {
                   <Ionicons
                     name="person-circle-outline"
                     size={28}
-                    color="#0B5ED7"
+                    color={COLORS.primary}
                   />
                 </View>
                 <View>
-                  <Text style={styles.modalTitle}>Edit Profile</Text>
+                  <Text style={styles.modalTitle}>Edit Account Info</Text>
                   <Text style={styles.modalSubtitle}>
-                    Update your information
+                    Update clinician credentials
                   </Text>
                 </View>
               </View>
@@ -333,7 +261,7 @@ export default function ProfileScreen() {
                   <TextInput
                     style={styles.modalInput}
                     value={userEmail}
-                    onChangeText={setUserEmail}
+                    editable={false} // Email cannot be changed (primary key/auth identification)
                     placeholder="your@email.com"
                     placeholderTextColor="#D1D5DB"
                     keyboardType="email-address"
@@ -348,7 +276,7 @@ export default function ProfileScreen() {
                   <TextInput
                     style={styles.modalInput}
                     value={userPhone}
-                    onChangeText={setUserPhone}
+                    onChangeText={setUserPhone} // Keep input state connected
                     placeholder="+1 (555) 000-0000"
                     placeholderTextColor="#D1D5DB"
                     keyboardType="phone-pad"
@@ -400,127 +328,116 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
-  },
-  topSpacer: {
-    height: 60,
+    backgroundColor: COLORS.background,
   },
   profileHeader: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     alignItems: "center",
-    paddingVertical: 36,
-    marginBottom: 32,
+    paddingVertical: 32,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#0B5ED7",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 4,
+    marginBottom: 16,
+    ...SHADOWS.light,
   },
   userName: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: "800",
-    color: "#111827",
-    marginBottom: 8,
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
   userEmail: {
-    fontSize: 15,
-    color: "#6B7280",
-    marginBottom: 16,
-    fontWeight: "500",
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+    marginTop: 4,
   },
-  roleBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(11, 94, 215, 0.1)",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "#DBEAFE",
-  },
-  roleText: {
+  userEmailSub: {
     fontSize: 12,
-    fontWeight: "800",
-    color: "#0B5ED7",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
+    color: COLORS.textTertiary,
+    fontWeight: "500",
+    marginTop: 2,
   },
   section: {
     paddingHorizontal: 20,
-    marginBottom: 32,
-  },
-  statsGrid: {
-    marginBottom: 16,
+    marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "800",
-    color: "#111827",
-    marginBottom: 16,
-    letterSpacing: -0.3,
+    color: COLORS.textSecondary,
+    marginBottom: 10,
+    letterSpacing: 0.5,
     textTransform: "uppercase",
   },
+  activitySummaryCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    ...SHADOWS.light,
+  },
+  activityRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  activityDivider: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginVertical: 4,
+  },
+  activityLabel: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+  },
+  activityValue: {
+    fontSize: 16,
+    color: COLORS.textPrimary,
+    fontWeight: "800",
+  },
+  activityValueText: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: "700",
+  },
   menuCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   logoutButton: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 14,
-    padding: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    borderWidth: 2,
-    borderColor: "#EF4444",
-  },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#EF4444",
-    letterSpacing: -0.3,
-  },
-  clearSessionButton: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    marginHorizontal: 20,
-    marginTop: 12,
-    borderRadius: 14,
+    marginTop: 28,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    borderWidth: 2,
-    borderColor: "#F59E0B",
+    borderWidth: 1.5,
+    borderColor: "#EF4444",
   },
-  clearSessionText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#F59E0B",
+  logoutText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#EF4444",
+    letterSpacing: -0.3,
   },
   bottomSpacer: {
     height: 60,
@@ -535,7 +452,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: "80%",
@@ -550,11 +467,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    backgroundColor: "#FAFBFC",
+    borderBottomColor: COLORS.border,
+    backgroundColor: COLORS.background,
   },
   modalTitleContainer: {
     flexDirection: "row",
@@ -565,19 +480,19 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 12,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   modalSubtitle: {
-    fontSize: 13,
-    color: "#6B7280",
+    fontSize: 12,
+    color: COLORS.textSecondary,
     fontWeight: "500",
     marginTop: 2,
   },
@@ -585,7 +500,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -596,56 +511,55 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   formLabel: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 10,
+    fontSize: 12,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    marginBottom: 8,
     letterSpacing: 0.3,
     textTransform: "uppercase",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F9FAFB",
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 50,
     gap: 12,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
   },
   modalInput: {
     flex: 1,
-    fontSize: 15,
-    color: "#111827",
-    fontWeight: "500",
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
   },
   modalActions: {
     flexDirection: "row",
     padding: 20,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: COLORS.border,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
   },
   cancelButtonText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#6B7280",
-    letterSpacing: 0.3,
+    color: COLORS.textSecondary,
   },
   submitButton: {
     flex: 1,
-    backgroundColor: "#0B5ED7",
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
@@ -654,9 +568,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   submitButtonText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800",
     color: "#FFFFFF",
-    letterSpacing: 0.3,
   },
 });
