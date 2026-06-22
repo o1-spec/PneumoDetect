@@ -37,8 +37,11 @@ function AppContent() {
     // Top-level custom clinicians-only layout folders
     const inPatientsGroup = segments[0] === "patients";
     const inAnalysisGroup = segments[0] === "analysis";
+    const inProfileGroup = segments[0] === "profile";
+    const inNotificationsGroup = segments[0] === "notifications";
+    const inReportGroup = segments[0] === "report";
 
-    const inProtectedGroup = inPatientGroup || inTabsGroup || inOnboardingGroup || inPatientsGroup || inAnalysisGroup;
+    const inProtectedGroup = inPatientGroup || inTabsGroup || inOnboardingGroup || inPatientsGroup || inAnalysisGroup || inProfileGroup || inNotificationsGroup || inReportGroup;
 
     // Reset redirect lock once we have arrived at our correct target segment
     if (!isSignedIn) {
@@ -56,7 +59,7 @@ function AppContent() {
             isRedirecting.current = false;
           }
         } else {
-          if (inTabsGroup || inPatientsGroup || inAnalysisGroup) {
+          if (inTabsGroup || inPatientsGroup || inAnalysisGroup || inProfileGroup || inNotificationsGroup || inReportGroup) {
             isRedirecting.current = false;
           }
         }
@@ -85,7 +88,7 @@ function AppContent() {
           }
         } else {
           // Clinician or Admin
-          if (!inTabsGroup && !inPatientsGroup && !inAnalysisGroup && !isRedirecting.current) {
+          if (!inTabsGroup && !inPatientsGroup && !inAnalysisGroup && !inProfileGroup && !inNotificationsGroup && !inReportGroup && !isRedirecting.current) {
             isRedirecting.current = true;
             router.replace("/(tabs)");
           }
