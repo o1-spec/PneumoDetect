@@ -90,7 +90,7 @@ export const patientsAPI = {
     id: string,
     data: Partial<CreatePatientRequest>,
   ): Promise<Patient> => {
-    const response = await api.put<Patient>(`/patients/${id}`, data);
+    const response = await api.patch<Patient>(`/patients/${id}`, data);
     return response.data;
   },
 
