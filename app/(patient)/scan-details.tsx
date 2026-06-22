@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -11,18 +11,28 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 import { Card } from "../../components/premium";
+import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
 import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { generateHTMLReport } from "../../utils/reportGenerator";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function PatientScanDetailsScreen() {
   const insets = useSafeAreaInsets();
   const { scanId } = useLocalSearchParams();
-  const { error: showError } = useToast();
+  const { error: showError, success: showSuccess } = useToast();
   const [scan, setScan] = useState<Scan | null>(null);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
+
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
 
   useEffect(() => {
     loadScanDetails();
@@ -43,10 +53,52 @@ export default function PatientScanDetailsScreen() {
     }
   };
 
+  const handleGeneratePDF = async () => {
+    if (!scan) return;
+    try {
+      setGenerating(true);
+      
+      const scanData = {
+        id: scan.id,
+        patientId: user?.id || "N/A",
+        patientName: user?.name || "Unknown Patient",
+        age: user?.dateOfBirth ? new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear() : 30,
+        sex: user?.gender === "MALE" ? "Male" : (user?.gender === "FEMALE" ? "Female" : "N/A"),
+        scanDate: new Date(scan.createdAt).toLocaleDateString(),
+        prediction: scan.result === "PNEUMONIA" ? "Pneumonia Suspected" : "Normal",
+        confidence: scan.confidence || 0,
+        imageUri: scan.imageUrl || "https://via.placeholder.com/400x400/1E293B/FFFFFF?text=Chest+X-Ray",
+        heatmapUri: scan.heatmapUrl || "https://via.placeholder.com/400x400/1E293B/FFFFFF?text=AI+Heatmap",
+        technician: scan.doctorName || "Attending Clinician",
+        notes: scan.clinicianNotes || "No notes provided.",
+      };
+
+      const html = generateHTMLReport(scanData);
+      const { uri } = await Print.printToFileAsync({ html, base64: false });
+      
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        showError("PDF sharing is not available on this device");
+        return;
+      }
+
+      await Sharing.shareAsync(uri, {
+        mimeType: "application/pdf",
+        dialogTitle: "Share Health Report",
+        UTI: "com.adobe.pdf",
+      });
+      showSuccess("Report compiled successfully!");
+    } catch (error) {
+      showError("Failed to compile health report PDF");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0B5ED7" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
   }
@@ -55,35 +107,31 @@ export default function PatientScanDetailsScreen() {
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
+          <TouchableOpacity style={styles.backButton} onPress={() => router.replace("/(patient)")}>
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Scan Details</Text>
           <View style={{ width: 40 }} />
         </View>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={48} color="#EF4444" />
-          <Text style={styles.errorText}>Scan not found</Text>
+          <Ionicons name="alert-circle" size={48} color={COLORS.danger} />
+          <Text style={styles.errorText}>Scan details not found</Text>
         </View>
       </View>
     );
   }
 
   const isNormal = scan.result === "NORMAL";
-  const resultColor = isNormal ? "#10B981" : "#EF4444";
-  const resultBgColor = isNormal ? "rgba(16, 185, 129, 0.08)" : "rgba(239, 68, 68, 0.08)";
+  const statusLabelText = isNormal ? "Normal Scan" : "Review Recommended";
+  const statusColor = isNormal ? COLORS.success : COLORS.danger;
+  const statusBgColor = isNormal ? COLORS.successLight : COLORS.dangerLight;
 
   return (
     <View style={styles.container}>
+      {/* Header bar */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
+        <TouchableOpacity style={styles.backButton} onPress={() => router.replace("/(patient)")}>
+          <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Scan Results</Text>
         <View style={{ width: 40 }} />
@@ -92,168 +140,136 @@ export default function PatientScanDetailsScreen() {
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={styles.scrollContent}
       >
-        {scan.imageUrl && (
-          <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: scan.imageUrl }}
-              style={styles.scanImage}
-              resizeMode="cover"
-            />
-          </View>
-        )}
-
-        <View style={styles.section}>
-          <Card elevated="medium" backgroundColor={resultBgColor}>
-            <View style={styles.resultHeader}>
-              <Ionicons
-                name={isNormal ? "checkmark-circle" : "alert-circle"}
-                size={32}
-                color={resultColor}
+        {/* 1. Chest X-Ray Preview (40% Screen visual space) */}
+        <View style={styles.xraySection}>
+          <Card elevated="medium" padded={false} style={styles.xrayCard}>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{ uri: showOverlay && scan.heatmapUrl ? scan.heatmapUrl : scan.imageUrl }}
+                style={styles.scanImage}
+                resizeMode="cover"
               />
-              <Text style={[styles.resultTitle, { color: resultColor }]}>
-                {isNormal ? "Normal Scan" : "Concerns Detected"}
-              </Text>
-            </View>
-
-            <View style={styles.resultDetails}>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Diagnosis:</Text>
-                <Text style={[styles.detailValue, { color: resultColor }]}>
-                  {scan.result}
-                </Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Confidence Score:</Text>
-                <Text style={styles.detailValue}>
-                  {scan.confidence ? Math.round(scan.confidence * 100) : "N/A"}%
-                </Text>
-              </View>
-
-              {scan.confidence && (
-                <View style={styles.confidenceBar}>
-                  <View
-                    style={[
-                      styles.confidenceFill,
-                      {
-                        width: `${Math.round(scan.confidence * 100)}%`,
-                        backgroundColor: resultColor,
-                      },
-                    ]}
-                  />
-                </View>
+              {scan.heatmapUrl && (
+                <TouchableOpacity
+                  style={styles.overlayToggle}
+                  onPress={() => setShowOverlay(!showOverlay)}
+                >
+                  <Ionicons name="eye-outline" size={16} color="#FFFFFF" />
+                  <Text style={styles.overlayToggleText}>
+                    {showOverlay ? "Hide Overlay" : "Show Overlay"}
+                  </Text>
+                </TouchableOpacity>
               )}
             </View>
           </Card>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Scan Information</Text>
-          <Card elevated="light">
-            <View style={styles.metadataRow}>
-              <View style={[styles.metadataIcon, { backgroundColor: "rgba(11, 94, 215, 0.1)" }]}>
-                <Ionicons name="calendar-outline" size={20} color="#0B5ED7" />
-              </View>
-              <View style={styles.metadataContent}>
-                <Text style={styles.metadataLabel}>Uploaded</Text>
-                <Text style={styles.metadataValue}>
-                  {new Date(scan.createdAt).toLocaleString()}
-                </Text>
-              </View>
+        {/* 2. Result Summary (20% Screen space) */}
+        <View style={styles.summarySection}>
+          <Card elevated="light" style={StyleSheet.flatten([styles.summaryCard, { borderColor: statusColor }])}>
+            <View style={styles.resultHeader}>
+              <Ionicons
+                name={isNormal ? "checkmark-circle" : "alert-circle"}
+                size={28}
+                color={statusColor}
+              />
+              <Text style={[styles.resultTitle, { color: statusColor }]}>
+                {statusLabelText}
+              </Text>
             </View>
-
-            <View style={styles.metadataRow}>
-              <View style={[styles.metadataIcon, { backgroundColor: "rgba(11, 94, 215, 0.1)" }]}>
-                <Ionicons name="time-outline" size={20} color="#0B5ED7" />
-              </View>
-              <View style={styles.metadataContent}>
-                <Text style={styles.metadataLabel}>Updated</Text>
-                <Text style={styles.metadataValue}>
-                  {new Date(scan.updatedAt).toLocaleString()}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.metadataRow}>
-              <View style={[styles.metadataIcon, { backgroundColor: "rgba(11, 94, 215, 0.1)" }]}>
-                <Ionicons name="person-outline" size={20} color="#0B5ED7" />
-              </View>
-              <View style={styles.metadataContent}>
-                <Text style={styles.metadataLabel}>Analyzed By</Text>
-                <Text style={styles.metadataValue}>
-                  {scan.doctor?.name || "AI Model"}
-                </Text>
-              </View>
-            </View>
-
-            <View style={[styles.metadataRow, { borderBottomWidth: 0 }]}>
-              <View style={[styles.metadataIcon, { backgroundColor: "rgba(11, 94, 215, 0.1)" }]}>
-                <Ionicons name="pulse-outline" size={20} color="#0B5ED7" />
-              </View>
-              <View style={styles.metadataContent}>
-                <Text style={styles.metadataLabel}>Status</Text>
-                <Text style={styles.metadataValue}>
-                  {scan.status === "COMPLETED" ? "✓ Completed" : scan.status}
-                </Text>
-              </View>
-            </View>
+            <Text style={styles.scanMetaLabel}>
+              Scan Date: {new Date(scan.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </Text>
+            {scan.doctorName && (
+              <Text style={styles.attendingText}>Attending clinician: {scan.doctorName}</Text>
+            )}
           </Card>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Next Steps</Text>
-          <Card border={false} elevated="none" backgroundColor="rgba(245, 158, 11, 0.08)">
-            <View style={styles.recommendationHeader}>
-              <Ionicons name="bulb-outline" size={24} color="#D97706" />
-              <Text style={styles.recommendationTitle}>Recommendations</Text>
-            </View>
+        {/* 3. What this means (20% Screen space) */}
+        <View style={styles.explanationSection}>
+          <Text style={styles.sectionTitle}>What this means</Text>
+          <Card border={true} elevated="none" style={styles.card}>
+            <Text style={styles.explanationText}>
+              {isNormal
+                ? "No significant clinical concerns were identified by the AI system on your chest X-ray. Your lung fields appear clear."
+                : "The screening system detected patterns that warrant review by a medical professional. This is a screening indicator and does not represent a final medical diagnosis."}
+            </Text>
+          </Card>
+        </View>
 
+        {/* 4. Recommended next steps (20% Screen space) */}
+        <View style={styles.stepsSection}>
+          <Text style={styles.sectionTitle}>Recommended Next Steps</Text>
+          <Card border={false} elevated="none" backgroundColor={COLORS.primaryLight} style={styles.stepsCard}>
             {isNormal ? (
-              <View style={styles.recommendationItem}>
-                <Text style={styles.recommendationText}>
-                  ✓ Your scan shows normal findings. Continue regular check-ups
-                  as recommended by your healthcare provider.
-                </Text>
+              <View style={styles.stepsList}>
+                <View style={styles.stepRow}>
+                  <Ionicons name="checkmark-circle-outline" size={18} color={COLORS.primary} />
+                  <Text style={styles.stepText}>Continue regular checkups with your doctor.</Text>
+                </View>
+                <View style={styles.stepRow}>
+                  <Ionicons name="checkmark-circle-outline" size={18} color={COLORS.primary} />
+                  <Text style={styles.stepText}>Download a copy of the clinical report for your records.</Text>
+                </View>
               </View>
             ) : (
-              <View>
-                <View style={styles.recommendationItem}>
-                  <Text style={styles.recommendationText}>
-                    • Consult with your healthcare provider to discuss these
-                    findings.
-                  </Text>
+              <View style={styles.stepsList}>
+                <View style={styles.stepRow}>
+                  <Ionicons name="alert-circle-outline" size={18} color={COLORS.danger} />
+                  <Text style={styles.stepText}>Schedule a follow-up appointment with a qualified doctor.</Text>
                 </View>
-                <View style={styles.recommendationItem}>
-                  <Text style={styles.recommendationText}>
-                    • Consider follow-up imaging if recommended by your doctor.
-                  </Text>
+                <View style={styles.stepRow}>
+                  <Ionicons name="alert-circle-outline" size={18} color={COLORS.danger} />
+                  <Text style={styles.stepText}>Download your health report to share with your physician.</Text>
                 </View>
-                <View style={styles.recommendationItem}>
-                  <Text style={styles.recommendationText}>
-                    • Seek medical attention promptly for clinical correlation.
-                  </Text>
+                <View style={styles.stepRow}>
+                  <Ionicons name="alert-circle-outline" size={18} color={COLORS.danger} />
+                  <Text style={styles.stepText}>Seek prompt attention if you experience severe symptoms like high fever or trouble breathing.</Text>
                 </View>
               </View>
             )}
           </Card>
         </View>
 
-        <View style={styles.section}>
-          <Card border={false} elevated="none" backgroundColor="rgba(11, 94, 215, 0.08)">
-            <View style={styles.disclaimerContainer}>
-              <Ionicons name="information-circle" size={24} color="#0B5ED7" />
-              <View style={styles.disclaimerContent}>
-                <Text style={styles.disclaimerTitle}>Medical Disclaimer</Text>
-                <Text style={styles.disclaimerText}>
-                  This AI analysis is an assistive tool only and should not be
-                  considered a medical diagnosis. Always consult with a qualified
-                  healthcare professional for medical advice and diagnosis.
-                </Text>
-              </View>
-            </View>
-          </Card>
+        {/* Safety Note Disclaimer */}
+        <View style={styles.safetyBox}>
+          <Ionicons name="information-circle" size={20} color={COLORS.secondary} />
+          <Text style={styles.safetyText}>
+            Safety Note: This AI result is for screening support and should be reviewed by a qualified healthcare professional.
+          </Text>
+        </View>
+
+        {/* 5. Download / Share / Upload new buttons */}
+        <View style={styles.actionsSection}>
+          <TouchableOpacity
+            style={styles.primaryActionButton}
+            onPress={handleGeneratePDF}
+            disabled={generating}
+          >
+            {generating ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <>
+                <Ionicons name="share-outline" size={20} color="#FFFFFF" />
+                <Text style={styles.primaryActionButtonText}>Download & Share Report</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryActionButton}
+            onPress={() => router.push("/(patient)/upload")}
+          >
+            <Ionicons name="cloud-upload-outline" size={20} color={COLORS.primary} />
+            <Text style={styles.secondaryActionButtonText}>Upload New Scan</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
@@ -263,49 +279,204 @@ export default function PatientScanDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
   },
-  section: {
-    marginBottom: 20,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  xraySection: {
+    marginTop: 16,
+  },
+  xrayCard: {
+    borderRadius: BORDER_RADIUS.md,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  imageWrapper: {
+    position: "relative",
+    width: "100%",
+    height: 260,
+    backgroundColor: "#0F172A",
+  },
+  scanImage: {
+    width: "100%",
+    height: "100%",
+  },
+  overlayToggle: {
+    position: "absolute",
+    bottom: 12,
+    right: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  overlayToggleText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "700",
+  },
+  summarySection: {
+    marginTop: 16,
+  },
+  summaryCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1.5,
+    padding: 16,
+  },
+  resultHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 8,
+  },
+  resultTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    letterSpacing: -0.2,
+  },
+  scanMetaLabel: {
+    fontSize: 14,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
+  },
+  attendingText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontWeight: "500",
+    marginTop: 4,
+  },
+  explanationSection: {
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginBottom: 10,
+    marginLeft: 4,
+  },
+  card: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  explanationText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+    fontWeight: "500",
+  },
+  stepsSection: {
+    marginTop: 20,
+  },
+  stepsCard: {
+    borderRadius: BORDER_RADIUS.md,
+    padding: 16,
+  },
+  stepsList: {
+    gap: 12,
+  },
+  stepRow: {
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "flex-start",
+  },
+  stepText: {
+    flex: 1,
+    fontSize: 13,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
+    lineHeight: 18,
+  },
+  safetyBox: {
+    flexDirection: "row",
+    gap: 8,
+    backgroundColor: COLORS.secondaryLight,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 14,
+    marginTop: 20,
+    alignItems: "flex-start",
+  },
+  safetyText: {
+    flex: 1,
+    fontSize: 12,
+    color: COLORS.secondary,
+    lineHeight: 16,
+    fontWeight: "600",
+  },
+  actionsSection: {
+    gap: 12,
+    marginTop: 24,
+  },
+  primaryActionButton: {
+    flexDirection: "row",
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    ...SHADOWS.light,
+  },
+  primaryActionButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  secondaryActionButton: {
+    flexDirection: "row",
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+  },
+  secondaryActionButtonText: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: "800",
   },
   errorContainer: {
     flex: 1,
@@ -314,140 +485,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: "#EF4444",
+    color: COLORS.danger,
     marginTop: 12,
     fontWeight: "600",
-  },
-  imageContainer: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    overflow: "hidden",
-    marginVertical: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  scanImage: {
-    width: "100%",
-    height: 300,
-  },
-  resultHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  resultTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-  },
-  resultDetails: {
-    gap: 12,
-  },
-  detailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  detailLabel: {
-    fontSize: 14,
-    color: "#6B7280",
-    fontWeight: "500",
-  },
-  detailValue: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#111827",
-  },
-  confidenceBar: {
-    height: 8,
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
-    borderRadius: 4,
-    overflow: "hidden",
-    marginTop: 4,
-  },
-  confidenceFill: {
-    height: "100%",
-    borderRadius: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 12,
-    letterSpacing: -0.3,
-  },
-  metadataRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
-  },
-  metadataIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  metadataContent: {
-    flex: 1,
-  },
-  metadataLabel: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginBottom: 2,
-    fontWeight: "500",
-  },
-  metadataValue: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  recommendationHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 12,
-  },
-  recommendationTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#B45309",
-  },
-  recommendationItem: {
-    marginBottom: 8,
-  },
-  recommendationText: {
-    fontSize: 14,
-    color: "#92400E",
-    lineHeight: 20,
-    fontWeight: "500",
-  },
-  disclaimerContainer: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  disclaimerContent: {
-    flex: 1,
-  },
-  disclaimerTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#0B5ED7",
-    marginBottom: 4,
-  },
-  disclaimerText: {
-    fontSize: 13,
-    color: "#1E3A8A",
-    lineHeight: 18,
-    fontWeight: "500",
   },
 });

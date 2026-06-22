@@ -3,13 +3,14 @@ import React from "react";
 import { View } from "react-native";
 import { useAuth } from "../../../hooks/useAuth";
 import { PneumoLoader } from "../../../components/premium";
+import { COLORS } from "../../../constants/Theme";
 
 export default function AdminLayout() {
   const { user, isLoading, isSignedIn } = useAuth();
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#F5F5F7" }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.background }}>
         <PneumoLoader size={64} />
       </View>
     );

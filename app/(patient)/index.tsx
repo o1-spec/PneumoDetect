@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
@@ -8,59 +7,52 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Image
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Card, PneumoLoader, SectionHeader, StatCard } from "../../components/premium";
+import { Card, PneumoLoader } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { notificationsAPI, scansAPI } from "../../services/api.client";
 import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
-import { COLORS, BORDER_RADIUS, SHADOWS, SPACING, GRADIENTS } from "../../constants/Theme";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function PatientDashboardScreen() {
   const insets = useSafeAreaInsets();
   const authContext = useContext(AuthContext);
   const { error: showError } = useToast();
-  const [recentScans, setRecentScans] = useState<Scan[]>([]);
+  const [latestScan, setLatestScan] = useState<Scan | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
-  const [stats, setStats] = useState({
-    totalScans: 0,
-    normalScans: 0,
-    pneumoniaScans: 0,
-  });
 
   if (!authContext) {
     return <Text>Auth context not available</Text>;
   }
 
-  const { user } = authContext;
-
   useEffect(() => {
-    loadScans();
+    loadDashboardData();
   }, []);
 
-  const loadScans = async () => {
+  const loadDashboardData = async () => {
     try {
       setLoading(true);
       const response = await scansAPI.getMyScans();
-      const scans = response.scans || [];
-
-      setRecentScans(scans.slice(0, 5));
-
-      const normal = scans.filter((s: any) => s.result === "NORMAL").length;
-      const concerns = scans.filter(
-        (s: any) => s.result === "PNEUMONIA" || s.result === "CONCERNS"
-      ).length;
-
-      setStats({
-        totalScans: scans.length,
-        normalScans: normal,
-        pneumoniaScans: concerns,
-      });
+      const scans = response.scans || response || [];
+      
+      if (Array.isArray(scans) && scans.length > 0) {
+        // Fetch detailed view of the latest scan to get the image URL if available
+        try {
+          const detailScan = await scansAPI.getScanPatientView(scans[0].id);
+          setLatestScan(detailScan.scan || detailScan);
+        } catch {
+          setLatestScan(scans[0]);
+        }
+      } else {
+        setLatestScan(null);
+      }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       showError(errorMessage);
@@ -78,7 +70,7 @@ export default function PatientDashboardScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadScans();
+    await loadDashboardData();
     setRefreshing(false);
   };
 
@@ -89,13 +81,44 @@ export default function PatientDashboardScreen() {
     });
   };
 
+  const getStatusText = (scan: Scan) => {
+    if (scan.status === "PROCESSING" || scan.status === "UPLOADED") {
+      return "Analysis in Progress";
+    }
+    if (scan.result === "NORMAL") {
+      return "Normal";
+    }
+    return "Review Recommended";
+  };
+
+  const getStatusColor = (scan: Scan) => {
+    if (scan.status === "PROCESSING" || scan.status === "UPLOADED") {
+      return COLORS.secondary;
+    }
+    if (scan.result === "NORMAL") {
+      return COLORS.success;
+    }
+    return COLORS.danger;
+  };
+
+  const getStatusBgColor = (scan: Scan) => {
+    if (scan.status === "PROCESSING" || scan.status === "UPLOADED") {
+      return COLORS.secondaryLight;
+    }
+    if (scan.result === "NORMAL") {
+      return COLORS.successLight;
+    }
+    return COLORS.dangerLight;
+  };
+
   return (
     <View style={styles.container}>
+      {/* Header bar */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <View>
-            <Text style={styles.headerTitle}>Dashboard</Text>
-            <Text style={styles.headerSubtitle}>Track your health updates</Text>
+            <Text style={styles.headerTitle}>Health Updates</Text>
+            <Text style={styles.headerSubtitle}>Track your scan reports and results</Text>
           </View>
           <TouchableOpacity
             style={styles.notificationButton}
@@ -120,159 +143,191 @@ export default function PatientDashboardScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        <LinearGradient
-          colors={GRADIENTS.primary as any}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.welcomeGradient}
-        >
-          <View style={styles.welcomeContent}>
-            <View style={styles.welcomeTextContainer}>
-              <Text style={styles.welcomeGreeting}>Welcome back!</Text>
-              <Text style={styles.welcomeName}>{user?.name || "Patient"}</Text>
-              <Text style={styles.welcomeSubtext}>Your health summary</Text>
-            </View>
-            <View style={styles.welcomeIconCircle}>
-              <Ionicons name="person" size={38} color={COLORS.primary} />
-            </View>
+        {loading ? (
+          <View style={styles.loaderContainer}>
+            <PneumoLoader size={48} color={COLORS.primary} />
           </View>
-        </LinearGradient>
-
-        <View style={styles.section}>
-          <SectionHeader title="Your Activity" subtitle="Scan statistics" />
-          <View style={styles.statsContainer}>
-            <View style={styles.statRow}>
-              <View style={{ flex: 1 }}>
-                <StatCard
-                  icon="document-text-outline"
-                  title="Total Scans"
-                  value={stats.totalScans}
-                  color={COLORS.primary}
-                  backgroundColor={COLORS.primaryLight}
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <StatCard
-                  icon="checkmark-circle-outline"
-                  title="Normal"
-                  value={stats.normalScans}
-                  color={COLORS.success}
-                  backgroundColor={COLORS.successLight}
-                />
-              </View>
-            </View>
-            <View style={styles.statRow}>
-              <View style={{ flex: 1 }}>
-                <StatCard
-                  icon="alert-circle-outline"
-                  title="Concerns"
-                  value={stats.pneumoniaScans}
-                  color={COLORS.danger}
-                  backgroundColor={COLORS.dangerLight}
-                />
-              </View>
-              <View style={{ flex: 1 }} />
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Scans</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/(patient)/my-scans")}
-            >
-              <Text style={styles.viewAllText}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-          {loading ? (
-            <PneumoLoader size={48} color={COLORS.primary} style={{ marginTop: 20 }} />
-          ) : recentScans.length > 0 ? (
-            <View style={styles.scansList}>
-              {recentScans.map((scan) => (
-                <TouchableOpacity
-                  key={scan.id}
-                  style={styles.scanCard}
-                  onPress={() => navigateToScan(scan.id)}
-                >
-                  <View style={styles.scanHeader}>
-                    <View style={styles.scanInfo}>
-                      <Text style={styles.scanId}>{scan.id}</Text>
-                      <Text style={styles.scanPatient}>
-                        {scan.doctorName || "Analyzed"}
-                      </Text>
+        ) : latestScan ? (
+          <View style={styles.mainContainer}>
+            
+            {/* Latest Scan Result Card */}
+            <Text style={styles.sectionTitle}>Latest Scan Result</Text>
+            
+            <Card border={true} elevated="light" style={styles.latestCard}>
+              <View style={styles.cardHeader}>
+                <View style={styles.xrayThumbnailContainer}>
+                  {latestScan.imageUrl ? (
+                    <Image source={{ uri: latestScan.imageUrl }} style={styles.xrayImage} />
+                  ) : (
+                    <View style={styles.placeholderThumbnail}>
+                      <Ionicons name="image-outline" size={32} color={COLORS.primary} />
                     </View>
+                  )}
+                </View>
+                <View style={styles.scanMetaInfo}>
+                  <Text style={styles.scanLabel}>Chest X-Ray Preview</Text>
+                  <Text style={styles.scanDate}>
+                    {new Date(latestScan.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </Text>
+                  
+                  <View style={styles.statusRow}>
+                    <Text style={styles.statusLabel}>AI Assessment:</Text>
                     <View
                       style={[
-                        styles.resultBadge,
-                        scan.result === "NORMAL"
-                          ? styles.resultSafe
-                          : styles.resultDanger,
+                        styles.statusBadge,
+                        { backgroundColor: getStatusBgColor(latestScan) },
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.resultText,
-                          scan.result === "NORMAL"
-                            ? styles.resultTextSafe
-                            : styles.resultTextDanger,
-                        ]}
-                      >
-                        {scan.result || "PENDING"}
+                      <Text style={[styles.statusText, { color: getStatusColor(latestScan) }]}>
+                        {getStatusText(latestScan)}
                       </Text>
                     </View>
                   </View>
+                </View>
+              </View>
 
-                  <View style={styles.scanFooter}>
-                    <Text style={styles.scanDate}>
-                      <Ionicons
-                        name="calendar-outline"
-                        size={12}
-                        color={COLORS.textTertiary}
-                      />{" "}
-                      {new Date(scan.createdAt).toLocaleDateString()}
-                    </Text>
-                    <Text style={styles.scanConfidence}>
-                      {scan.confidence
-                        ? `${Math.round(scan.confidence * 100)}% confidence`
-                        : "N/A confidence"}
-                    </Text>
-                  </View>
+              <View style={styles.cardActions}>
+                <TouchableOpacity
+                  style={styles.viewReportButton}
+                  onPress={() => navigateToScan(latestScan.id)}
+                >
+                  <Text style={styles.viewReportButtonText}>View Report</Text>
+                  <Ionicons name="document-text-outline" size={16} color="#FFFFFF" />
                 </TouchableOpacity>
-              ))}
-            </View>
-          ) : (
-            <View style={styles.emptyState}>
-              <Ionicons name="document-outline" size={48} color={COLORS.border} />
-              <Text style={styles.emptyText}>No scans yet</Text>
-              <Text style={styles.emptySubtext}>
-                Your scan results will appear here
+
+                <TouchableOpacity
+                  style={styles.uploadNewButton}
+                  onPress={() => router.push("/(patient)/upload")}
+                >
+                  <Text style={styles.uploadNewButtonText}>Upload New Scan</Text>
+                  <Ionicons name="cloud-upload-outline" size={16} color={COLORS.primary} />
+                </TouchableOpacity>
+              </View>
+            </Card>
+
+            {/* Analysis Timeline */}
+            <Text style={styles.sectionTitle}>Analysis Timeline</Text>
+            <Card border={true} elevated="none" style={styles.timelineCard}>
+              <Text style={styles.timelineHeader}>Recent Activity</Text>
+              
+              <View style={styles.timelineList}>
+                <TimelineItem
+                  label="Scan Uploaded"
+                  subtitle="Your file has been uploaded securely"
+                  checked={true}
+                />
+                <TimelineItem
+                  label="Analysis Complete"
+                  subtitle="AI model screening complete"
+                  checked={latestScan.status === "COMPLETED"}
+                />
+                <TimelineItem
+                  label="Report Generated"
+                  subtitle="Clinical report compiled and ready"
+                  checked={latestScan.status === "COMPLETED"}
+                  isLast={true}
+                />
+              </View>
+            </Card>
+          </View>
+        ) : (
+          /* Empty state */
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyCard}>
+              <View style={styles.emptyIconCircle}>
+                <Ionicons name="medical-outline" size={40} color={COLORS.primary} />
+              </View>
+              <Text style={styles.emptyTitle}>No Scans Available</Text>
+              <Text style={styles.emptySubtitle}>
+                Upload a chest scan to receive an instant AI assessment.
               </Text>
+              <TouchableOpacity
+                style={styles.emptyUploadButton}
+                onPress={() => router.push("/(patient)/upload")}
+              >
+                <Text style={styles.emptyUploadButtonText}>Upload Your First Scan</Text>
+                <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
-          )}
+          </View>
+        )}
+
+        {/* Quick Actions (Always Visible) */}
+        <View style={styles.actionsContainer}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionGrid}>
+            <TouchableOpacity
+              style={styles.actionGridItem}
+              onPress={() => router.push("/(patient)/upload")}
+            >
+              <View style={[styles.actionIconContainer, { backgroundColor: COLORS.primaryLight }]}>
+                <Ionicons name="cloud-upload-outline" size={24} color={COLORS.primary} />
+              </View>
+              <Text style={styles.actionGridLabel}>New Analysis</Text>
+              <Text style={styles.actionGridSub}>Upload a scan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionGridItem}
+              onPress={() => router.push("/(patient)/my-scans")}
+            >
+              <View style={[styles.actionIconContainer, { backgroundColor: COLORS.successLight }]}>
+                <Ionicons name="folder-open-outline" size={24} color={COLORS.success} />
+              </View>
+              <Text style={styles.actionGridLabel}>View Reports</Text>
+              <Text style={styles.actionGridSub}>Browse history</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Important Notes</Text>
-          <Card border={true} elevated="none" backgroundColor={COLORS.primaryLight}>
-            <View style={styles.infoContent}>
-              <Ionicons name="information-circle" size={24} color={COLORS.primary} />
-              <View style={styles.infoTextContainer}>
-                <Text style={styles.infoTitle}>Always Consult a Doctor</Text>
-                <Text style={styles.infoText}>
-                  This AI analysis is not a medical diagnosis. Always consult
-                  with a qualified healthcare professional for medical advice.
-                </Text>
-              </View>
-            </View>
-          </Card>
+        {/* Legal/Disclaimer Info card */}
+        <View style={styles.disclaimerContainer}>
+          <Ionicons name="information-circle-outline" size={20} color={COLORS.textTertiary} />
+          <Text style={styles.disclaimerText}>
+            This AI result is for screening support and should be reviewed by a qualified healthcare professional.
+          </Text>
         </View>
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>
   );
 }
+
+const TimelineItem = ({
+  label,
+  subtitle,
+  checked,
+  isLast = false,
+}: {
+  label: string;
+  subtitle: string;
+  checked: boolean;
+  isLast?: boolean;
+}) => (
+  <View style={styles.timelineItem}>
+    <View style={styles.timelineLeft}>
+      <View
+        style={[
+          styles.timelineIndicator,
+          checked ? styles.indicatorChecked : styles.indicatorPending,
+        ]}
+      >
+        {checked && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
+      </View>
+      {!isLast && <View style={[styles.timelineLine, checked && styles.lineChecked]} />}
+    </View>
+    <View style={styles.timelineRight}>
+      <Text style={[styles.timelineLabel, checked ? styles.textActive : styles.textPending]}>
+        {label}
+      </Text>
+      <Text style={styles.timelineSub}>{subtitle}</Text>
+    </View>
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {
@@ -293,7 +348,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "800",
     color: COLORS.textPrimary,
     letterSpacing: -0.5,
@@ -337,193 +392,302 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  welcomeGradient: {
-    marginHorizontal: SPACING.md,
-    marginTop: SPACING.md,
-    marginBottom: SPACING.lg,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: 24,
-    ...SHADOWS.medium,
-  },
-  welcomeContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  loaderContainer: {
+    paddingVertical: 100,
     alignItems: "center",
   },
-  welcomeTextContainer: {
-    flex: 1,
-    marginRight: 16,
-  },
-  welcomeGreeting: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.85)",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
-  welcomeName: {
-    fontSize: 32,
-    fontWeight: "800",
-    color: "#FFFFFF",
-    marginBottom: 8,
-    letterSpacing: -0.5,
-  },
-  welcomeSubtext: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "rgba(255, 255, 255, 0.9)",
-  },
-  welcomeIconCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: "#FFFFFF",
-    justifyContent: "center",
-    alignItems: "center",
-    flexShrink: 0,
-    ...SHADOWS.light,
-  },
-  section: {
+  mainContainer: {
     paddingHorizontal: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
+    paddingTop: SPACING.md,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: COLORS.textPrimary,
-    letterSpacing: -0.3,
-    paddingBottom: 10,
+    letterSpacing: -0.2,
+    marginBottom: 12,
+    marginTop: 20,
   },
-  viewAllText: {
-    fontSize: 14,
-    color: COLORS.primary,
-    fontWeight: "700",
-  },
-  statsContainer: {
-    gap: 12,
-  },
-  statRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  scansList: {
-    gap: 12,
-  },
-  scanCard: {
+  latestCard: {
     backgroundColor: COLORS.card,
     borderRadius: BORDER_RADIUS.md,
     padding: 16,
-    marginBottom: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
     ...SHADOWS.light,
   },
-  scanHeader: {
+  cardHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 12,
-  },
-  scanInfo: {
-    flex: 1,
-  },
-  scanId: {
-    fontSize: 12,
-    color: COLORS.primary,
-    fontWeight: "700",
-    marginBottom: 4,
-    letterSpacing: 0.5,
-  },
-  scanPatient: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
-  },
-  resultBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  resultDanger: {
-    backgroundColor: COLORS.dangerLight,
-  },
-  resultSafe: {
-    backgroundColor: COLORS.successLight,
-  },
-  resultText: {
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  resultTextSafe: {
-    color: COLORS.success,
-  },
-  resultTextDanger: {
-    color: COLORS.danger,
-  },
-  scanFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingTop: 12,
+    gap: 16,
   },
-  scanDate: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    fontWeight: "500",
-  },
-  scanConfidence: {
-    fontSize: 13,
-    color: COLORS.textPrimary,
-    fontWeight: "600",
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 40,
-    backgroundColor: COLORS.card,
-    borderRadius: BORDER_RADIUS.md,
+  xrayThumbnailContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: BORDER_RADIUS.sm,
+    overflow: "hidden",
+    backgroundColor: "#0F172A",
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
-    marginTop: 12,
+  xrayImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
   },
-  emptySubtext: {
-    fontSize: 14,
+  placeholderThumbnail: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.primaryLight,
+  },
+  scanMetaInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  scanLabel: {
+    fontSize: 12,
     color: COLORS.textSecondary,
-    marginTop: 4,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+  },
+  scanDate: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    marginTop: 2,
+  },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 8,
+  },
+  statusLabel: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
     fontWeight: "500",
   },
-  infoContent: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  infoTextContainer: {
-    flex: 1,
-  },
-  infoTitle: {
-    fontSize: 15,
+  statusText: {
+    fontSize: 12,
     fontWeight: "700",
-    color: COLORS.primary,
-    marginBottom: 4,
   },
-  infoText: {
+  cardActions: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 16,
+  },
+  viewReportButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 12,
+    borderRadius: BORDER_RADIUS.md,
+  },
+  viewReportButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  uploadNewButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: COLORS.card,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    paddingVertical: 12,
+    borderRadius: BORDER_RADIUS.md,
+  },
+  uploadNewButtonText: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  timelineCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  timelineHeader: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginBottom: 16,
+  },
+  timelineList: {
+    gap: 0,
+  },
+  timelineItem: {
+    flexDirection: "row",
+    minHeight: 56,
+  },
+  timelineLeft: {
+    alignItems: "center",
+    marginRight: 16,
+    width: 24,
+  },
+  timelineIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
+  indicatorChecked: {
+    backgroundColor: COLORS.success,
+  },
+  indicatorPending: {
+    backgroundColor: COLORS.border,
+  },
+  timelineLine: {
+    width: 2,
+    position: "absolute",
+    top: 24,
+    bottom: -12,
+    backgroundColor: COLORS.border,
+    zIndex: 5,
+  },
+  lineChecked: {
+    backgroundColor: COLORS.success,
+  },
+  timelineRight: {
+    flex: 1,
+    paddingBottom: 16,
+  },
+  timelineLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  textActive: {
+    color: COLORS.textPrimary,
+  },
+  textPending: {
+    color: COLORS.textTertiary,
+  },
+  timelineSub: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    fontWeight: "500",
+  },
+  emptyContainer: {
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.md,
+  },
+  emptyCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 32,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
+  },
+  emptyIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.2,
+  },
+  emptySubtitle: {
     fontSize: 14,
     color: COLORS.textSecondary,
+    textAlign: "center",
+    marginTop: 8,
     lineHeight: 20,
+    fontWeight: "500",
+  },
+  emptyUploadButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: BORDER_RADIUS.md,
+    marginTop: 24,
+    ...SHADOWS.light,
+  },
+  emptyUploadButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  actionsContainer: {
+    paddingHorizontal: SPACING.md,
+  },
+  actionGrid: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  actionGridItem: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 16,
+    ...SHADOWS.light,
+  },
+  actionIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  actionGridLabel: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+  },
+  actionGridSub: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    fontWeight: "500",
+  },
+  disclaimerContainer: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: SPACING.md,
+    marginTop: 32,
+    alignItems: "flex-start",
+  },
+  disclaimerText: {
+    flex: 1,
+    fontSize: 11,
+    color: COLORS.textTertiary,
+    lineHeight: 16,
     fontWeight: "500",
   },
   bottomSpacer: {

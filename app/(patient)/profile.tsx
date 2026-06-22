@@ -10,21 +10,20 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "../../components/premium";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
-import { usersAPI } from "../../services/api.client";
 import { getErrorMessage } from "../../utils/errorHandler";
 import { dialogManager } from "../../utils/dialogManager";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function PatientProfileScreen() {
   const insets = useSafeAreaInsets();
   const authContext = useContext(AuthContext);
   const { success, warning, error: showError } = useToast();
-  const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -34,56 +33,31 @@ export default function PatientProfileScreen() {
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  // Toggles for notifications
+  const [pushEnabled, setPushEnabled] = useState(true);
+  const [emailEnabled, setEmailEnabled] = useState(true);
+
   if (!authContext) {
     return <Text>Auth context not available</Text>;
   }
 
-  const { user, logout, updateProfile, changePassword } = authContext;
-
-  const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    dateOfBirth: user?.dateOfBirth || "",
-    gender: user?.gender || "MALE",
-    medicalHistory: user?.medicalHistory || "",
-  });
-
-  const handleSave = async () => {
-    try {
-      setLoading(true);
-      await usersAPI.updatePatientProfile({
-        name: formData.name,
-        phone: formData.phone,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender,
-        medicalHistory: formData.medicalHistory,
-      });
-      success("Profile updated successfully!");
-      setEditMode(false);
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      showError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { user, logout, changePassword } = authContext;
 
   const handleLogout = () => {
     dialogManager.show({
-      title: "Logout",
-      message: "Are you sure you want to logout?",
+      title: "Sign Out",
+      message: "Are you sure you want to sign out?",
       buttons: [
         { text: "Cancel", style: "cancel" },
         {
-          text: "Logout",
+          text: "Sign Out",
           style: "destructive",
           onPress: async () => {
             try {
               await logout();
               warning("Logged out successfully");
             } catch (error) {
-              showError("Logout failed");
+              showError("Sign out failed");
             }
           },
         },
@@ -104,11 +78,11 @@ export default function PatientProfileScreen() {
     try {
       setIsChangingPassword(true);
       await changePassword(passwordData);
-      success("Password successfully changed!");
+      success("Password successfully updated!");
       setIsPasswordModalVisible(false);
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (error) {
-      const msg = getErrorMessage(error) || "Failed to change password";
+      const msg = getErrorMessage(error) || "Failed to update password";
       showError(msg);
     } finally {
       setIsChangingPassword(false);
@@ -117,16 +91,9 @@ export default function PatientProfileScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
-        <Text style={styles.title}>My Profile</Text>
-        {!editMode && (
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => setEditMode(true)}
-          >
-            <Ionicons name="pencil" size={20} color="#0B5ED7" />
-          </TouchableOpacity>
-        )}
+        <Text style={styles.title}>Settings</Text>
       </View>
 
       <ScrollView
@@ -134,189 +101,130 @@ export default function PatientProfileScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
       >
+        {/* User Card */}
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
-            <Ionicons name="person-circle" size={80} color="#0B5ED7" />
+            <Ionicons name="person-circle" size={72} color={COLORS.primary} />
           </View>
-          <Text style={styles.userName}>{user?.name}</Text>
-          <Text style={styles.userRole}>Patient</Text>
+          <Text style={styles.userName}>{user?.name || "Patient Account"}</Text>
+          <Text style={styles.userEmail}>{user?.email || "patient@pneumodetect.com"}</Text>
         </View>
 
+        {/* 1. Account Info Section */}
         <View style={styles.section}>
-          <Card elevated="light">
-            <View style={styles.sectionHeader}>
-              <View style={[styles.sectionIcon, { backgroundColor: "rgba(11, 94, 215, 0.1)" }]}>
-                <Ionicons name="person-outline" size={20} color="#0B5ED7" />
+          <Text style={styles.sectionHeader}>Account</Text>
+          <Card elevated="light" style={styles.card}>
+            <View style={styles.accountRow}>
+              <View style={styles.rowLeft}>
+                <Ionicons name="person-outline" size={20} color={COLORS.textSecondary} />
+                <Text style={styles.rowLabel}>Full Name</Text>
               </View>
-              <Text style={styles.sectionTitle}>Personal Information</Text>
+              <Text style={styles.rowValue}>{user?.name || "N/A"}</Text>
             </View>
+            <View style={styles.accountRow}>
+              <View style={styles.rowLeft}>
+                <Ionicons name="mail-outline" size={20} color={COLORS.textSecondary} />
+                <Text style={styles.rowLabel}>Email</Text>
+              </View>
+              <Text style={styles.rowValue}>{user?.email || "N/A"}</Text>
+            </View>
+            {user?.phone ? (
+              <View style={[styles.accountRow, { borderBottomWidth: 0 }]}>
+                <View style={styles.rowLeft}>
+                  <Ionicons name="call-outline" size={20} color={COLORS.textSecondary} />
+                  <Text style={styles.rowLabel}>Phone</Text>
+                </View>
+                <Text style={styles.rowValue}>{user?.phone}</Text>
+              </View>
+            ) : null}
+          </Card>
+        </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Full Name</Text>
-              <TextInput
-                style={[styles.input, !editMode && styles.inputDisabled]}
-                value={formData.name}
-                onChangeText={(text) => setFormData({ ...formData, name: text })}
-                editable={editMode}
-                placeholderTextColor="#9CA3AF"
+        {/* 2. Notifications Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Notifications</Text>
+          <Card elevated="light" style={styles.card}>
+            <View style={styles.switchRow}>
+              <View style={styles.rowLeft}>
+                <Ionicons name="notifications-outline" size={20} color={COLORS.primary} />
+                <Text style={styles.rowLabel}>Push Notifications</Text>
+              </View>
+              <Switch
+                value={pushEnabled}
+                onValueChange={setPushEnabled}
+                trackColor={{ false: COLORS.border, true: COLORS.primary }}
               />
             </View>
 
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Email Address</Text>
-              <TextInput
-                style={[styles.input, styles.inputDisabled]}
-                value={formData.email}
-                editable={false}
-                placeholderTextColor="#9CA3AF"
-              />
-              <Text style={styles.helperText}>Email cannot be changed</Text>
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Phone Number</Text>
-              <TextInput
-                style={[styles.input, !editMode && styles.inputDisabled]}
-                value={formData.phone}
-                onChangeText={(text) => setFormData({ ...formData, phone: text })}
-                editable={editMode}
-                placeholder="(Optional)"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="phone-pad"
+            <View style={[styles.switchRow, { borderBottomWidth: 0 }]}>
+              <View style={styles.rowLeft}>
+                <Ionicons name="mail-unread-outline" size={20} color={COLORS.primary} />
+                <Text style={styles.rowLabel}>Email Alerts</Text>
+              </View>
+              <Switch
+                value={emailEnabled}
+                onValueChange={setEmailEnabled}
+                trackColor={{ false: COLORS.border, true: COLORS.primary }}
               />
             </View>
           </Card>
         </View>
 
+        {/* 3. Privacy & Security Section */}
         <View style={styles.section}>
-          <Card elevated="light">
-            <View style={styles.sectionHeader}>
-              <View style={[styles.sectionIcon, { backgroundColor: "rgba(16, 185, 129, 0.1)" }]}>
-                <Ionicons name="fitness-outline" size={20} color="#10B981" />
-              </View>
-              <Text style={[styles.sectionTitle]}>Health Information</Text>
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Date of Birth</Text>
-              <TextInput
-                style={[styles.input, !editMode && styles.inputDisabled]}
-                value={formData.dateOfBirth}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, dateOfBirth: text })
-                }
-                editable={editMode}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#9CA3AF"
-              />
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Gender</Text>
-              <View style={styles.genderButtons}>
-                {(["MALE", "FEMALE", "OTHER"] as const).map((g) => (
-                  <TouchableOpacity
-                    key={g}
-                    style={[
-                      styles.genderButton,
-                      !editMode && styles.genderButtonDisabled,
-                      formData.gender === g && styles.genderButtonSelected,
-                    ]}
-                    onPress={() => {
-                      if (editMode) setFormData({ ...formData, gender: g });
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.genderButtonText,
-                        formData.gender === g && styles.genderButtonTextSelected,
-                      ]}
-                    >
-                      {g}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Medical History (Optional)</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  styles.textArea,
-                  !editMode && styles.inputDisabled,
-                ]}
-                value={formData.medicalHistory}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, medicalHistory: text })
-                }
-                editable={editMode}
-                placeholder="Any relevant medical conditions or allergies"
-                placeholderTextColor="#9CA3AF"
-                multiline
-                numberOfLines={4}
-              />
-            </View>
-          </Card>
-        </View>
-
-        <View style={styles.section}>
-          <Card elevated="light">
-            <View style={styles.sectionHeader}>
-              <View style={[styles.sectionIcon, { backgroundColor: "rgba(239, 68, 68, 0.1)" }]}>
-                <Ionicons name="lock-closed-outline" size={20} color="#EF4444" />
-              </View>
-              <Text style={[styles.sectionTitle]}>Account</Text>
-            </View>
-
+          <Text style={styles.sectionHeader}>Privacy & Security</Text>
+          <Card elevated="light" style={styles.card}>
             <TouchableOpacity
-              style={styles.actionButton}
+              style={styles.actionRow}
               onPress={() => setIsPasswordModalVisible(true)}
             >
-              <View style={[styles.actionIconContainer, { backgroundColor: "rgba(11, 94, 215, 0.1)" }]}>
-                <Ionicons name="key-outline" size={18} color="#0B5ED7" />
+              <View style={styles.rowLeft}>
+                <Ionicons name="lock-closed-outline" size={20} color={COLORS.danger} />
+                <Text style={styles.rowLabel}>Change Password</Text>
               </View>
-              <Text style={styles.actionButtonText}>Change Password</Text>
-              <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
+              <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.actionButton, styles.dangerButton]}
-              onPress={handleLogout}
+              style={[styles.actionRow, { borderBottomWidth: 0 }]}
+              onPress={() => success("Your diagnostic data settings are fully secure.")}
             >
-              <View style={[styles.actionIconContainer, { backgroundColor: "rgba(239, 68, 68, 0.1)" }]}>
-                <Ionicons name="log-out-outline" size={18} color="#EF4444" />
+              <View style={styles.rowLeft}>
+                <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.success} />
+                <Text style={styles.rowLabel}>Diagnostic Privacy</Text>
               </View>
-              <Text style={[styles.actionButtonText, { color: "#EF4444" }]}>
-                Logout
-              </Text>
-              <Ionicons name="chevron-forward" size={20} color="#D1D5DB" />
+              <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
             </TouchableOpacity>
           </Card>
         </View>
 
-        {editMode && (
-          <View style={styles.editActions}>
+        {/* 4. Help Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Help & Support</Text>
+          <Card elevated="light" style={styles.card}>
             <TouchableOpacity
-              style={[styles.actionBtn, styles.cancelBtn]}
-              onPress={() => setEditMode(false)}
+              style={styles.actionRow}
+              onPress={() => router.push("/profile/help-center")}
             >
-              <Text style={styles.cancelBtnText}>Cancel</Text>
+              <View style={styles.rowLeft}>
+                <Ionicons name="help-circle-outline" size={20} color={COLORS.primary} />
+                <Text style={styles.rowLabel}>Help Center & FAQ</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionBtn, styles.saveBtn]}
-              onPress={handleSave}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Text style={styles.saveBtnText}>Save Changes</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        )}
+          </Card>
+        </View>
+
+        {/* 5. Sign Out Section */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.signOutButton}
+            onPress={handleLogout}
+          >
+            <Ionicons name="log-out-outline" size={20} color={COLORS.danger} />
+            <Text style={styles.signOutButtonText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       {/* Change Password Modal */}
@@ -398,36 +306,21 @@ export default function PatientProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     paddingHorizontal: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   title: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
-  },
-  editButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(11, 94, 215, 0.1)",
-    justifyContent: "center",
-    alignItems: "center",
   },
   content: {
     flex: 1,
@@ -441,159 +334,90 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   userName: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "800",
-    color: "#111827",
-    marginBottom: 4,
+    color: COLORS.textPrimary,
   },
-  userRole: {
-    fontSize: 15,
-    color: "#6B7280",
+  userEmail: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
     fontWeight: "500",
+    marginTop: 2,
   },
   section: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  sectionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  sectionTitle: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#111827",
-    letterSpacing: -0.3,
+    color: COLORS.textSecondary,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 10,
+    marginLeft: 4,
   },
-  formGroup: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#4B5563",
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: "#F9FAFB",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+  card: {
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: 4,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: "#111827",
-  },
-  inputDisabled: {
-    backgroundColor: "#F3F4F6",
-    color: "#6B7280",
-  },
-  textArea: {
-    paddingTop: 12,
-    textAlignVertical: "top",
-    height: 100,
-  },
-  helperText: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    marginTop: 6,
-  },
-  genderButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  genderButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
+    borderColor: COLORS.border,
   },
-  genderButtonDisabled: {
-    opacity: 0.6,
-  },
-  genderButtonSelected: {
-    backgroundColor: "#0B5ED7",
-    borderColor: "#0B5ED7",
-  },
-  genderButtonText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#6B7280",
-  },
-  genderButtonTextSelected: {
-    color: "#FFFFFF",
-  },
-  actionButton: {
+  accountRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    borderRadius: 12,
-    backgroundColor: "#F9FAFB",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  dangerButton: {
-    backgroundColor: "#FEF2F2",
-    borderColor: "#FEE2E2",
-  },
-  actionIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  actionButtonText: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#111827",
-  },
-  editActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  actionBtn: {
-    flex: 1,
     paddingVertical: 14,
-    borderRadius: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  switchRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  rowLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  rowLabel: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+  },
+  rowValue: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+  },
+  signOutButton: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
+    backgroundColor: COLORS.dangerLight,
+    paddingVertical: 16,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.dangerLight,
   },
-  cancelBtn: {
-    backgroundColor: "#F3F4F6",
-  },
-  saveBtn: {
-    backgroundColor: "#0B5ED7",
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  cancelBtnText: {
+  signOutButtonText: {
+    color: COLORS.danger,
     fontSize: 16,
     fontWeight: "700",
-    color: "#4B5563",
-  },
-  saveBtnText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#FFFFFF",
   },
   modalOverlay: {
     flex: 1,
@@ -603,15 +427,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderRadius: 16,
     padding: 24,
     width: "100%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 10,
+    ...SHADOWS.heavy,
   },
   modalHeader: {
     flexDirection: "row",
@@ -622,7 +442,45 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
+  },
+  formGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: COLORS.background,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: COLORS.textPrimary,
+  },
+  actionBtn: {
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  saveBtn: {
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  saveBtnText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFFFFF",
   },
 });

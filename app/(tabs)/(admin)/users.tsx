@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useToast } from "../../../hooks/useToast";
 import { adminAPI } from "../../../services/api.client";
 import { getErrorMessage } from "../../../utils/errorHandler";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../../constants/Theme";
 
 export default function UsersScreen() {
   const insets = useSafeAreaInsets();
@@ -98,7 +99,7 @@ export default function UsersScreen() {
     <View style={styles.userCard}>
       <View style={styles.userHeader}>
         <View style={styles.avatarContainer}>
-          <Ionicons name="person" size={32} color="#0066CC" />
+          <Ionicons name="person" size={32} color={COLORS.primary} />
         </View>
         <View style={styles.userInfo}>
           <View style={styles.nameRow}>
@@ -126,7 +127,7 @@ export default function UsersScreen() {
             <Ionicons
               name={item.role === "ADMIN" ? "shield-checkmark" : "medical"}
               size={14}
-              color="#0066CC"
+              color={COLORS.primary}
             />
             <Text style={styles.roleText}>
               {item.role === "ADMIN" ? "Administrator" : "Clinician"}
@@ -145,7 +146,7 @@ export default function UsersScreen() {
           <Ionicons
             name={item.isActive ? "pause-circle" : "play-circle"}
             size={20}
-            color="#0066CC"
+            color={COLORS.primary}
           />
           <Text style={styles.actionButtonText}>
             {item.isActive ? "Suspend" : "Activate"}
@@ -156,7 +157,7 @@ export default function UsersScreen() {
           style={[styles.actionButton, styles.deleteButton]}
           onPress={() => handleDeleteUser(item.id, item.name)}
         >
-          <Ionicons name="trash-outline" size={20} color="#D32F2F" />
+          <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
           <Text style={styles.deleteButtonText}>Delete</Text>
         </TouchableOpacity>
       </View>
@@ -171,7 +172,7 @@ export default function UsersScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>User Management</Text>
@@ -184,7 +185,7 @@ export default function UsersScreen() {
             style={styles.backButton}
             onPress={() => router.push("/(tabs)/(admin)/analytics")}
           >
-            <Ionicons name="bar-chart" size={24} color="#0066CC" />
+            <Ionicons name="bar-chart" size={24} color={COLORS.primary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -193,26 +194,26 @@ export default function UsersScreen() {
         <Ionicons
           name="search"
           size={20}
-          color="#8E8E93"
+          color={COLORS.textSecondary}
           style={styles.searchIcon}
         />
         <TextInput
           style={styles.searchInput}
           placeholder="Search users..."
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={COLORS.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={20} color="#8E8E93" />
+            <Ionicons name="close-circle" size={20} color={COLORS.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#0066CC" />
+          <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : (
         <FlatList
@@ -226,7 +227,7 @@ export default function UsersScreen() {
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="people-outline" size={64} color="#C7C7CC" />
+              <Ionicons name="people-outline" size={64} color={COLORS.border} />
               <Text style={styles.emptyText}>No users found</Text>
             </View>
           }
@@ -239,18 +240,14 @@ export default function UsersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -262,7 +259,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -273,40 +270,34 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    ...SHADOWS.light,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     margin: 16,
     marginBottom: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.md,
     height: 50,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   searchIcon: {
     marginRight: 12,
@@ -314,7 +305,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   filterContainer: {
     flexDirection: "row",
@@ -326,15 +317,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: COLORS.primaryLight,
   },
   filterButtonActive: {
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
   },
   filterButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   filterButtonTextActive: {
     color: "#FFFFFF",
@@ -344,15 +335,13 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   userCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   userHeader: {
     flexDirection: "row",
@@ -362,7 +351,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -379,7 +368,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     flex: 1,
   },
   statusBadge: {
@@ -388,10 +377,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusActive: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: COLORS.successLight,
   },
   statusInactive: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: COLORS.dangerLight,
   },
   statusText: {
     fontSize: 11,
@@ -399,14 +388,14 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   statusTextActive: {
-    color: "#4CAF50",
+    color: COLORS.success,
   },
   statusTextInactive: {
-    color: "#D32F2F",
+    color: COLORS.danger,
   },
   userEmail: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginBottom: 6,
   },
   roleContainer: {
@@ -416,7 +405,7 @@ const styles = StyleSheet.create({
   },
   roleText: {
     fontSize: 12,
-    color: "#0066CC",
+    color: COLORS.primary,
     fontWeight: "600",
   },
   statsRow: {
@@ -424,7 +413,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#F5F5F7",
+    borderColor: COLORS.border,
     marginBottom: 12,
   },
   statItem: {
@@ -434,16 +423,16 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: COLORS.border,
   },
   actionButtons: {
     flexDirection: "row",
@@ -454,7 +443,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     borderRadius: 8,
     paddingVertical: 10,
     gap: 6,
@@ -462,15 +451,15 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0066CC",
+    color: COLORS.primary,
   },
   deleteButton: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: COLORS.dangerLight,
   },
   deleteButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#D32F2F",
+    color: COLORS.danger,
   },
   emptyContainer: {
     alignItems: "center",
@@ -479,7 +468,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 16,
   },
   // Modal Styles
@@ -489,18 +478,14 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: "90%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    ...SHADOWS.heavy,
   },
   modalHeader: {
     flexDirection: "row",
@@ -508,7 +493,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: COLORS.border,
   },
   modalTitleContainer: {
     flexDirection: "row",
@@ -518,13 +503,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   closeButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -537,22 +522,24 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     marginBottom: 8,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
     gap: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   modalInput: {
     flex: 1,
     fontSize: 16,
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   roleSelection: {
     flexDirection: "row",
@@ -563,7 +550,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     borderRadius: 12,
     paddingVertical: 14,
     gap: 8,
@@ -571,20 +558,20 @@ const styles = StyleSheet.create({
     borderColor: "transparent",
   },
   roleOptionActive: {
-    backgroundColor: "#0066CC",
-    borderColor: "#0066CC",
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   roleOptionText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0066CC",
+    color: COLORS.primary,
   },
   roleOptionTextActive: {
     color: "#FFFFFF",
   },
   infoBox: {
     flexDirection: "row",
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primaryLight,
     borderRadius: 12,
     padding: 12,
     gap: 8,
@@ -593,7 +580,7 @@ const styles = StyleSheet.create({
   infoText: {
     flex: 1,
     fontSize: 13,
-    color: "#0066CC",
+    color: COLORS.primary,
     lineHeight: 18,
   },
   modalActions: {
@@ -601,11 +588,11 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
+    borderTopColor: COLORS.border,
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
@@ -614,22 +601,18 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   submitButton: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#0066CC",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    ...SHADOWS.light,
   },
   submitButtonText: {
     fontSize: 16,

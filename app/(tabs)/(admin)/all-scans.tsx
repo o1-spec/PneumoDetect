@@ -20,6 +20,7 @@ import { formatDate, formatTime } from "../../../utils/dateFormatter";
 import { getErrorMessage } from "../../../utils/errorHandler";
 import { dialogManager } from "../../../utils/dialogManager";
 import { PneumoLoader } from "../../../components/premium";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../../constants/Theme";
 
 export default function AllScansScreen() {
   const insets = useSafeAreaInsets();
@@ -126,7 +127,10 @@ export default function AllScansScreen() {
 
     return (
       <TouchableOpacity
-        style={styles.scanCard}
+        style={[
+          styles.scanCard,
+          { borderLeftWidth: 4, borderLeftColor: isPneumonia ? COLORS.danger : COLORS.success }
+        ]}
         onPress={() => handleViewDetails(item)}
       >
         <View style={styles.scanHeader}>
@@ -140,9 +144,9 @@ export default function AllScansScreen() {
               ID: {item.patient?.idNumber || item.patientId}
             </Text>
             <View style={styles.dateTimeRow}>
-              <Ionicons name="calendar-outline" size={12} color="#8E8E93" />
+              <Ionicons name="calendar-outline" size={12} color={COLORS.textSecondary} />
               <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
-              <Ionicons name="time-outline" size={12} color="#8E8E93" />
+              <Ionicons name="time-outline" size={12} color={COLORS.textSecondary} />
               <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
             </View>
           </View>
@@ -157,12 +161,12 @@ export default function AllScansScreen() {
           <Ionicons
             name={isPneumonia ? "warning" : "checkmark-circle"}
             size={16}
-            color={isPneumonia ? "#D32F2F" : "#4CAF50"}
+            color={isPneumonia ? COLORS.danger : COLORS.success}
           />
           <Text
             style={[
               styles.predictionText,
-              isPneumonia ? styles.textDanger : styles.textSafe,
+              { color: isPneumonia ? COLORS.danger : COLORS.success },
             ]}
           >
             {item.result === "PNEUMONIA" ? "Pneumonia Detected" : "Normal"}
@@ -173,7 +177,7 @@ export default function AllScansScreen() {
         </View>
 
         <View style={styles.clinicianRow}>
-          <Ionicons name="person-circle-outline" size={16} color="#8E8E93" />
+          <Ionicons name="person-circle-outline" size={16} color={COLORS.textSecondary} />
           <Text style={styles.clinicianText}>
             Analyzed by {item.doctor?.name || "Unknown"}
           </Text>
@@ -184,7 +188,7 @@ export default function AllScansScreen() {
             style={styles.viewButton}
             onPress={() => handleViewDetails(item)}
           >
-            <Ionicons name="eye-outline" size={18} color="#0066CC" />
+            <Ionicons name="eye-outline" size={18} color={COLORS.primary} />
             <Text style={styles.viewButtonText}>View Details</Text>
           </TouchableOpacity>
 
@@ -194,7 +198,7 @@ export default function AllScansScreen() {
               handleDeleteScan(item.id, item.patient?.name || "Unknown")
             }
           >
-            <Ionicons name="trash-outline" size={18} color="#D32F2F" />
+            <Ionicons name="trash-outline" size={18} color={COLORS.danger} />
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
@@ -209,7 +213,7 @@ export default function AllScansScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>All Scans</Text>
@@ -219,7 +223,7 @@ export default function AllScansScreen() {
             </Text>
           </View>
           <View style={styles.headerIcon}>
-            <Ionicons name="analytics-outline" size={24} color="#0066CC" />
+            <Ionicons name="analytics-outline" size={24} color={COLORS.primary} />
           </View>
         </View>
       </View>
@@ -245,19 +249,19 @@ export default function AllScansScreen() {
         <Ionicons
           name="search"
           size={20}
-          color="#8E8E93"
+          color={COLORS.textSecondary}
           style={styles.searchIcon}
         />
         <TextInput
           style={styles.searchInput}
           placeholder="Search scans..."
-          placeholderTextColor="#8E8E93"
+          placeholderTextColor={COLORS.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={20} color="#8E8E93" />
+            <Ionicons name="close-circle" size={20} color={COLORS.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -317,7 +321,7 @@ export default function AllScansScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <PneumoLoader size={48} color="#0B5ED7" />
+          <PneumoLoader size={48} color={COLORS.primary} />
         </View>
       ) : (
         <FlatList
@@ -331,7 +335,7 @@ export default function AllScansScreen() {
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="document-outline" size={64} color="#C7C7CC" />
+              <Ionicons name="document-outline" size={64} color={COLORS.border} />
               <Text style={styles.emptyText}>No scans found</Text>
             </View>
           }
@@ -344,18 +348,14 @@ export default function AllScansScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -378,18 +378,18 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   headerIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -400,53 +400,51 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   dangerCard: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: COLORS.dangerLight,
+    borderColor: COLORS.dangerLight,
   },
   safeCard: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: COLORS.successLight,
+    borderColor: COLORS.successLight,
   },
   statValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   dangerText: {
-    color: "#D32F2F",
+    color: COLORS.danger,
   },
   safeText: {
-    color: "#4CAF50",
+    color: COLORS.success,
   },
   statLabel: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     fontWeight: "600",
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     marginHorizontal: 16,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.md,
     height: 50,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   searchIcon: {
     marginRight: 12,
@@ -454,7 +452,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   filterContainer: {
     flexDirection: "row",
@@ -466,15 +464,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: COLORS.primaryLight,
   },
   filterButtonActive: {
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
   },
   filterButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   filterButtonTextActive: {
     color: "#FFFFFF",
@@ -489,15 +487,13 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   scanCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   scanHeader: {
     flexDirection: "row",
@@ -507,7 +503,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 8,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     marginRight: 12,
   },
   scanInfo: {
@@ -516,18 +512,18 @@ const styles = StyleSheet.create({
   scanId: {
     fontSize: 12,
     fontWeight: "bold",
-    color: "#0066CC",
+    color: COLORS.primary,
     marginBottom: 4,
   },
   patientName: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     marginBottom: 2,
   },
   patientId: {
     fontSize: 13,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginBottom: 6,
   },
   dateTimeRow: {
@@ -537,12 +533,12 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginRight: 8,
   },
   timeText: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   predictionBadge: {
     flexDirection: "row",
@@ -553,26 +549,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   predictionDanger: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: COLORS.dangerLight,
   },
   predictionSafe: {
-    backgroundColor: "#E8F5E9",
+    backgroundColor: COLORS.successLight,
   },
   predictionText: {
     flex: 1,
     fontSize: 14,
     fontWeight: "600",
   },
-  textDanger: {
-    color: "#D32F2F",
-  },
-  textSafe: {
-    color: "#4CAF50",
-  },
   confidenceText: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   clinicianRow: {
     flexDirection: "row",
@@ -581,11 +571,11 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#F5F5F7",
+    borderTopColor: COLORS.border,
   },
   clinicianText: {
     fontSize: 13,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   actionRow: {
     flexDirection: "row",
@@ -596,7 +586,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primaryLight,
     borderRadius: 8,
     paddingVertical: 10,
     gap: 6,
@@ -604,12 +594,12 @@ const styles = StyleSheet.create({
   viewButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0066CC",
+    color: COLORS.primary,
   },
   deleteIconButton: {
     width: 44,
     height: 44,
-    backgroundColor: "#FFEBEE",
+    backgroundColor: COLORS.dangerLight,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
@@ -621,7 +611,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 16,
   },
 });

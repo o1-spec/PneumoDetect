@@ -9,6 +9,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
+  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PremiumChip } from "../../components/premium";
@@ -16,6 +18,10 @@ import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
 import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const COLUMN_WIDTH = (SCREEN_WIDTH - 48) / 2; // Two columns with padding
 
 export default function PatientMyScansScreen() {
   const insets = useSafeAreaInsets();
@@ -23,7 +29,7 @@ export default function PatientMyScansScreen() {
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<"ALL" | "NORMAL" | "PNEUMONIA">("ALL");
+  const [filter, setFilter] = useState<"ALL" | "NORMAL" | "RECOMMENDED">("ALL");
 
   useEffect(() => {
     loadScans();
@@ -33,7 +39,7 @@ export default function PatientMyScansScreen() {
     try {
       setLoading(true);
       const response = await scansAPI.getMyScans();
-      const scans = response.scans || [];
+      const scans = response.scans || response || [];
       setScans(scans);
     } catch (error) {
       const errorMessage = getErrorMessage(error);
@@ -51,7 +57,7 @@ export default function PatientMyScansScreen() {
 
   const filteredScans = scans.filter((scan: Scan) => {
     if (filter === "NORMAL") return scan.result === "NORMAL";
-    if (filter === "PNEUMONIA")
+    if (filter === "RECOMMENDED")
       return scan.result === "PNEUMONIA" || scan.result === "CONCERNS";
     return true;
   });
@@ -63,18 +69,50 @@ export default function PatientMyScansScreen() {
     });
   };
 
+  const getStatusText = (scan: Scan) => {
+    if (scan.status === "PROCESSING" || scan.status === "UPLOADED") {
+      return "Analyzing...";
+    }
+    if (scan.result === "NORMAL") {
+      return "Normal";
+    }
+    return "Review Recommended";
+  };
+
+  const getStatusColor = (scan: Scan) => {
+    if (scan.status === "PROCESSING" || scan.status === "UPLOADED") {
+      return COLORS.secondary;
+    }
+    if (scan.result === "NORMAL") {
+      return COLORS.success;
+    }
+    return COLORS.danger;
+  };
+
+  const getStatusBgColor = (scan: Scan) => {
+    if (scan.status === "PROCESSING" || scan.status === "UPLOADED") {
+      return COLORS.secondaryLight;
+    }
+    if (scan.result === "NORMAL") {
+      return COLORS.successLight;
+    }
+    return COLORS.dangerLight;
+  };
+
   return (
     <View style={styles.container}>
+      {/* Header bar */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
+          <TouchableOpacity style={styles.backButton} onPress={() => router.replace("/(patient)")}>
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>My Scans</Text>
+          <Text style={styles.headerTitle}>Scan History</Text>
           <View style={{ width: 40 }} />
         </View>
       </View>
 
+      {/* Filter chips */}
       <View style={styles.filterContainer}>
         <PremiumChip
           label={`All (${scans.length})`}
@@ -87,19 +125,20 @@ export default function PatientMyScansScreen() {
           onPress={() => setFilter("NORMAL")}
         />
         <PremiumChip
-          label={`Concerns (${
+          label={`Review Recommended (${
             scans.filter(
               (s) => s.result === "PNEUMONIA" || s.result === "CONCERNS"
             ).length
           })`}
-          selected={filter === "PNEUMONIA"}
-          onPress={() => setFilter("PNEUMONIA")}
+          selected={filter === "RECOMMENDED"}
+          onPress={() => setFilter("RECOMMENDED")}
         />
       </View>
 
+      {/* Scans list / Grid */}
       <ScrollView
         style={styles.content}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -108,92 +147,70 @@ export default function PatientMyScansScreen() {
         {loading ? (
           <ActivityIndicator
             size="large"
-            color="#0B5ED7"
+            color={COLORS.primary}
             style={{ marginTop: 40 }}
           />
         ) : filteredScans.length > 0 ? (
-          <View style={styles.scansList}>
+          <View style={styles.galleryGrid}>
             {filteredScans.map((scan) => (
               <TouchableOpacity
                 key={scan.id}
                 style={styles.scanCard}
                 onPress={() => navigateToScan(scan.id)}
               >
-                <View style={styles.scanCardLeft}>
+                {/* Chest X-ray image preview */}
+                <View style={styles.imageContainer}>
+                  {scan.imageUrl ? (
+                    <Image source={{ uri: scan.imageUrl }} style={styles.xrayImage} />
+                  ) : (
+                    <View style={styles.placeholderImage}>
+                      <Ionicons name="image-outline" size={32} color={COLORS.textTertiary} />
+                    </View>
+                  )}
+                  {/* Subtle, soft status badge overlaid on the image */}
                   <View
                     style={[
-                      styles.statusIndicator,
-                      scan.result === "NORMAL"
-                        ? styles.statusNormal
-                        : styles.statusConcern,
+                      styles.statusBadge,
+                      { backgroundColor: getStatusBgColor(scan) },
                     ]}
-                  />
-                  <View style={styles.scanInfo}>
-                    <Text style={styles.scanDate}>
-                      {new Date(scan.createdAt).toLocaleDateString("en-US", {
-                        weekday: "short",
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                  >
+                    <Text style={[styles.statusText, { color: getStatusColor(scan) }]}>
+                      {getStatusText(scan)}
                     </Text>
-                    <Text style={styles.scanTime}>
-                      {new Date(scan.createdAt).toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Text>
-                    {scan.doctorName && (
-                      <Text style={styles.patientName}>
-                        Analyzed by {scan.doctorName}
-                      </Text>
-                    )}
                   </View>
                 </View>
 
-                <View style={styles.scanCardRight}>
-                  <View
-                    style={[
-                      styles.resultBadge,
-                      scan.result === "NORMAL"
-                        ? styles.resultNormalBg
-                        : styles.resultConcernBg,
-                    ]}
+                {/* Meta details */}
+                <View style={styles.cardDetails}>
+                  <Text style={styles.scanDate}>
+                    {new Date(scan.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </Text>
+                  
+                  <TouchableOpacity
+                    style={styles.viewReportButton}
+                    onPress={() => navigateToScan(scan.id)}
                   >
-                    <Text
-                      style={[
-                        styles.resultBadgeText,
-                        scan.result === "NORMAL"
-                          ? styles.resultNormalText
-                          : styles.resultConcernText,
-                      ]}
-                    >
-                      {scan.result}
-                    </Text>
-                  </View>
-
-                  <View style={styles.confidenceContainer}>
-                    <Text style={styles.confidenceLabel}>Confidence</Text>
-                    <Text style={styles.confidenceValue}>
-                      {scan.confidence
-                        ? `${Math.round(scan.confidence * 100)}%`
-                        : "N/A"}
-                    </Text>
-                  </View>
-
-                  <Ionicons name="chevron-forward" size={24} color="#D1D5DB" />
+                    <Text style={styles.viewReportText}>View Report</Text>
+                    <Ionicons name="arrow-forward" size={12} color={COLORS.primary} />
+                  </TouchableOpacity>
                 </View>
               </TouchableOpacity>
             ))}
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <Ionicons name="images-outline" size={64} color="#D1D5DB" />
+            <View style={styles.emptyIconCircle}>
+              <Ionicons name="images-outline" size={32} color={COLORS.textTertiary} />
+            </View>
             <Text style={styles.emptyText}>No scans found</Text>
             <Text style={styles.emptySubtext}>
               {filter === "ALL"
-                ? "Your scans will appear here"
-                : `No ${filter.toLowerCase()} scans found`}
+                ? "Your uploaded scans will appear here"
+                : "No matching scans found"}
             </Text>
           </View>
         )}
@@ -205,18 +222,14 @@ export default function PatientMyScansScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -228,14 +241,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   filterContainer: {
@@ -246,119 +259,95 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
   },
-  scansList: {
-    gap: 12,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+  galleryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 16,
   },
   scanCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    width: COLUMN_WIDTH,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
-  scanCardLeft: {
+  imageContainer: {
+    width: "100%",
+    height: 140,
+    backgroundColor: "#0F172A",
+    position: "relative",
+  },
+  xrayImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  placeholderImage: {
     flex: 1,
-    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    gap: 12,
+    backgroundColor: COLORS.primaryLight,
   },
-  statusIndicator: {
-    width: 12,
-    height: 12,
+  statusBadge: {
+    position: "absolute",
+    bottom: 8,
+    left: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 6,
+    ...SHADOWS.light,
   },
-  statusNormal: {
-    backgroundColor: "#10B981",
+  statusText: {
+    fontSize: 10,
+    fontWeight: "800",
   },
-  statusConcern: {
-    backgroundColor: "#EF4444",
-  },
-  scanInfo: {
-    flex: 1,
+  cardDetails: {
+    padding: 12,
   },
   scanDate: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
-  scanTime: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginTop: 2,
-    fontWeight: "500",
+  viewReportButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 8,
   },
-  patientName: {
-    fontSize: 13,
-    color: "#4B5563",
-    marginTop: 4,
-    fontWeight: "500",
-  },
-  scanCardRight: {
-    alignItems: "flex-end",
-    gap: 8,
-  },
-  resultBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  resultNormalBg: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
-  },
-  resultConcernBg: {
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
-  },
-  resultBadgeText: {
+  viewReportText: {
     fontSize: 12,
     fontWeight: "700",
-  },
-  resultNormalText: {
-    color: "#10B981",
-  },
-  resultConcernText: {
-    color: "#EF4444",
-  },
-  confidenceContainer: {
-    alignItems: "flex-end",
-  },
-  confidenceLabel: {
-    fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "500",
-  },
-  confidenceValue: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#111827",
-    marginTop: 2,
+    color: COLORS.primary,
   },
   emptyState: {
     alignItems: "center",
-    paddingVertical: 60,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    paddingVertical: 80,
+  },
+  emptyIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
   },
   emptyText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
-    marginTop: 12,
+    color: COLORS.textPrimary,
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginTop: 4,
     fontWeight: "500",
   },

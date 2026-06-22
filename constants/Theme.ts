@@ -4,6 +4,7 @@ export const COLORS = {
   primary: "#2563EB", // Primary Blue
   primaryLight: "#EEF2F6", // Tinted Slate
   secondary: "#0EA5A4", // Medical Teal
+  secondaryLight: "#E6F4F4", // Light Teal
   success: "#16A34A", // Clinical Green
   successLight: "#F0FDF4",
   danger: "#EF4444", // Rose

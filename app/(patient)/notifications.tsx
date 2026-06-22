@@ -16,13 +16,13 @@ import { getErrorMessage } from "../../utils/errorHandler";
 import { dialogManager } from "../../utils/dialogManager";
 import { useToast } from "../../hooks/useToast";
 import { PneumoLoader } from "../../components/premium/PneumoLoader";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function PatientNotificationsScreen() {
   const insets = useSafeAreaInsets();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const unreadCount = notifications.filter((n) => !n.read).length;
   const { error: showError, success: showSuccess } = useToast();
 
   useFocusEffect(
@@ -75,7 +75,7 @@ export default function PatientNotificationsScreen() {
       setNotifications((prev) =>
         prev.map((notif) => ({ ...notif, read: true })),
       );
-      showSuccess("All notifications marked as read");
+      showSuccess("All alerts marked as read");
     } catch (err) {
       showError(getErrorMessage(err));
     }
@@ -103,23 +103,55 @@ export default function PatientNotificationsScreen() {
     });
   };
 
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) {
+      return `${diffMins || 1}m ago`;
+    }
+    if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    }
+    if (diffDays === 1) {
+      return "Yesterday";
+    }
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  // Map backend raw text or notification titles to patient-friendly strings
+  const getPatientFriendlyNotification = (notif: Notification) => {
+    let title = notif.title;
+    let message = notif.message;
+
+    if (title.toUpperCase().includes("LINK")) {
+      title = "Account Verified";
+      message = "Your medical profile is now successfully linked.";
+    } else if (title.toUpperCase().includes("UPLOAD")) {
+      title = "Scan Uploaded";
+      message = "Your chest scan was successfully uploaded to secure files.";
+    } else if (title.toUpperCase().includes("PROCESS") || title.toUpperCase().includes("COMPLETE") || title.toUpperCase().includes("DIAGNOSIS") || title.toUpperCase().includes("RESULT")) {
+      title = "Analysis Complete";
+      message = "Your chest X-ray review has been processed by the AI system.";
+    }
+
+    return { title, message };
+  };
+
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#0B5ED7" />
+          <TouchableOpacity style={styles.backButton} onPress={() => router.replace("/(patient)")}>
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Notifications</Text>
-            {unreadCount > 0 && (
-              <Text style={styles.headerSubtitle}>{unreadCount} unread</Text>
-            )}
-          </View>
-          {notifications.length > 0 && (
+          <Text style={styles.headerTitle}>Recent Activity</Text>
+          {notifications.length > 0 ? (
             <TouchableOpacity
               style={styles.moreButton}
               onPress={() =>
@@ -136,133 +168,102 @@ export default function PatientNotificationsScreen() {
                 })
               }
             >
-              <Ionicons name="ellipsis-horizontal" size={24} color="#0B5ED7" />
+              <Ionicons name="ellipsis-horizontal" size={20} color={COLORS.primary} />
             </TouchableOpacity>
+          ) : (
+            <View style={{ width: 40 }} />
           )}
         </View>
       </View>
 
       {loading ? (
-        <View style={styles.emptyState}>
-          <PneumoLoader size={56} color="#0B5ED7" />
+        <View style={styles.loaderContainer}>
+          <PneumoLoader size={48} color={COLORS.primary} />
         </View>
       ) : notifications.length === 0 ? (
         <View style={styles.emptyState}>
-          <View style={styles.emptyIconContainer}>
-            <Ionicons
-              name="notifications-off-outline"
-              size={64}
-              color="#9CA3AF"
-            />
-          </View>
-          <Text style={styles.emptyTitle}>No Notifications</Text>
-          <Text style={styles.emptyText}>
-            You're all caught up! We'll notify you when your scan results are
-            ready.
-          </Text>
+          <Text style={styles.emptyText}>No recent updates</Text>
         </View>
       ) : (
         <ScrollView
           style={styles.content}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
         >
-          {unreadCount > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>New</Text>
-              {notifications
-                .filter((n) => !n.read)
-                .map((notification) => (
-                  <NotificationCard
-                    key={notification.id}
-                    notification={notification}
-                    onPress={() => handleMarkAsRead(notification.id)}
-                    onDelete={() => handleDelete(notification.id)}
-                  />
-                ))}
-            </View>
-          )}
+          <View style={styles.timelineList}>
+            {notifications.map((notif, index) => {
+              const { title, message } = getPatientFriendlyNotification(notif);
+              const isLast = index === notifications.length - 1;
+              return (
+                <View key={notif.id} style={styles.timelineItem}>
+                  <View style={styles.timelineLeft}>
+                    <TouchableOpacity
+                      style={[
+                        styles.timelineIndicator,
+                        notif.read ? styles.indicatorRead : styles.indicatorUnread,
+                      ]}
+                      onPress={() => handleMarkAsRead(notif.id)}
+                    >
+                      <Ionicons
+                        name={notif.read ? "checkmark" : "ellipse"}
+                        size={notif.read ? 12 : 8}
+                        color={notif.read ? COLORS.textTertiary : COLORS.primary}
+                      />
+                    </TouchableOpacity>
+                    {!isLast && <View style={styles.timelineLine} />}
+                  </View>
 
-          {notifications.filter((n) => n.read).length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Earlier</Text>
-              {notifications
-                .filter((n) => n.read)
-                .map((notification) => (
-                  <NotificationCard
-                    key={notification.id}
-                    notification={notification}
-                    onPress={() => handleMarkAsRead(notification.id)}
-                    onDelete={() => handleDelete(notification.id)}
-                  />
-                ))}
-            </View>
-          )}
-
-          <View style={styles.bottomSpacer} />
+                  <View style={styles.timelineRight}>
+                    <View style={styles.notificationHeader}>
+                      <Text style={[styles.notificationTitle, !notif.read && styles.unreadTitle]}>
+                        {title}
+                      </Text>
+                      <Text style={styles.notificationTime}>{formatTime(notif.createdAt)}</Text>
+                    </View>
+                    
+                    <Text style={styles.notificationMessage}>{message}</Text>
+                    
+                    <View style={styles.cardActions}>
+                      {!notif.read && (
+                        <TouchableOpacity
+                          style={styles.actionLink}
+                          onPress={() => handleMarkAsRead(notif.id)}
+                        >
+                          <Text style={styles.actionLinkText}>Mark read</Text>
+                        </TouchableOpacity>
+                      )}
+                      <TouchableOpacity
+                        style={styles.deleteLink}
+                        onPress={() => handleDelete(notif.id)}
+                      >
+                        <Text style={styles.deleteLinkText}>Clear</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
         </ScrollView>
       )}
     </View>
   );
 }
 
-const NotificationCard = ({
-  notification,
-  onPress,
-  onDelete,
-}: {
-  notification: Notification;
-  onPress: () => void;
-  onDelete: () => void;
-}) => (
-  <View
-    style={[styles.notificationCard, !notification.read && styles.unreadCard]}
-  >
-    <TouchableOpacity style={styles.cardContent} onPress={onPress}>
-      <View style={styles.notificationIcon}>
-        <Ionicons name="notifications" size={24} color="#0B5ED7" />
-      </View>
-      <View style={styles.notificationContent}>
-        <Text
-          style={[
-            styles.notificationTitle,
-            !notification.read && styles.unreadTitle,
-          ]}
-          numberOfLines={1}
-        >
-          {notification.title}
-        </Text>
-        <Text style={styles.notificationMessage} numberOfLines={2}>
-          {notification.message}
-        </Text>
-        <Text style={styles.notificationTime}>
-          {new Date(notification.createdAt).toLocaleDateString()}
-        </Text>
-      </View>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.deleteButton} onPress={onDelete}>
-      <Ionicons name="trash-outline" size={20} color="#EF4444" />
-    </TouchableOpacity>
-  </View>
-);
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
-    paddingBottom: 20,
+    backgroundColor: COLORS.card,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -274,149 +275,135 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
-  headerTextContainer: {
-    flex: 1,
-    alignItems: "center",
-  },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "800",
-    color: "#111827",
-    letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: "#0B5ED7",
-    marginTop: 4,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   moreButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
   content: {
     flex: 1,
   },
-  section: {
-    paddingHorizontal: 16,
-    marginTop: 24,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 40,
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#6B7280",
-    marginBottom: 12,
-    marginLeft: 4,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-  },
-  notificationCard: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  unreadCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: "#0B5ED7",
-    backgroundColor: "#EFF6FF",
-  },
-  notificationIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  loaderContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
-    backgroundColor: "#DBEAFE",
-    borderWidth: 1,
-    borderColor: "#BFDBFE",
+    paddingVertical: 100,
   },
-  notificationContent: {
+  timelineList: {
+    gap: 0,
+  },
+  timelineItem: {
+    flexDirection: "row",
+    minHeight: 88,
+  },
+  timelineLeft: {
+    alignItems: "center",
+    marginRight: 16,
+    width: 24,
+  },
+  timelineIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    backgroundColor: COLORS.card,
+  },
+  indicatorUnread: {
+    borderColor: COLORS.primary,
+  },
+  indicatorRead: {
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.background,
+  },
+  timelineLine: {
+    width: 1.5,
+    position: "absolute",
+    top: 24,
+    bottom: -16,
+    backgroundColor: COLORS.border,
+    zIndex: 5,
+  },
+  timelineRight: {
     flex: 1,
+    paddingBottom: 24,
+  },
+  notificationHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   notificationTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
-    marginBottom: 4,
+    color: COLORS.textPrimary,
   },
   unreadTitle: {
+    color: COLORS.primary,
     fontWeight: "800",
-    color: "#0B5ED7",
-  },
-  notificationMessage: {
-    fontSize: 13,
-    color: "#6B7280",
-    lineHeight: 20,
-    marginBottom: 6,
-    fontWeight: "500",
   },
   notificationTime: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: COLORS.textTertiary,
     fontWeight: "500",
+  },
+  notificationMessage: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+    lineHeight: 18,
+    fontWeight: "500",
+  },
+  cardActions: {
+    flexDirection: "row",
+    gap: 16,
+    marginTop: 8,
+  },
+  actionLink: {
+    paddingVertical: 2,
+  },
+  actionLinkText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: COLORS.primary,
+  },
+  deleteLink: {
+    paddingVertical: 2,
+  },
+  deleteLinkText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: COLORS.textTertiary,
   },
   emptyState: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 40,
-  },
-  emptyIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: "#F3F4F6",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  emptyTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 12,
-    letterSpacing: -0.5,
+    paddingVertical: 120,
   },
   emptyText: {
     fontSize: 15,
-    color: "#6B7280",
-    textAlign: "center",
-    lineHeight: 24,
-    fontWeight: "500",
-  },
-  bottomSpacer: {
-    height: 40,
-  },
-  cardContent: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  deleteButton: {
-    padding: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
   },
 });

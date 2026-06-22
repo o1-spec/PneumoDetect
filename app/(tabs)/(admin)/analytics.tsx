@@ -22,6 +22,7 @@ import {
 } from "../../../types/api";
 import { formatDate } from "../../../utils/dateFormatter";
 import { useToast } from "../../../hooks/useToast";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../../constants/Theme";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -80,7 +81,7 @@ export default function AnalyticsScreen() {
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#0066CC" />
+        <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={styles.loadingText}>Loading analytics...</Text>
       </View>
     );
@@ -94,7 +95,7 @@ export default function AnalyticsScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Analytics</Text>
@@ -156,25 +157,25 @@ function DashboardTab({ data }: { data: DashboardMetrics }) {
             label="Total Scans"
             value={data.totalScans.toString()}
             icon="scan"
-            color="#0066CC"
+            color={COLORS.primary}
           />
           <MetricCard
             label="Patients"
             value={data.totalPatients.toString()}
             icon="people"
-            color="#4CAF50"
+            color={COLORS.success}
           />
           <MetricCard
             label="Pneumonia"
             value={data.pneumoniaDetected.toString()}
             icon="warning"
-            color="#D32F2F"
+            color={COLORS.danger}
           />
           <MetricCard
             label="Accuracy"
             value={`${(data.accuracyRate * 100).toFixed(1)}%`}
             icon="checkmark-circle"
-            color="#FF9800"
+            color={COLORS.warning}
           />
         </View>
       </View>
@@ -250,7 +251,7 @@ function ScansTab({ data }: { data: ScanResultStatistics }) {
       {
         data: data.timelineData.slice(-7).map((d) => d.scans),
         strokeWidth: 2,
-        color: () => "#0066CC",
+        color: () => COLORS.primary,
       },
     ],
   };
@@ -288,10 +289,10 @@ function ScansTab({ data }: { data: ScanResultStatistics }) {
           width={screenWidth - 32}
           height={200}
           chartConfig={{
-            backgroundColor: "#FFFFFF",
-            backgroundGradientFrom: "#FFFFFF",
-            backgroundGradientTo: "#FFFFFF",
-            color: () => "#0066CC",
+            backgroundColor: COLORS.card,
+            backgroundGradientFrom: COLORS.card,
+            backgroundGradientTo: COLORS.card,
+            color: () => COLORS.primary,
             strokeWidth: 2,
           }}
           style={styles.chart}
@@ -304,17 +305,17 @@ function ScansTab({ data }: { data: ScanResultStatistics }) {
           <ConfidenceBar
             label="Excellent (>0.9)"
             value={data.confidenceDistribution.excellent}
-            color="#4CAF50"
+            color={COLORS.success}
           />
           <ConfidenceBar
             label="Good (0.8-0.9)"
             value={data.confidenceDistribution.good}
-            color="#FF9800"
+            color={COLORS.warning}
           />
           <ConfidenceBar
             label="Fair (<0.8)"
             value={data.confidenceDistribution.fair}
-            color="#D32F2F"
+            color={COLORS.danger}
           />
         </View>
       </View>
@@ -332,25 +333,25 @@ function PatientsTab({ data }: { data: PatientAnalytics }) {
             label="Total Patients"
             value={data.totalPatients.toString()}
             icon="people"
-            color="#0066CC"
+            color={COLORS.primary}
           />
           <MetricCard
             label="New This Month"
             value={data.newPatientsThisMonth.toString()}
             icon="person-add"
-            color="#4CAF50"
+            color={COLORS.success}
           />
           <MetricCard
             label="With Pneumonia"
             value={data.patientsWithPneumonia.toString()}
             icon="alert-circle"
-            color="#D32F2F"
+            color={COLORS.danger}
           />
           <MetricCard
             label="Avg Scans"
             value={data.averageScansPerPatient.toFixed(1)}
             icon="stats-chart"
-            color="#9C27B0"
+            color={COLORS.primary}
           />
         </View>
       </View>
@@ -430,22 +431,18 @@ function ConfidenceBar({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   centerContent: {
     justifyContent: "center",
     alignItems: "center",
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
@@ -457,7 +454,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -468,11 +465,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   placeholder: {
@@ -480,9 +477,9 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: COLORS.border,
   },
   tab: {
     flex: 1,
@@ -492,15 +489,15 @@ const styles = StyleSheet.create({
     borderBottomColor: "transparent",
   },
   tabActive: {
-    borderBottomColor: "#0066CC",
+    borderBottomColor: COLORS.primary,
   },
   tabText: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: COLORS.textTertiary,
     fontWeight: "500",
   },
   tabTextActive: {
-    color: "#0066CC",
+    color: COLORS.primary,
     fontWeight: "600",
   },
   content: {
@@ -512,7 +509,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     marginBottom: 12,
   },
   metricsGrid: {
@@ -522,15 +519,11 @@ const styles = StyleSheet.create({
   },
   metricCard: {
     width: "48%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 12,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
+    ...SHADOWS.light,
   },
   metricIcon: {
     width: 48,
@@ -543,35 +536,39 @@ const styles = StyleSheet.create({
   metricCardValue: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   metricCardLabel: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
   metricRow: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 12,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   metricLabel: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   metricValue: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   patientRow: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 12,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   patientInfo: {
     flex: 1,
@@ -579,21 +576,23 @@ const styles = StyleSheet.create({
   patientName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   patientStats: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
   scanRow: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 12,
     marginBottom: 8,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   scanInfo: {
     flex: 1,
@@ -601,11 +600,11 @@ const styles = StyleSheet.create({
   scanId: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   scanDate: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
   resultBadge: {
@@ -614,15 +613,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   resultDanger: {
-    backgroundColor: "#D32F2F20",
+    backgroundColor: COLORS.dangerLight,
   },
   resultSafe: {
-    backgroundColor: "#4CAF5020",
+    backgroundColor: COLORS.successLight,
   },
   resultText: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   breakdownContainer: {
     flexDirection: "row",
@@ -630,24 +629,27 @@ const styles = StyleSheet.create({
   },
   breakdownItem: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   breakdownLabel: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
   },
   breakdownValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     marginTop: 8,
   },
   breakdownPercentage: {
     fontSize: 14,
-    color: "#0066CC",
+    color: COLORS.primary,
     marginTop: 4,
     fontWeight: "600",
   },
@@ -656,9 +658,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   confidenceContainer: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   confidenceRow: {
     flexDirection: "row",
@@ -668,13 +672,13 @@ const styles = StyleSheet.create({
   },
   confidenceLabel: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     width: 100,
   },
   progressBar: {
     flex: 1,
     height: 8,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: COLORS.border,
     borderRadius: 4,
     overflow: "hidden",
   },
@@ -685,24 +689,26 @@ const styles = StyleSheet.create({
   confidenceValue: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     width: 40,
     textAlign: "right",
   },
   topPatientRow: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 12,
     marginBottom: 8,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   rankBadge: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -717,21 +723,21 @@ const styles = StyleSheet.create({
   topPatientName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
   topPatientId: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   topPatientStats: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   loadingText: {
     fontSize: 14,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 12,
   },
   bottomSpacer: {

@@ -5,6 +5,7 @@ import { Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAuth } from "../../hooks/useAuth";
 import { PneumoLoader } from "../../components/premium";
+import { COLORS } from "../../constants/Theme";
 
 export default function PatientLayout() {
   const { user, isLoading, isSignedIn } = useAuth();
@@ -12,7 +13,7 @@ export default function PatientLayout() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#FAFBFC" }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.background }}>
         <PneumoLoader size={64} />
       </View>
     );
@@ -32,17 +33,17 @@ export default function PatientLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#0066CC",
-        tabBarInactiveTintColor: "#8E8E93",
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarInactiveTintColor: COLORS.textSecondary,
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "500",
           marginTop: 4,
         },
         tabBarStyle: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: COLORS.card,
           borderTopWidth: 1,
-          borderTopColor: "#E5E5EA",
+          borderTopColor: COLORS.border,
           elevation: 8,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -2 },
@@ -89,6 +90,18 @@ export default function PatientLayout() {
       />
     <Tabs.Screen
         name="notifications"
+        options={{
+          href: null,
+        }}
+      />
+    <Tabs.Screen
+        name="upload"
+        options={{
+          href: null,
+        }}
+      />
+    <Tabs.Screen
+        name="processing"
         options={{
           href: null,
         }}
