@@ -14,15 +14,15 @@ import { Card } from "../../components/premium";
 
 export default function AboutScreen() {
   const handlePrivacyPolicy = () => {
-    Linking.openURL("https://pneumoscan.ai/privacy");
+    router.push("/profile/privacy-policy");
   };
 
   const handleTerms = () => {
-    Linking.openURL("https://pneumoscan.ai/terms");
+    router.push("/profile/terms");
   };
 
   const handleLicense = () => {
-    Linking.openURL("https://pneumoscan.ai/license");
+    router.push("/profile/licenses");
   };
 
   return (

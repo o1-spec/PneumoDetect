@@ -22,11 +22,11 @@ export default function HelpCenterScreen() {
   };
 
   const handleDocumentation = () => {
-    Linking.openURL("https://pneumoscan.ai/docs");
+    router.push("/profile/documentation");
   };
 
   const handlePrivacyPolicy = () => {
-    Linking.openURL("https://pneumoscan.ai/privacy");
+    router.push("/profile/privacy-policy");
   };
 
   return (
