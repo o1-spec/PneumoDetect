@@ -14,10 +14,10 @@ declare global {
 }
 
 // Platform-specific base URL (Production Render App)
-// const API_URL = "https://pneumodetect-backend.onrender.com";
+const API_URL = "https://pneumodetect-backend.onrender.com";
 
-// Development URL (For Emulators - Commented Out):
-const API_URL = Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000";
+// Development URL (For Emulators - Uncomment when developing locally):
+// const API_URL = Platform.OS === "android" ? "http://10.0.2.2:3000" : "http://localhost:3000";
 
 // For Physical Phone / Expo Go testing, replace 'localhost' with your laptop's local Wi-Fi IP address:
 // const API_URL = "http://192.168.1.XX:3000"; // Example: replace with your local IP
