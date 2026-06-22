@@ -2,6 +2,7 @@ import React from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Card } from "../premium";
+import { COLORS, BORDER_RADIUS, SPACING, SHADOWS } from "../../constants/Theme";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -34,19 +35,19 @@ export const WeeklyActivity: React.FC<WeeklyActivityProps> = ({
           width={screenWidth - 56}
           height={220}
           chartConfig={{
-            backgroundColor: "#FFFFFF",
-            backgroundGradientFrom: "#FFFFFF",
-            backgroundGradientTo: "#FFFFFF",
+            backgroundColor: COLORS.card,
+            backgroundGradientFrom: COLORS.card,
+            backgroundGradientTo: COLORS.card,
             decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(11, 94, 215, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
+            color: (opacity = 1) => `rgba(79, 70, 229, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(71, 85, 105, ${opacity})`,
             style: {
-              borderRadius: 16,
+              borderRadius: BORDER_RADIUS.lg,
             },
             propsForDots: {
               r: "5",
               strokeWidth: "2",
-              stroke: "#0B5ED7",
+              stroke: COLORS.primary,
             },
           }}
           bezier
@@ -57,7 +58,10 @@ export const WeeklyActivity: React.FC<WeeklyActivityProps> = ({
             <View style={styles.legendDot} />
             <Text style={styles.legendText}>Scans per day</Text>
           </View>
-          <Text style={styles.chartSubtext}>
+          <Text style={[
+            styles.chartSubtext,
+            growthPercentage !== null && growthPercentage < 0 && { color: COLORS.danger }
+          ]}>
             {showGrowthMetric && growthPercentage !== null
               ? growthPercentage > 0
                 ? `↑ ${growthPercentage.toFixed(1)}% vs last week`
@@ -74,24 +78,24 @@ export const WeeklyActivity: React.FC<WeeklyActivityProps> = ({
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginTop: 4,
     fontWeight: "500",
   },
   chart: {
     marginVertical: 8,
-    borderRadius: 16,
+    borderRadius: BORDER_RADIUS.lg,
   },
   chartFooter: {
     flexDirection: "row",
@@ -100,7 +104,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
+    borderTopColor: COLORS.border,
   },
   chartLegend: {
     flexDirection: "row",
@@ -111,16 +115,16 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#0B5ED7",
+    backgroundColor: COLORS.primary,
   },
   legendText: {
     fontSize: 13,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     fontWeight: "500",
   },
   chartSubtext: {
     fontSize: 13,
-    color: "#10B981",
+    color: COLORS.success,
     fontWeight: "600",
   },
 });

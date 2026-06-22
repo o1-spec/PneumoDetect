@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { COLORS } from "../../constants/Theme";
 
 interface SectionHeaderProps {
   title: string;
@@ -26,11 +27,11 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       {action && (
         <TouchableOpacity style={styles.actionButton} onPress={action.onPress}>
           {action.icon ? (
-            <Ionicons name={action.icon as any} size={18} color="#0B5ED7" />
+            <Ionicons name={action.icon as any} size={18} color={COLORS.primary} />
           ) : (
             <>
               <Text style={styles.actionText}>{action.label}</Text>
-              <Ionicons name="chevron-forward" size={16} color="#0B5ED7" />
+              <Ionicons name="chevron-forward" size={16} color={COLORS.primary} />
             </>
           )}
         </TouchableOpacity>
@@ -53,12 +54,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 13,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     fontWeight: "400",
   },
   actionButton: {
@@ -71,6 +72,6 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#0B5ED7",
+    color: COLORS.primary,
   },
 });

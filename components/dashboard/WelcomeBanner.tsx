@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { COLORS, GRADIENTS, SHADOWS, BORDER_RADIUS, SPACING } from "../../constants/Theme";
 
 interface WelcomeBannerProps {
   userDisplayName: string;
@@ -14,7 +15,7 @@ export const WelcomeBanner = ({
 }: WelcomeBannerProps) => {
   return (
     <LinearGradient
-      colors={["#0B5ED7", "#0B5ED7", "#1E6FDD"]}
+      colors={GRADIENTS.primary as any}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.welcomeGradient}
@@ -30,7 +31,7 @@ export const WelcomeBanner = ({
           </Text>
         </View>
         <View style={styles.welcomeIconCircle}>
-          <Ionicons name="medical" size={48} color="#FFFFFF" />
+          <Ionicons name="medical" size={42} color={COLORS.primary} />
         </View>
       </View>
     </LinearGradient>
@@ -39,19 +40,15 @@ export const WelcomeBanner = ({
 
 const styles = StyleSheet.create({
   welcomeGradient: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 20,
-    marginBottom: 24,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.md,
+    borderRadius: BORDER_RADIUS.lg,
+    marginBottom: SPACING.lg,
     overflow: "hidden",
-    elevation: 4,
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+    ...SHADOWS.medium,
   },
   welcomeContent: {
-    padding: 24,
+    padding: SPACING.lg,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -61,16 +58,19 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   welcomeGreeting: {
-    color: "rgba(255, 255, 255, 0.9)",
-    fontSize: 16,
-    fontWeight: "500",
+    color: "rgba(255, 255, 255, 0.85)",
+    fontSize: 14,
+    fontWeight: "600",
     marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
   },
   welcomeName: {
     color: "#FFFFFF",
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 26,
+    fontWeight: "800",
     marginBottom: 6,
+    letterSpacing: -0.5,
   },
   welcomeSubtext: {
     color: "rgba(255, 255, 255, 0.9)",
@@ -78,11 +78,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   welcomeIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
+    ...SHADOWS.light,
   },
 });

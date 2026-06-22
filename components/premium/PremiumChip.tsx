@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import { COLORS } from "../../constants/Theme";
 
 interface PremiumChipProps {
   label: string;
@@ -40,12 +41,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   chipActive: {
-    backgroundColor: "#0B5ED7",
-    borderColor: "#0B5ED7",
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
   chipInactive: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#E5E7EB",
+    backgroundColor: COLORS.card,
+    borderColor: COLORS.border,
   },
   chipText: {
     fontSize: 13,
@@ -55,6 +56,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   chipTextInactive: {
-    color: "#6B7280",
+    color: COLORS.textSecondary,
   },
 });

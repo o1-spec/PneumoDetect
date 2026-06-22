@@ -19,6 +19,7 @@ import {
   WelcomeBanner,
 } from "../../components/dashboard";
 import { PneumoLoader } from "../../components/premium/PneumoLoader";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AuthContext } from "../../hooks/useAuth";
 import {
@@ -176,7 +177,7 @@ export default function DashboardScreen() {
     datasets: [
       {
         data: timelineDataForChart.map((item) => item.scans || 0),
-        color: (opacity = 1) => `rgba(0, 102, 204, ${opacity})`,
+        color: (opacity = 1) => `rgba(79, 70, 229, ${opacity})`,
         strokeWidth: 2,
       },
     ],
@@ -195,7 +196,7 @@ export default function DashboardScreen() {
               style={styles.notificationButton}
               onPress={() => router.push("/notifications")}
             >
-              <Ionicons name="notifications" size={24} color="#0066CC" />
+              <Ionicons name="notifications" size={24} color={COLORS.primary} />
               {notificationCount > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{notificationCount}</Text>
@@ -205,7 +206,7 @@ export default function DashboardScreen() {
           </View>
         </View>
         <View style={styles.loadingContainer}>
-          <PneumoLoader size={64} color="#0B5ED7" />
+          <PneumoLoader size={64} color={COLORS.primary} />
         </View>
       </View>
     );
@@ -223,7 +224,7 @@ export default function DashboardScreen() {
             style={styles.notificationButton}
             onPress={() => router.push("/notifications")}
           >
-            <Ionicons name="notifications" size={24} color="#0066CC" />
+            <Ionicons name="notifications" size={24} color={COLORS.primary} />
             {notificationCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>{notificationCount}</Text>
@@ -264,34 +265,30 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: SPACING.md,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginTop: 4,
     fontWeight: "500",
   },
@@ -299,7 +296,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
@@ -308,7 +305,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 6,
     right: 6,
-    backgroundColor: "#EF4444",
+    backgroundColor: COLORS.danger,
     borderRadius: 12,
     minWidth: 24,
     height: 24,
@@ -316,7 +313,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 8,
     borderWidth: 2,
-    borderColor: "#FFFFFF",
+    borderColor: COLORS.card,
   },
   badgeText: {
     color: "#FFFFFF",

@@ -9,18 +9,20 @@ import {
     ViewStyle
 } from "react-native";
 
+import { COLORS as THEME_COLORS } from "../../constants/Theme";
+
 export const COLORS = {
-  primary: "#0B5ED7",
-  success: "#10B981",
-  danger: "#EF4444",
-  warning: "#F59E0B",
-  background: "#FAFBFC",
-  card: "#FFFFFF",
-  border: "#E5E7EB",
-  textPrimary: "#111827",
-  textSecondary: "#6B7280",
-  textTertiary: "#9CA3AF",
-  icon: "#D1D5DB",
+  primary: THEME_COLORS.primary,
+  success: THEME_COLORS.success,
+  danger: THEME_COLORS.danger,
+  warning: THEME_COLORS.warning,
+  background: THEME_COLORS.background,
+  card: THEME_COLORS.card,
+  border: THEME_COLORS.border,
+  textPrimary: THEME_COLORS.textPrimary,
+  textSecondary: THEME_COLORS.textSecondary,
+  textTertiary: THEME_COLORS.textTertiary,
+  icon: THEME_COLORS.icon,
 };
 
 export const PremiumCard = ({

@@ -15,6 +15,7 @@ import { InfoRow } from "../../../components/InfoRow";
 import { PatientNotesModal } from "../../../components/PatientNotesModal";
 import { useToast } from "../../../hooks/useToast";
 import { scansAPI } from "../../../services/api.client";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../../constants/Theme";
 
 export default function ResultsScreen() {
   const insets = useSafeAreaInsets();
@@ -65,7 +66,7 @@ export default function ResultsScreen() {
           style={styles.backButton}
           onPress={() => router.replace("/(tabs)")}
         >
-          <Ionicons name="close" size={24} color="#0B5ED7" />
+          <Ionicons name="close" size={24} color={COLORS.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Analysis Results</Text>
         <View style={styles.placeholder} />
@@ -89,7 +90,7 @@ export default function ResultsScreen() {
             <Ionicons
               name={isPneumonia ? "warning" : "checkmark-circle"}
               size={48}
-              color={isPneumonia ? "#D32F2F" : "#4CAF50"}
+              color={isPneumonia ? COLORS.danger : COLORS.success}
             />
           </View>
           <Text
@@ -116,7 +117,7 @@ export default function ResultsScreen() {
                 styles.confidenceBarFill,
                 {
                   width: `${confidenceNum}%`,
-                  backgroundColor: isPneumonia ? "#D32F2F" : "#4CAF50",
+                  backgroundColor: isPneumonia ? COLORS.danger : COLORS.success,
                 },
               ]}
             />
@@ -147,7 +148,7 @@ export default function ResultsScreen() {
               style={styles.editNotesButton}
               onPress={() => setNotesModalVisible(true)}
             >
-              <Ionicons name="pencil" size={16} color="#0B5ED7" />
+              <Ionicons name="pencil" size={16} color={COLORS.primary} />
               <Text style={styles.editNotesText}>Edit</Text>
             </TouchableOpacity>
           </View>
@@ -163,7 +164,7 @@ export default function ResultsScreen() {
 
         <View style={styles.disclaimerBox}>
           <View style={styles.disclaimerHeader}>
-            <Ionicons name="information-circle" size={20} color="#856404" />
+            <Ionicons name="information-circle" size={20} color={COLORS.warning} />
             <Text style={styles.disclaimerTitle}>Medical Disclaimer</Text>
           </View>
           <Text style={styles.disclaimerText}>
@@ -196,7 +197,7 @@ export default function ResultsScreen() {
               })
             }
           >
-            <Ionicons name="document-text-outline" size={20} color="#0B5ED7" />
+            <Ionicons name="document-text-outline" size={20} color={COLORS.primary} />
             <Text style={styles.secondaryButtonText}>Generate Report</Text>
           </TouchableOpacity>
 
@@ -226,7 +227,7 @@ export default function ResultsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: "row",
@@ -234,14 +235,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   backButton: {
     padding: 8,
@@ -249,7 +246,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
   placeholder: {
@@ -260,38 +257,34 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   imageCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   xrayImage: {
     width: "100%",
     height: 300,
-    borderRadius: 8,
-    backgroundColor: "#F3F4F6",
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.primaryLight,
   },
   predictionCard: {
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 24,
     marginBottom: 16,
     alignItems: "center",
     borderWidth: 2,
   },
   predictionDanger: {
-    backgroundColor: "rgba(239, 68, 68, 0.08)",
-    borderColor: "#EF4444",
+    backgroundColor: COLORS.dangerLight,
+    borderColor: COLORS.danger,
   },
   predictionSafe: {
-    backgroundColor: "rgba(16, 185, 129, 0.08)",
-    borderColor: "#10B981",
+    backgroundColor: COLORS.successLight,
+    borderColor: COLORS.success,
   },
   predictionIcon: {
     marginBottom: 16,
@@ -303,33 +296,29 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   textDanger: {
-    color: "#EF4444",
+    color: COLORS.danger,
   },
   textSafe: {
-    color: "#10B981",
+    color: COLORS.success,
   },
   predictionSubtext: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     fontWeight: "500",
   },
   confidenceCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 24,
     marginBottom: 16,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   confidenceLabel: {
     fontSize: 13,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginBottom: 8,
     fontWeight: "600",
     letterSpacing: 0.5,
@@ -338,59 +327,51 @@ const styles = StyleSheet.create({
   confidenceValue: {
     fontSize: 48,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginBottom: 16,
     letterSpacing: -0.5,
   },
   confidenceBar: {
     width: "100%",
     height: 10,
-    backgroundColor: "#E5E7EB",
-    borderRadius: 5,
+    backgroundColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.round,
     overflow: "hidden",
     marginBottom: 12,
   },
   confidenceBarFill: {
     height: "100%",
-    borderRadius: 5,
+    borderRadius: BORDER_RADIUS.round,
   },
   confidenceDescription: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#6B7280",
+    color: COLORS.textSecondary,
   },
   infoCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginBottom: 16,
     letterSpacing: -0.3,
   },
   notesCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   notesHeader: {
     flexDirection: "row",
@@ -403,33 +384,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: "#EFF6FF",
-    borderRadius: 6,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: BORDER_RADIUS.sm,
     gap: 4,
     borderWidth: 1,
-    borderColor: "#DBEAFE",
+    borderColor: COLORS.border,
   },
   editNotesText: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontSize: 13,
     fontWeight: "700",
   },
   notesText: {
     fontSize: 14,
-    color: "#111827",
+    color: COLORS.textPrimary,
     lineHeight: 20,
     fontWeight: "500",
   },
   notesPlaceholder: {
     fontSize: 14,
-    color: "#9CA3AF",
+    color: COLORS.textTertiary,
     fontStyle: "italic",
   },
   disclaimerBox: {
-    backgroundColor: "#FFFBEB",
+    backgroundColor: COLORS.warningLight,
     borderWidth: 1,
-    borderColor: "#FCD34D",
-    borderRadius: 12,
+    borderColor: COLORS.warning,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 16,
     marginBottom: 16,
   },
@@ -442,12 +423,12 @@ const styles = StyleSheet.create({
   disclaimerTitle: {
     fontSize: 14,
     fontWeight: "800",
-    color: "#92400E",
+    color: COLORS.warning,
     letterSpacing: -0.3,
   },
   disclaimerText: {
     fontSize: 13,
-    color: "#92400E",
+    color: COLORS.textSecondary,
     lineHeight: 20,
     fontWeight: "500",
   },
@@ -456,17 +437,13 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flexDirection: "row",
-    backgroundColor: "#0B5ED7",
-    borderRadius: 12,
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 3,
+    ...SHADOWS.light,
   },
   primaryButtonText: {
     color: "#FFFFFF",
@@ -476,30 +453,30 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     borderWidth: 2,
-    borderColor: "#0B5ED7",
+    borderColor: COLORS.primary,
   },
   secondaryButtonText: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontSize: 16,
     fontWeight: "800",
     letterSpacing: -0.3,
   },
   tertiaryButton: {
     backgroundColor: "transparent",
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
   },
   tertiaryButtonText: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontSize: 16,
     fontWeight: "700",
     letterSpacing: -0.3,

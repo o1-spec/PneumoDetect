@@ -5,6 +5,7 @@ import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { PremiumButton } from "../components/auth/PremiumButton";
 import { AuthContext } from "../hooks/useAuth";
+import { COLORS, GRADIENTS, SHADOWS, BORDER_RADIUS } from "../constants/Theme";
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -42,34 +43,41 @@ export default function WelcomeScreen() {
 
   return (
     <LinearGradient
-      colors={["#FAFBFC", "#F3F4F6", "#E5E7EB"]}
+      colors={GRADIENTS.light as any}
       style={styles.container}
     >
       <View style={styles.topDecor} />
 
       <View style={styles.logoContainer}>
         <View style={styles.logoCircle}>
-          <Ionicons name="medical" size={60} color="#0B5ED7" />
+          <LinearGradient
+            colors={GRADIENTS.primary as any}
+            style={styles.logoGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Ionicons name="medical" size={54} color="#FFFFFF" />
+          </LinearGradient>
         </View>
         <Text style={styles.appName}>PneumoDetect</Text>
-        <Text style={styles.tagline}>AI-Powered Pneumonia Detection</Text>
+        <Text style={styles.tagline}>AI-Powered Pneumonia Screening</Text>
       </View>
 
       <View style={styles.featuresContainer}>
         <FeatureItem
-          icon="flash-outline"
-          title="Fast Analysis"
-          description="Get results in seconds with our advanced AI model"
+          icon="flash"
+          title="Instant Screening"
+          description="Analyze radiographs in seconds via domain-pretrained AI."
         />
         <FeatureItem
-          icon="checkmark-circle-outline"
-          title="94.5% Accuracy"
-          description="Clinically validated and FDA-approved detection"
+          icon="shield-checkmark"
+          title="Clinical Rigor"
+          description="Handles high dataset imbalance with medical domain weights."
         />
         <FeatureItem
-          icon="analytics-outline"
-          title="Explainable AI"
-          description="Visualize and understand AI decision-making"
+          icon="eye"
+          title="Explainable Predictions"
+          description="Interpretable localized insights using Grad-CAM visual heatmaps."
         />
       </View>
 
@@ -84,9 +92,9 @@ export default function WelcomeScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Ionicons name="shield-checkmark-outline" size={16} color="#0B5ED7" />
+        <Ionicons name="shield-checkmark" size={16} color={COLORS.primary} />
         <Text style={styles.footerText}>
-          Secure • HIPAA Compliant • FDA Approved
+          Secure • HIPAA Encrypted Data
         </Text>
       </View>
     </LinearGradient>
@@ -104,7 +112,7 @@ const FeatureItem = ({
 }) => (
   <View style={styles.featureItem}>
     <View style={styles.featureIcon}>
-      <Ionicons name={icon} size={24} color="#0066CC" />
+      <Ionicons name={icon} size={22} color={COLORS.primary} />
     </View>
     <View style={styles.featureText}>
       <Text style={styles.featureTitle}>{title}</Text>
@@ -128,7 +136,7 @@ const styles = StyleSheet.create({
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: "rgba(11, 94, 215, 0.08)",
+    backgroundColor: "rgba(79, 70, 229, 0.05)",
   },
   logoContainer: {
     alignItems: "center",
@@ -137,34 +145,38 @@ const styles = StyleSheet.create({
   },
 
   logoCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: "#E0E7FF",
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.medium,
+  },
+
+  logoGradient: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   appName: {
-    fontSize: 36,
-    fontWeight: "700",
-    color: "#111827",
+    fontSize: 34,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
     marginBottom: 8,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
 
   tagline: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#6B7280",
+    fontSize: 15,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
     textAlign: "center",
     lineHeight: 22,
   },
@@ -177,24 +189,20 @@ const styles = StyleSheet.create({
 
   featureItem: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 16,
-    alignItems: "flex-start",
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
 
   featureIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#E0E7FF",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -207,15 +215,15 @@ const styles = StyleSheet.create({
 
   featureTitle: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#111827",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
 
   featureDescription: {
     fontSize: 13,
-    fontWeight: "400",
-    color: "#6B7280",
+    fontWeight: "500",
+    color: COLORS.textSecondary,
     lineHeight: 18,
   },
   buttonContainer: {
@@ -228,15 +236,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "rgba(11, 94, 215, 0.08)",
-    borderRadius: 8,
+    paddingVertical: 10,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: BORDER_RADIUS.md,
   },
 
   footerText: {
     fontSize: 12,
-    fontWeight: "500",
-    color: "#6B7280",
+    fontWeight: "700",
+    color: COLORS.textSecondary,
     letterSpacing: 0.3,
   },
 });

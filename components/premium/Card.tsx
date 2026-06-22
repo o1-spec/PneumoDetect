@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
+import { COLORS, BORDER_RADIUS, SHADOWS } from "../../constants/Theme";
 
 interface CardProps {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ export const Card: React.FC<CardProps> = ({
   padded = true,
   elevated = "light",
   border = true,
-  backgroundColor = "#FFFFFF",
+  backgroundColor = COLORS.card,
 }) => {
   return (
     <View
@@ -38,35 +39,17 @@ export const Card: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 14,
+    borderRadius: BORDER_RADIUS.lg,
     overflow: "hidden",
   },
   padded: {
     padding: 16,
   },
-  elevationLight: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
-  },
-  elevationMedium: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  elevationHeavy: {
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 8,
-  },
+  elevationLight: SHADOWS.light,
+  elevationMedium: SHADOWS.medium,
+  elevationHeavy: SHADOWS.heavy,
   withBorder: {
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
   },
 });

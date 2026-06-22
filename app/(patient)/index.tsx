@@ -17,6 +17,7 @@ import { useToast } from "../../hooks/useToast";
 import { notificationsAPI, scansAPI } from "../../services/api.client";
 import type { Scan } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING, GRADIENTS } from "../../constants/Theme";
 
 export default function PatientDashboardScreen() {
   const insets = useSafeAreaInsets();
@@ -100,7 +101,7 @@ export default function PatientDashboardScreen() {
             style={styles.notificationButton}
             onPress={() => router.push("/(patient)/notifications")}
           >
-            <Ionicons name="notifications-outline" size={24} color="#0B5ED7" />
+            <Ionicons name="notifications-outline" size={24} color={COLORS.primary} />
             {notificationCount > 0 && (
               <View style={styles.badge}>
                 <Text style={styles.badgeText}>
@@ -120,7 +121,7 @@ export default function PatientDashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={["#0B5ED7", "#0B5ED7", "#1E6FDD"]}
+          colors={GRADIENTS.primary as any}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.welcomeGradient}
@@ -132,7 +133,7 @@ export default function PatientDashboardScreen() {
               <Text style={styles.welcomeSubtext}>Your health summary</Text>
             </View>
             <View style={styles.welcomeIconCircle}>
-              <Ionicons name="person" size={48} color="#FFFFFF" />
+              <Ionicons name="person" size={38} color={COLORS.primary} />
             </View>
           </View>
         </LinearGradient>
@@ -146,8 +147,8 @@ export default function PatientDashboardScreen() {
                   icon="document-text-outline"
                   title="Total Scans"
                   value={stats.totalScans}
-                  color="#0B5ED7"
-                  backgroundColor="rgba(11, 94, 215, 0.08)"
+                  color={COLORS.primary}
+                  backgroundColor={COLORS.primaryLight}
                 />
               </View>
               <View style={{ flex: 1 }}>
@@ -155,8 +156,8 @@ export default function PatientDashboardScreen() {
                   icon="checkmark-circle-outline"
                   title="Normal"
                   value={stats.normalScans}
-                  color="#10B981"
-                  backgroundColor="rgba(16, 185, 129, 0.08)"
+                  color={COLORS.success}
+                  backgroundColor={COLORS.successLight}
                 />
               </View>
             </View>
@@ -166,8 +167,8 @@ export default function PatientDashboardScreen() {
                   icon="alert-circle-outline"
                   title="Concerns"
                   value={stats.pneumoniaScans}
-                  color="#EF4444"
-                  backgroundColor="rgba(239, 68, 68, 0.08)"
+                  color={COLORS.danger}
+                  backgroundColor={COLORS.dangerLight}
                 />
               </View>
               <View style={{ flex: 1 }} />
@@ -186,7 +187,7 @@ export default function PatientDashboardScreen() {
           </View>
 
           {loading ? (
-            <PneumoLoader size={48} color="#0B5ED7" style={{ marginTop: 20 }} />
+            <PneumoLoader size={48} color={COLORS.primary} style={{ marginTop: 20 }} />
           ) : recentScans.length > 0 ? (
             <View style={styles.scansList}>
               {recentScans.map((scan) => (
@@ -228,7 +229,7 @@ export default function PatientDashboardScreen() {
                       <Ionicons
                         name="calendar-outline"
                         size={12}
-                        color="#8E8E93"
+                        color={COLORS.textTertiary}
                       />{" "}
                       {new Date(scan.createdAt).toLocaleDateString()}
                     </Text>
@@ -243,7 +244,7 @@ export default function PatientDashboardScreen() {
             </View>
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons name="document-outline" size={48} color="#D1D5DB" />
+              <Ionicons name="document-outline" size={48} color={COLORS.border} />
               <Text style={styles.emptyText}>No scans yet</Text>
               <Text style={styles.emptySubtext}>
                 Your scan results will appear here
@@ -254,9 +255,9 @@ export default function PatientDashboardScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Important Notes</Text>
-          <Card border={false} elevated="none" backgroundColor="rgba(11, 94, 215, 0.08)">
+          <Card border={true} elevated="none" backgroundColor={COLORS.primaryLight}>
             <View style={styles.infoContent}>
-              <Ionicons name="information-circle" size={24} color="#0B5ED7" />
+              <Ionicons name="information-circle" size={24} color={COLORS.primary} />
               <View style={styles.infoTextContainer}>
                 <Text style={styles.infoTitle}>Always Consult a Doctor</Text>
                 <Text style={styles.infoText}>
@@ -276,34 +277,30 @@ export default function PatientDashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: SPACING.md,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginTop: 4,
     fontWeight: "500",
   },
@@ -311,18 +308,18 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#EFF6FF",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
     borderWidth: 1,
-    borderColor: "#DBEAFE",
+    borderColor: COLORS.border,
   },
   badge: {
     position: "absolute",
     top: -2,
     right: -2,
-    backgroundColor: "#EF4444",
+    backgroundColor: COLORS.danger,
     borderRadius: 10,
     minWidth: 18,
     height: 18,
@@ -330,7 +327,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 4,
     borderWidth: 2,
-    borderColor: "#FFFFFF",
+    borderColor: COLORS.card,
   },
   badgeText: {
     color: "#FFFFFF",
@@ -341,16 +338,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   welcomeGradient: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 24,
-    borderRadius: 16,
+    marginHorizontal: SPACING.md,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.lg,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 24,
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+    ...SHADOWS.medium,
   },
   welcomeContent: {
     flexDirection: "row",
@@ -364,7 +357,7 @@ const styles = StyleSheet.create({
   welcomeGreeting: {
     fontSize: 14,
     fontWeight: "600",
-    color: "rgba(255, 255, 255, 0.9)",
+    color: "rgba(255, 255, 255, 0.85)",
     letterSpacing: 0.5,
     textTransform: "uppercase",
     marginBottom: 4,
@@ -379,20 +372,21 @@ const styles = StyleSheet.create({
   welcomeSubtext: {
     fontSize: 14,
     fontWeight: "500",
-    color: "rgba(255, 255, 255, 0.85)",
+    color: "rgba(255, 255, 255, 0.9)",
   },
   welcomeIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
     flexShrink: 0,
+    ...SHADOWS.light,
   },
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -403,13 +397,13 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
     paddingBottom: 10,
   },
   viewAllText: {
     fontSize: 14,
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontWeight: "700",
   },
   statsContainer: {
@@ -423,17 +417,13 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   scanCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   scanHeader: {
     flexDirection: "row",
@@ -446,7 +436,7 @@ const styles = StyleSheet.create({
   },
   scanId: {
     fontSize: 12,
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontWeight: "700",
     marginBottom: 4,
     letterSpacing: 0.5,
@@ -454,7 +444,7 @@ const styles = StyleSheet.create({
   scanPatient: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   resultBadge: {
     paddingHorizontal: 12,
@@ -462,20 +452,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   resultDanger: {
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    backgroundColor: COLORS.dangerLight,
   },
   resultSafe: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    backgroundColor: COLORS.successLight,
   },
   resultText: {
     fontSize: 12,
     fontWeight: "700",
   },
   resultTextSafe: {
-    color: "#10B981",
+    color: COLORS.success,
   },
   resultTextDanger: {
-    color: "#EF4444",
+    color: COLORS.danger,
   },
   scanFooter: {
     flexDirection: "row",
@@ -483,36 +473,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
+    borderTopColor: COLORS.border,
     paddingTop: 12,
   },
   scanDate: {
     fontSize: 13,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     fontWeight: "500",
   },
   scanConfidence: {
     fontSize: 13,
-    color: "#374151",
+    color: COLORS.textPrimary,
     fontWeight: "600",
   },
   emptyState: {
     alignItems: "center",
     paddingVertical: 40,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
   },
   emptyText: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginTop: 12,
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginTop: 4,
     fontWeight: "500",
   },
@@ -527,12 +517,12 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#0B5ED7",
+    color: COLORS.primary,
     marginBottom: 4,
   },
   infoText: {
     fontSize: 14,
-    color: "#1E3A8A",
+    color: COLORS.textSecondary,
     lineHeight: 20,
     fontWeight: "500",
   },

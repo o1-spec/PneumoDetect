@@ -8,6 +8,7 @@ import { useToast } from "../../hooks/useToast";
 import api from "../../services/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 import { logger } from "../../utils/logger";
+import { COLORS, SHADOWS, BORDER_RADIUS } from "../../constants/Theme";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -28,7 +29,7 @@ const SCREENS: OnboardingScreen[] = [
     icon: "pulse",
     description:
       "Quickly and accurately detect pneumonia using advanced AI technology. Simply upload a chest X-ray and get results in seconds.",
-    color: "#0B5ED7",
+    color: COLORS.primary,
   },
   {
     id: 2,
@@ -37,7 +38,7 @@ const SCREENS: OnboardingScreen[] = [
     icon: "layers-outline",
     description:
       "1. Upload a chest X-ray image\n2. Our AI analyzes the image\n3. Get detailed results and recommendations",
-    color: "#0B5ED7",
+    color: COLORS.secondary,
   },
   {
     id: 3,
@@ -46,7 +47,7 @@ const SCREENS: OnboardingScreen[] = [
     icon: "shield-checkmark-outline",
     description:
       "Your medical data is encrypted and stored securely. We comply with healthcare privacy standards and never share your information.",
-    color: "#0B5ED7",
+    color: COLORS.success,
   },
 ];
 
@@ -202,13 +203,13 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   screen: {
     width: SCREEN_WIDTH,
     flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
   screenContent: {
     alignItems: "center",
@@ -224,53 +225,45 @@ const styles = StyleSheet.create({
     borderRadius: 70,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#E0E7FF",
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    ...SHADOWS.medium,
   },
   title: {
-    fontSize: 36,
+    fontSize: 32,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginBottom: 12,
     textAlign: "center",
     letterSpacing: -0.7,
   },
   subtitle: {
     fontSize: 16,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginBottom: 32,
     textAlign: "center",
     fontWeight: "600",
     letterSpacing: 0.3,
   },
   descriptionBox: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 28,
-    marginTop: 32,
-    borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: 24,
+    marginTop: 24,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   description: {
     fontSize: 15,
-    color: "#111827",
-    lineHeight: 26,
+    color: COLORS.textPrimary,
+    lineHeight: 24,
     textAlign: "center",
     fontWeight: "500",
   },
   footer: {
     paddingBottom: 48,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 24,
   },
   dotsContainer: {
@@ -284,10 +277,10 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: COLORS.border,
   },
   dotActive: {
-    backgroundColor: "#0B5ED7",
+    backgroundColor: COLORS.primary,
     width: 32,
   },
   buttonContainer: {

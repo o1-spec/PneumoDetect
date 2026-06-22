@@ -8,6 +8,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { COLORS, BORDER_RADIUS } from "../../constants/Theme";
 
 interface AuthInputProps extends TextInputProps {
   label?: string;
@@ -32,24 +33,31 @@ export const AuthInput: React.FC<AuthInputProps> = ({
   secureTextEntry,
   ...props
 }) => {
+  const [isFocused, setIsFocused] = React.useState(false);
+
   return (
     <View style={styles.wrapper}>
       {label && <Text style={styles.label}>{label}</Text>}
 
-      <View style={[styles.container, error && styles.containerError]}>
+      <View style={[
+        styles.container, 
+        error ? styles.containerError : (isFocused && styles.containerFocused)
+      ]}>
         {icon && (
           <Ionicons
             name={icon as any}
             size={18}
-            color={error ? "#D32F2F" : "#6B7280"}
+            color={error ? COLORS.danger : (isFocused ? COLORS.primary : COLORS.icon)}
             style={styles.icon}
           />
         )}
 
         <TextInput
           style={styles.input}
-          placeholderTextColor="#9CA3AF"
+          placeholderTextColor={COLORS.textTertiary}
           secureTextEntry={secureTextEntry}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
           {...props}
         />
 
@@ -61,7 +69,7 @@ export const AuthInput: React.FC<AuthInputProps> = ({
             <Ionicons
               name={secureTextEntry ? "eye-off" : "eye"}
               size={18}
-              color="#6B7280"
+              color={COLORS.textTertiary}
             />
           </TouchableOpacity>
         )}
@@ -77,26 +85,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#111827",
+    fontSize: 12,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
     marginBottom: 8,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
   container: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 10,
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.md,
     paddingHorizontal: 14,
     height: 50,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
+  },
+  containerFocused: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.card,
   },
   containerError: {
-    borderColor: "#EF4444",
-    backgroundColor: "#FEF2F2",
+    borderColor: COLORS.danger,
+    backgroundColor: COLORS.dangerLight,
   },
   icon: {
     marginRight: 10,
@@ -104,7 +116,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    color: "#111827",
+    color: COLORS.textPrimary,
     fontWeight: "500",
   },
   toggleButton: {
@@ -113,7 +125,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: "#EF4444",
+    color: COLORS.danger,
     marginTop: 6,
     fontWeight: "500",
   },

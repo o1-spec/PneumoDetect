@@ -3,6 +3,8 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Card } from "./Card";
 
+import { COLORS } from "../../constants/Theme";
+
 interface StatCardProps {
   icon: string;
   title: string;
@@ -22,8 +24,8 @@ export const StatCard: React.FC<StatCardProps> = ({
   value,
   subtitle,
   trend,
-  color = "#0B5ED7",
-  backgroundColor = "rgba(11, 94, 215, 0.08)",
+  color = COLORS.primary,
+  backgroundColor = "rgba(79, 70, 229, 0.08)",
 }) => {
   return (
     <Card elevated="light" padded={true}>
@@ -103,22 +105,22 @@ const styles = StyleSheet.create({
     color: "#EF4444",
   },
   title: {
-    fontSize: 13,
-    fontWeight: "500",
-    color: "#6B7280",
+    fontSize: 12,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
     marginBottom: 6,
   },
   value: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: COLORS.textTertiary,
     fontWeight: "400",
   },
 });

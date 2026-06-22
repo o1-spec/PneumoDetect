@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SectionHeader } from "../premium/SectionHeader";
+import { COLORS, SHADOWS, BORDER_RADIUS, SPACING } from "../../constants/Theme";
 
 interface QuickActionsProps {
   isAdmin: boolean;
@@ -20,10 +21,10 @@ export const QuickActions = ({ isAdmin }: QuickActionsProps) => {
           <View
             style={[
               styles.actionIconBg,
-              { backgroundColor: "rgba(11, 94, 215, 0.1)" },
+              { backgroundColor: COLORS.primaryLight },
             ]}
           >
-            <Ionicons name="add-circle-outline" size={28} color="#0B5ED7" />
+            <Ionicons name="add-circle-outline" size={28} color={COLORS.primary} />
           </View>
           <Text style={styles.actionButtonText}>New Scan</Text>
         </TouchableOpacity>
@@ -35,10 +36,10 @@ export const QuickActions = ({ isAdmin }: QuickActionsProps) => {
           <View
             style={[
               styles.actionIconBg,
-              { backgroundColor: "rgba(16, 185, 129, 0.1)" },
+              { backgroundColor: COLORS.successLight },
             ]}
           >
-            <Ionicons name="time-outline" size={28} color="#10B981" />
+            <Ionicons name="time-outline" size={28} color={COLORS.success} />
           </View>
           <Text style={styles.actionButtonText}>History</Text>
         </TouchableOpacity>
@@ -53,10 +54,10 @@ export const QuickActions = ({ isAdmin }: QuickActionsProps) => {
             <View
               style={[
                 styles.actionIconBg,
-                { backgroundColor: "rgba(59, 130, 246, 0.1)" },
+                { backgroundColor: COLORS.primaryLight },
               ]}
             >
-              <Ionicons name="bar-chart-outline" size={28} color="#3B82F6" />
+              <Ionicons name="bar-chart-outline" size={28} color={COLORS.primary} />
             </View>
             <Text style={styles.actionButtonText}>All Scans</Text>
           </TouchableOpacity>
@@ -68,10 +69,10 @@ export const QuickActions = ({ isAdmin }: QuickActionsProps) => {
             <View
               style={[
                 styles.actionIconBg,
-                { backgroundColor: "rgba(168, 85, 247, 0.1)" },
+                { backgroundColor: COLORS.warningLight },
               ]}
             >
-              <Ionicons name="people-outline" size={28} color="#A855F7" />
+              <Ionicons name="people-outline" size={28} color={COLORS.warning} />
             </View>
             <Text style={styles.actionButtonText}>Users</Text>
           </TouchableOpacity>
@@ -83,8 +84,8 @@ export const QuickActions = ({ isAdmin }: QuickActionsProps) => {
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   quickActionsGrid: {
     flexDirection: "row",
@@ -93,20 +94,18 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
+    padding: SPACING.md,
     alignItems: "center",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   actionIconBg: {
     width: 56,
     height: 56,
-    borderRadius: 16,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
@@ -114,6 +113,6 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
   },
 });

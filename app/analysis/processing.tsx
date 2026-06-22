@@ -5,6 +5,7 @@ import { Animated, StyleSheet, Text, TouchableOpacity, View } from "react-native
 import { useToast } from "../../hooks/useToast";
 import { scansAPI } from "../../services/api.client";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function ProcessingScreen() {
   const params = useLocalSearchParams();
@@ -96,11 +97,11 @@ export default function ProcessingScreen() {
     }
   };
 
-  return (
+    return (
     <View style={styles.container}>
       {error ? (
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={64} color="#D32F2F" />
+          <Ionicons name="alert-circle" size={64} color={COLORS.danger} />
           <Text style={styles.errorTitle}>Processing Error</Text>
           <Text style={styles.errorMessage}>{error}</Text>
           
@@ -109,7 +110,7 @@ export default function ProcessingScreen() {
               style={styles.errorButtonSecondary}
               onPress={() => router.replace("/(tabs)")}
             >
-              <Ionicons name="home-outline" size={18} color="#0066CC" />
+              <Ionicons name="home-outline" size={18} color={COLORS.primary} />
               <Text style={styles.errorButtonSecondaryText}>Dashboard</Text>
             </TouchableOpacity>
 
@@ -130,7 +131,7 @@ export default function ProcessingScreen() {
               { transform: [{ scale: pulseAnim }] },
             ]}
           >
-            <Ionicons name="analytics" size={80} color="#0066CC" />
+            <Ionicons name="analytics" size={80} color={COLORS.primary} />
           </Animated.View>
 
           <Text style={styles.title}>Analyzing X-Ray</Text>
@@ -202,7 +203,7 @@ const StepItem = ({
       <Ionicons
         name={completed ? "checkmark" : icon}
         size={16}
-        color={completed ? "#FFFFFF" : "#C7C7CC"}
+        color={completed ? "#FFFFFF" : COLORS.textTertiary}
       />
     </View>
     <Text style={[styles.stepLabel, completed && styles.stepLabelCompleted]}>
@@ -214,7 +215,7 @@ const StepItem = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   content: {
     flex: 1,
@@ -226,7 +227,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: "#E3F2FD",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 32,
@@ -234,12 +235,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 16,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     textAlign: "center",
     marginBottom: 40,
   },
@@ -251,20 +252,20 @@ const styles = StyleSheet.create({
   progressBar: {
     width: "100%",
     height: 8,
-    backgroundColor: "#E5E5EA",
-    borderRadius: 4,
+    backgroundColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.round,
     overflow: "hidden",
     marginBottom: 12,
   },
   progressFill: {
     height: "100%",
-    backgroundColor: "#0066CC",
-    borderRadius: 4,
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.round,
   },
   progressText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#0066CC",
+    color: COLORS.primary,
   },
   statusContainer: {
     flexDirection: "row",
@@ -276,19 +277,21 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
   },
   statusText: {
     fontSize: 14,
-    color: "#636366",
+    color: COLORS.textSecondary,
     fontWeight: "600",
   },
   stepsContainer: {
     width: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 20,
-    gap: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   stepItem: {
     flexDirection: "row",
@@ -303,19 +306,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   stepIconCompleted: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: COLORS.success,
   },
   stepIconPending: {
-    backgroundColor: "#F5F5F7",
-    borderWidth: 2,
-    borderColor: "#E5E5EA",
+    backgroundColor: COLORS.primaryLight,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
   },
   stepLabel: {
     fontSize: 14,
-    color: "#C7C7CC",
+    color: COLORS.textTertiary,
   },
   stepLabelCompleted: {
-    color: "#1C1C1E",
+    color: COLORS.textPrimary,
     fontWeight: "600",
   },
   errorContainer: {
@@ -323,18 +326,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   errorTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#D32F2F",
+    color: COLORS.danger,
     marginTop: 16,
     marginBottom: 8,
   },
   errorMessage: {
     fontSize: 14,
-    color: "#636366",
+    color: COLORS.textSecondary,
     textAlign: "center",
     marginTop: 8,
     paddingHorizontal: 16,
@@ -350,33 +353,29 @@ const styles = StyleSheet.create({
   errorButtonPrimary: {
     flex: 1,
     maxWidth: 160,
-    backgroundColor: "#0066CC",
+    backgroundColor: COLORS.primary,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    ...SHADOWS.light,
   },
   errorButtonSecondary: {
     flex: 1,
     maxWidth: 160,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.md,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: 8,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: COLORS.border,
   },
   errorButtonPrimaryText: {
     color: "#FFFFFF",
@@ -384,7 +383,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   errorButtonSecondaryText: {
-    color: "#0066CC",
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: "bold",
   },

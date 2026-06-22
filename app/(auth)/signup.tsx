@@ -18,6 +18,7 @@ import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { RegisterRequest } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
+import { COLORS, SHADOWS, BORDER_RADIUS } from "../../constants/Theme";
 
 const SPECIALIZATIONS = [
   "General Practice",
@@ -166,7 +167,7 @@ export default function SignUpScreen() {
             router.canGoBack() ? router.back() : router.push("/(auth)/login")
           }
         >
-          <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
+          <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
 
         <AuthHeader
@@ -225,7 +226,7 @@ export default function SignUpScreen() {
               <Ionicons
                 name="medical"
                 size={24}
-                color={role === "CLINICIAN" ? "#0B5ED7" : "#6B7280"}
+                color={role === "CLINICIAN" ? COLORS.primary : COLORS.textSecondary}
               />
               <Text
                 style={[
@@ -247,7 +248,7 @@ export default function SignUpScreen() {
               <Ionicons
                 name="person-circle-outline"
                 size={24}
-                color={role === "PATIENT" ? "#0B5ED7" : "#6B7280"}
+                color={role === "PATIENT" ? COLORS.primary : COLORS.textSecondary}
               />
               <Text
                 style={[
@@ -266,7 +267,7 @@ export default function SignUpScreen() {
               onPress={() => setShowSpecializationPicker(true)}
             >
               <View style={styles.selectorButtonLeft}>
-                <Ionicons name="briefcase-outline" size={18} color="#0B5ED7" />
+                <Ionicons name="briefcase-outline" size={18} color={COLORS.primary} />
                 <View style={{ flex: 1, marginLeft: 12 }}>
                   <Text style={styles.selectorButtonLabel}>Specialization</Text>
                   <Text
@@ -279,7 +280,7 @@ export default function SignUpScreen() {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+              <Ionicons name="chevron-forward" size={20} color={COLORS.textTertiary} />
             </TouchableOpacity>
           )}
 
@@ -303,13 +304,13 @@ export default function SignUpScreen() {
                 onPress={() => setShowGenderPicker(true)}
               >
                 <View style={styles.selectorButtonLeft}>
-                  <Ionicons name="person-outline" size={18} color="#0B5ED7" />
+                  <Ionicons name="person-outline" size={18} color={COLORS.primary} />
                   <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={styles.selectorButtonLabel}>Gender</Text>
                     <Text style={styles.selectorButtonValue}>{gender}</Text>
                   </View>
                 </View>
-                <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+                <Ionicons name="chevron-forward" size={20} color={COLORS.textTertiary} />
               </TouchableOpacity>
             </>
           )}
@@ -411,7 +412,7 @@ export default function SignUpScreen() {
                     {spec}
                   </Text>
                   {specialization === spec && (
-                    <Ionicons name="checkmark" size={20} color="#0B5ED7" />
+                    <Ionicons name="checkmark" size={20} color={COLORS.primary} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -452,7 +453,7 @@ export default function SignUpScreen() {
                     {g}
                   </Text>
                   {gender === g && (
-                    <Ionicons name="checkmark" size={20} color="#0B5ED7" />
+                    <Ionicons name="checkmark" size={20} color={COLORS.primary} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -467,20 +468,27 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
     paddingTop: 50,
     paddingVertical: 20,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 32,
   },
   backButton: {
-    alignSelf: "flex-start",
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.card,
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   form: {
     marginTop: 20,
@@ -489,7 +497,7 @@ const styles = StyleSheet.create({
   roleLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#111827",
+    color: COLORS.textPrimary,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -508,21 +516,21 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 10,
-    backgroundColor: "#FFFFFF",
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.card,
   },
   roleButtonActive: {
-    borderColor: "#0B5ED7",
-    backgroundColor: "#E0E7FF",
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primaryLight,
   },
   roleButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#6B7280",
+    color: COLORS.textSecondary,
   },
   roleButtonTextActive: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
   },
   selectorButton: {
     flexDirection: "row",
@@ -531,9 +539,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1.5,
-    borderColor: "#E5E7EB",
-    borderRadius: 10,
-    backgroundColor: "#FFFFFF",
+    borderColor: COLORS.border,
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.card,
     marginBottom: 4,
   },
   selectorButtonLeft: {
@@ -544,18 +552,18 @@ const styles = StyleSheet.create({
   selectorButtonLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#111827",
+    color: COLORS.textPrimary,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   selectorButtonValue: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginTop: 4,
   },
   selectorButtonPlaceholder: {
-    color: "#9CA3AF",
+    color: COLORS.textTertiary,
   },
   signinContainer: {
     flexDirection: "row",
@@ -566,12 +574,12 @@ const styles = StyleSheet.create({
   signinText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#6B7280",
+    color: COLORS.textSecondary,
   },
   signinLink: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0B5ED7",
+    color: COLORS.primary,
   },
   modalOverlay: {
     flex: 1,
@@ -579,9 +587,9 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: COLORS.card,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
     maxHeight: "80%",
   },
   modalHeader: {
@@ -591,26 +599,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: COLORS.border,
   },
   modalCloseButton: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   modalConfirmButton: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#0B5ED7",
+    color: COLORS.primary,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   modalTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   modalOptions: {
     paddingHorizontal: 8,
@@ -623,19 +631,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     marginVertical: 4,
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
+    borderRadius: BORDER_RADIUS.sm,
+    backgroundColor: COLORS.card,
   },
   specOptionActive: {
-    backgroundColor: "#E0E7FF",
+    backgroundColor: COLORS.primaryLight,
   },
   specOptionText: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   specOptionTextActive: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontWeight: "600",
   },
 });

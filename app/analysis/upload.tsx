@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Card } from "../../components/premium";
 import { useToast } from "../../hooks/useToast";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
 export default function UploadScreen() {
   const insets = useSafeAreaInsets();
@@ -96,14 +97,14 @@ export default function UploadScreen() {
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>Upload X-Ray</Text>
             <Text style={styles.headerSubtitle}>Step 1 of 3</Text>
           </View>
           <View style={styles.headerIcon}>
-            <Ionicons name="cloud-upload-outline" size={24} color="#0066CC" />
+            <Ionicons name="cloud-upload-outline" size={24} color={COLORS.primary} />
           </View>
         </View>
       </View>
@@ -115,30 +116,30 @@ export default function UploadScreen() {
       >
         <Card elevated="light">
           <View style={styles.instructionsHeader}>
-            <Ionicons name="information-circle" size={24} color="#0B5ED7" />
+            <Ionicons name="information-circle" size={24} color={COLORS.primary} />
             <Text style={styles.instructionsTitle}>Upload Guidelines</Text>
           </View>
           <View style={styles.guidelinesList}>
             <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
               <Text style={styles.instructionsText}>
                 Upload a clear chest X-ray image
               </Text>
             </View>
             <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
               <Text style={styles.instructionsText}>
                 Accepted formats: JPG, PNG
               </Text>
             </View>
             <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
               <Text style={styles.instructionsText}>
                 Ensure good lighting and clarity
               </Text>
             </View>
             <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
               <Text style={styles.instructionsText}>
                 Image should show full chest area
               </Text>
@@ -157,17 +158,17 @@ export default function UploadScreen() {
                 style={styles.removeButton}
                 onPress={() => setSelectedImage(null)}
               >
-                <Ionicons name="close-circle" size={32} color="#EF4444" />
+                <Ionicons name="close-circle" size={32} color={COLORS.danger} />
               </TouchableOpacity>
               <View style={styles.imageStatusBadge}>
-                <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
                 <Text style={styles.imageStatusText}>Image Ready</Text>
               </View>
             </View>
           ) : (
             <View style={styles.placeholderContainer}>
               <View style={styles.placeholderIcon}>
-                <Ionicons name="image-outline" size={64} color="#D1D5DB" />
+                <Ionicons name="image-outline" size={64} color={COLORS.border} />
               </View>
               <Text style={styles.placeholderTitle}>No image selected</Text>
               <Text style={styles.placeholderSubtext}>
@@ -190,7 +191,7 @@ export default function UploadScreen() {
             style={[styles.uploadButton, styles.cameraButton]}
             onPress={takePhoto}
           >
-            <Ionicons name="camera-outline" size={24} color="#0B5ED7" />
+            <Ionicons name="camera-outline" size={24} color={COLORS.primary} />
             <View style={styles.buttonTextContainer}>
               <Text style={styles.cameraButtonText}>Take Photo</Text>
               <Text style={styles.cameraButtonSubtext}>Use device camera</Text>
@@ -198,7 +199,7 @@ export default function UploadScreen() {
           </TouchableOpacity>
         </View>
 
-        <Card elevated="light" backgroundColor="rgba(245, 158, 11, 0.08)">
+        <Card elevated="light" backgroundColor={COLORS.warningLight}>
           <View style={styles.sampleHeader}>
             <Text style={styles.sampleIcon}>📷</Text>
             <Text style={styles.sampleTitle}>Demo Mode</Text>
@@ -230,30 +231,26 @@ export default function UploadScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: SPACING.md,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -264,12 +261,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   headerSubtitle: {
     fontSize: 12,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     marginTop: 3,
     fontWeight: "500",
   },
@@ -277,7 +274,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(11, 94, 215, 0.1)",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -285,7 +282,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 20,
+    padding: SPACING.md,
     paddingBottom: 40,
   },
   instructionsHeader: {
@@ -297,7 +294,7 @@ const styles = StyleSheet.create({
   instructionsTitle: {
     fontSize: 16,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.2,
   },
   guidelinesList: {
@@ -310,7 +307,7 @@ const styles = StyleSheet.create({
   },
   instructionsText: {
     fontSize: 14,
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     lineHeight: 20,
     flex: 1,
     fontWeight: "500",
@@ -322,8 +319,8 @@ const styles = StyleSheet.create({
   previewImage: {
     width: "100%",
     height: 300,
-    borderRadius: 12,
-    backgroundColor: "#F3F4F6",
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.primaryLight,
   },
   removeButton: {
     position: "absolute",
@@ -331,7 +328,7 @@ const styles = StyleSheet.create({
     right: -14,
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    shadowColor: "#000",
+    shadowColor: "rgba(0, 0, 0, 0.12)",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
@@ -348,7 +345,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
-    shadowColor: "#000",
+    shadowColor: "rgba(0, 0, 0, 0.08)",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
@@ -357,7 +354,7 @@ const styles = StyleSheet.create({
   imageStatusText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#10B981",
+    color: COLORS.success,
   },
   placeholderContainer: {
     alignItems: "center",
@@ -367,7 +364,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
@@ -375,12 +372,12 @@ const styles = StyleSheet.create({
   placeholderTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginBottom: 6,
   },
   placeholderSubtext: {
     fontSize: 14,
-    color: "#9CA3AF",
+    color: COLORS.textTertiary,
     fontWeight: "500",
   },
   uploadOptions: {
@@ -389,16 +386,12 @@ const styles = StyleSheet.create({
   },
   uploadButton: {
     flexDirection: "row",
-    backgroundColor: "#0B5ED7",
-    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.md,
     padding: 18,
     alignItems: "center",
     gap: 14,
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 4,
+    ...SHADOWS.light,
   },
   buttonTextContainer: {
     flex: 1,
@@ -415,19 +408,17 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   cameraButton: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
+    backgroundColor: COLORS.card,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
   },
   cameraButtonText: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontSize: 15,
     fontWeight: "700",
   },
   cameraButtonSubtext: {
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     fontSize: 12,
     marginTop: 3,
     fontWeight: "500",
@@ -444,27 +435,23 @@ const styles = StyleSheet.create({
   sampleTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#D97706",
+    color: COLORS.warning,
   },
   sampleText: {
     fontSize: 13,
-    color: "#92400E",
+    color: COLORS.textSecondary,
     lineHeight: 20,
     fontWeight: "500",
   },
   continueButton: {
     flexDirection: "row",
-    backgroundColor: "#0B5ED7",
-    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.md,
     padding: 18,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 4,
+    ...SHADOWS.medium,
   },
   continueButtonDisabled: {
     opacity: 0.5,

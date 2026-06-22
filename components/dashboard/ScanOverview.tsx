@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SectionHeader, StatCard } from "../premium";
+import { COLORS, SPACING } from "../../constants/Theme";
 
 interface ScanOverviewProps {
   stats: any;
@@ -28,15 +29,15 @@ export const ScanOverview = ({
                   }
                 : undefined
             }
-            color="#0B5ED7"
-            backgroundColor="rgba(11, 94, 215, 0.08)"
+            color={COLORS.primary}
+            backgroundColor={COLORS.primaryLight}
           />
           <StatCard
             icon="checkmark-circle-outline"
             title="Completed"
             value={stats?.completedScans || 0}
-            color="#10B981"
-            backgroundColor="rgba(16, 185, 129, 0.08)"
+            color={COLORS.success}
+            backgroundColor={COLORS.successLight}
           />
         </View>
         <View style={styles.statRow}>
@@ -44,15 +45,15 @@ export const ScanOverview = ({
             icon="warning-outline"
             title="Pneumonia"
             value={stats?.failedScans || 0}
-            color="#EF4444"
-            backgroundColor="rgba(239, 68, 68, 0.08)"
+            color={COLORS.danger}
+            backgroundColor={COLORS.dangerLight}
           />
           <StatCard
             icon="time-outline"
             title="Processing"
             value={stats?.processingScans || 0}
-            color="#F59E0B"
-            backgroundColor="rgba(245, 158, 11, 0.08)"
+            color={COLORS.warning}
+            backgroundColor={COLORS.warningLight}
           />
         </View>
       </View>
@@ -62,8 +63,8 @@ export const ScanOverview = ({
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   statsContainer: {
     gap: 12,

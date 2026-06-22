@@ -7,6 +7,8 @@ import {
     TouchableOpacityProps,
 } from "react-native";
 
+import { COLORS, SHADOWS } from "../../constants/Theme";
+
 interface PremiumButtonProps extends TouchableOpacityProps {
   children: ReactNode;
   variant?: "primary" | "secondary" | "outline";
@@ -47,7 +49,7 @@ export const PremiumButton: React.FC<PremiumButtonProps> = ({
       {loading && (
         <ActivityIndicator
           size="small"
-          color={variant === "primary" ? "#FFFFFF" : "#0B5ED7"}
+          color={variant === "primary" ? "#FFFFFF" : COLORS.primary}
           style={{ marginRight: 8 }}
         />
       )}
@@ -75,26 +77,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
+    borderRadius: 14,
     fontWeight: "600",
   },
 
   /* Variants */
   primary: {
-    backgroundColor: "#0B5ED7",
-    shadowColor: "#0B5ED7",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 6,
   },
   secondary: {
-    backgroundColor: "#E0E7FF",
+    backgroundColor: COLORS.primaryLight,
   },
   outline: {
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: "#0B5ED7",
+    borderColor: COLORS.primary,
   },
 
   /* Sizes */
@@ -122,10 +124,10 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   text_secondary: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
   },
   text_outline: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
   },
 
   /* Text sizes */

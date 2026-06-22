@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Scan } from "../../types/api";
+import { COLORS, SHADOWS, BORDER_RADIUS, SPACING } from "../../constants/Theme";
 
 export interface RecentScansProps {
   recentScans: Scan[];
@@ -65,7 +66,7 @@ export const RecentScans: React.FC<RecentScansProps> = ({ recentScans }) => {
             </View>
             <View style={styles.scanFooter}>
               <Text style={styles.scanDate}>
-                <Ionicons name="calendar-outline" size={12} color="#8E8E93" />{" "}
+                <Ionicons name="calendar-outline" size={12} color={COLORS.textTertiary} />{" "}
                 {new Date(scan.createdAt).toLocaleDateString()}
               </Text>
               <Text style={styles.scanConfidence}>
@@ -76,7 +77,7 @@ export const RecentScans: React.FC<RecentScansProps> = ({ recentScans }) => {
         ))
       ) : (
         <View style={styles.emptyState}>
-          <Ionicons name="document-outline" size={48} color="#D1D5DB" />
+          <Ionicons name="document-outline" size={48} color={COLORS.border} />
           <Text style={styles.emptyStateTitle}>No Recent Scans</Text>
           <Text style={styles.emptyStateText}>
             Start by uploading a new X-ray scan
@@ -89,8 +90,8 @@ export const RecentScans: React.FC<RecentScansProps> = ({ recentScans }) => {
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.lg,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -101,26 +102,22 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     letterSpacing: -0.3,
   },
   viewAllText: {
     fontSize: 14,
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontWeight: "700",
   },
   scanCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   scanHeader: {
     flexDirection: "row",
@@ -130,7 +127,7 @@ const styles = StyleSheet.create({
   },
   scanId: {
     fontSize: 12,
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontWeight: "700",
     marginBottom: 4,
     letterSpacing: 0.5,
@@ -138,7 +135,7 @@ const styles = StyleSheet.create({
   patientName: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   resultBadge: {
     paddingHorizontal: 12,
@@ -146,58 +143,58 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   resultDanger: {
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
+    backgroundColor: COLORS.dangerLight,
   },
   resultSafe: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    backgroundColor: COLORS.successLight,
   },
   resultText: {
     fontSize: 12,
     fontWeight: "700",
   },
   resultTextDanger: {
-    color: "#EF4444",
+    color: COLORS.danger,
   },
   resultTextSafe: {
-    color: "#10B981",
+    color: COLORS.success,
   },
   scanFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
+    borderTopColor: COLORS.border,
   },
   scanDate: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: COLORS.textSecondary,
     fontWeight: "500",
   },
   scanConfidence: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   emptyState: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 40,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
     borderStyle: "dashed",
   },
   emptyStateTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginTop: 12,
     marginBottom: 4,
   },
   emptyStateText: {
     fontSize: 14,
-    color: "#9CA3AF",
+    color: COLORS.textSecondary,
     textAlign: "center",
   },
 });

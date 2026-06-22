@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SectionHeader } from "../premium/SectionHeader";
+import { COLORS, SHADOWS, BORDER_RADIUS, SPACING } from "../../constants/Theme";
 
 interface SystemStatusCardProps {
   systemStatus: {
@@ -55,19 +56,17 @@ export const SystemStatusCard = ({ systemStatus }: SystemStatusCardProps) => {
 
 const styles = StyleSheet.create({
   section: {
-    marginBottom: 24,
-    paddingHorizontal: 20,
-    paddingTop: 10
+    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+    paddingTop: 10,
   },
   statusCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.lg,
     padding: 20,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   statusRow: {
     flexDirection: "row",
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: COLORS.border,
   },
   statusIndicator: {
     flexDirection: "row",
@@ -88,16 +87,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   statusActive: {
-    backgroundColor: "#10B981",
+    backgroundColor: COLORS.success,
   },
   statusText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#4B5563",
+    color: COLORS.textSecondary,
   },
   statusValue: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
 });

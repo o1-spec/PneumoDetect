@@ -15,6 +15,7 @@ import { AuthInput } from "../../components/auth/AuthInput";
 import { PremiumButton } from "../../components/auth/PremiumButton";
 import { AuthContext } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
+import { COLORS, SHADOWS, BORDER_RADIUS } from "../../constants/Theme";
 import { getErrorMessage } from "../../utils/errorHandler";
 
 export default function LoginScreen() {
@@ -100,7 +101,7 @@ export default function LoginScreen() {
             router.canGoBack() ? router.back() : router.push("/")
           }
         >
-          <Ionicons name="chevron-back" size={24} color="#0B5ED7" />
+          <Ionicons name="chevron-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
 
         <AuthHeader
@@ -181,25 +182,26 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
     paddingTop: 50,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 40,
   },
   backButton: {
     width: 40,
     height: 40,
-    borderRadius: 10,
-    backgroundColor: "#FFFFFF",
+    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: COLORS.card,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   form: {
     marginBottom: 32,
@@ -209,7 +211,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   forgotPasswordText: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -223,12 +225,12 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   signupText: {
-    color: "#6B7280",
+    color: COLORS.textSecondary,
     fontSize: 14,
     fontWeight: "500",
   },
   signupLink: {
-    color: "#0B5ED7",
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -239,7 +241,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: "#9CA3AF",
+    color: COLORS.textTertiary,
     textAlign: "center",
     fontStyle: "italic",
   },
