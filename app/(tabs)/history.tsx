@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   RefreshControl,
@@ -15,10 +14,40 @@ import {
 import { PremiumChip, PneumoLoader } from "../../components/premium";
 import { scansAPI } from "../../services/api.client";
 import { Scan } from "../../types/api";
-import { formatDate, formatTime } from "../../utils/dateFormatter";
+import { formatDate } from "../../utils/dateFormatter";
 import { useToast } from "../../hooks/useToast";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
-export default function HistoryScreen() {
+// Helper component to render chest X-ray thumbnails or placeholder mockups
+const XrayThumbnail = ({ uri, width = 64, height = 64 }: { uri?: string; width?: number; height?: number }) => {
+  if (uri) {
+    return (
+      <Image
+        source={{ uri }}
+        style={{ width, height, borderRadius: BORDER_RADIUS.sm, backgroundColor: "#0F172A" }}
+      />
+    );
+  }
+  return (
+    <View style={{
+      width,
+      height,
+      borderRadius: BORDER_RADIUS.sm,
+      backgroundColor: "#1E293B",
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: "#334155"
+    }}>
+      <Ionicons name="medical-outline" size={width * 0.4} color="#64748B" />
+      <Text style={{ fontSize: width > 100 ? 12 : 8, color: "#64748B", marginTop: 4, fontWeight: "600", textAlign: "center" }}>
+        No Scan
+      </Text>
+    </View>
+  );
+};
+
+export default function CasesScreen() {
   const [scans, setScans] = useState<Scan[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -73,6 +102,12 @@ export default function HistoryScreen() {
     return matchesSearch && matchesFilter;
   });
 
+  const getConfidenceLabel = (conf: number) => {
+    if (conf >= 90) return "High Confidence";
+    if (conf >= 70) return "Moderate Confidence";
+    return "Low Confidence";
+  };
+
   const renderHistoryItem = ({ item }: { item: Scan }) => {
     const isPneumonia = item.result === "PNEUMONIA";
 
@@ -81,125 +116,124 @@ export default function HistoryScreen() {
         style={styles.historyCard}
         onPress={() =>
           router.push({
-            pathname: "/report/[scanId]",
-            params: { scanId: item.id },
+            pathname: "/analysis/results/[scanId]",
+            params: {
+              scanId: item.id,
+              imageUri: item.imageUrl || "",
+              patientId: item.patient?.idNumber || "N/A",
+              patientName: item.patient?.name || "Unknown Patient",
+              age: item.patient?.age?.toString() || "N/A",
+              sex: item.patient?.gender === "MALE" ? "Male" : "Female",
+              scanDate: new Date(item.createdAt).toLocaleDateString(),
+              result: item.result || "NORMAL",
+              confidence: (item.confidence || 0).toString(),
+              heatmapUrl: item.heatmapUrl || "",
+            }
           })
         }
       >
-        <Image source={{ uri: item.imageUrl }} style={styles.thumbnail} />
+        <XrayThumbnail uri={item.imageUrl} width={76} height={76} />
 
         <View style={styles.historyInfo}>
           <View style={styles.historyHeader}>
-            <Text style={styles.scanId}>{item.id}</Text>
-            <View
-              style={[
-                styles.statusBadge,
-                isPneumonia ? styles.statusDanger : styles.statusSafe,
-              ]}
-            >
-              <Ionicons
-                name={isPneumonia ? "warning" : "checkmark-circle"}
-                size={12}
-                color={isPneumonia ? "#D32F2F" : "#4CAF50"}
-              />
+            <Text style={styles.scanId}>#{item.patient?.idNumber || item.id.substring(0, 8)}</Text>
+            <View style={[
+              styles.statusBadge,
+              isPneumonia ? styles.badgeDanger : styles.badgeSuccess
+            ]}>
+              <Text style={[
+                styles.statusBadgeText,
+                isPneumonia ? styles.textDanger : styles.textSuccess
+              ]}>
+                {isPneumonia ? "Pneumonia" : "Normal"}
+              </Text>
             </View>
           </View>
 
           <Text style={styles.patientName}>
-            {item.patient?.name || "Unknown"}
+            {item.patient?.name || "Unknown Patient"}
           </Text>
-          <Text style={styles.patientId}>
-            ID: {item.patient?.idNumber || "N/A"}
+          <Text style={styles.scanDateText}>
+            Analyzed: {formatDate(item.createdAt)}
           </Text>
 
           <View style={styles.historyFooter}>
-            <View style={styles.dateTime}>
-              <Ionicons name="calendar-outline" size={12} color="#8E8E93" />
-              <Text style={styles.dateText}>{formatDate(item.createdAt)}</Text>
-              <Ionicons name="time-outline" size={12} color="#8E8E93" />
-              <Text style={styles.timeText}>{formatTime(item.createdAt)}</Text>
-            </View>
-            <Text style={styles.confidence}>
-              {item.confidence?.toFixed(1)}%
+            <Text style={styles.confidenceText}>
+              {item.confidence?.toFixed(0)}% Confidence • <Text style={styles.confidenceLabelSub}>
+                {getConfidenceLabel(item.confidence || 0)}
+              </Text>
             </Text>
           </View>
         </View>
 
-        <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+        <Ionicons name="chevron-forward" size={18} color={COLORS.textTertiary} style={styles.chevron} />
       </TouchableOpacity>
     );
   };
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <PneumoLoader size={48} color="#0B5ED7" />
+        <PneumoLoader size={48} color={COLORS.primary} />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={styles.topSpacer} />
-
-      <View style={styles.statsContainer}>
-        <View style={styles.statBox}>
-          <Text style={styles.statValue}>{scans.length}</Text>
-          <Text style={styles.statLabel}>Total</Text>
-        </View>
-        <View style={[styles.statBox, styles.dangerBox]}>
-          <Text style={[styles.statValue, styles.dangerText]}>
-            {scans.filter((s) => s.result === "PNEUMONIA").length}
-          </Text>
-          <Text style={styles.statLabel}>Pneumonia</Text>
-        </View>
-        <View style={[styles.statBox, styles.safeBox]}>
-          <Text style={[styles.statValue, styles.safeText]}>
-            {scans.filter((s) => s.result === "NORMAL").length}
-          </Text>
-          <Text style={styles.statLabel}>Normal</Text>
-        </View>
+      {/* Registry Top Header */}
+      <View style={styles.registryHeaderTitleContainer}>
+        <Text style={styles.registryHeaderTitle}>Case Registry</Text>
+        <Text style={styles.registryHeaderSubtitle}>{scans.length} total patient screening cases</Text>
       </View>
 
+      {/* Search Input */}
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
           size={20}
-          color="#8E8E93"
+          color={COLORS.textTertiary}
           style={styles.searchIcon}
         />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search scans..."
-          placeholderTextColor="#8E8E93"
+          placeholder="Search patient ID, name..."
+          placeholderTextColor={COLORS.textTertiary}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={20} color="#8E8E93" />
+            <Ionicons name="close-circle" size={20} color={COLORS.textTertiary} />
           </TouchableOpacity>
         )}
       </View>
 
+      {/* Filter Chips */}
       <View style={styles.filterContainer}>
-        <PremiumChip
-          label="All"
-          selected={filterStatus === "all"}
+        <TouchableOpacity
+          style={[styles.filterChip, filterStatus === "all" && styles.filterChipActive]}
           onPress={() => setFilterStatus("all")}
-        />
-        <PremiumChip
-          label="Pneumonia"
-          selected={filterStatus === "PNEUMONIA"}
+        >
+          <Text style={[styles.filterChipText, filterStatus === "all" && styles.filterChipTextActive]}>All Cases</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.filterChip, filterStatus === "PNEUMONIA" && styles.filterChipActive]}
           onPress={() => setFilterStatus("PNEUMONIA")}
-        />
-        <PremiumChip
-          label="Normal"
-          selected={filterStatus === "NORMAL"}
+        >
+          <Text style={[styles.filterChipText, filterStatus === "PNEUMONIA" && styles.filterChipTextActive]}>Pneumonia</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.filterChip, filterStatus === "NORMAL" && styles.filterChipActive]}
           onPress={() => setFilterStatus("NORMAL")}
-        />
+        >
+          <Text style={[styles.filterChipText, filterStatus === "NORMAL" && styles.filterChipTextActive]}>Normal</Text>
+        </TouchableOpacity>
       </View>
 
+      {/* Cases Registry List */}
       <FlatList
         data={filteredHistory}
         renderItem={renderHistoryItem}
@@ -211,8 +245,11 @@ export default function HistoryScreen() {
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="folder-open-outline" size={64} color="#C7C7CC" />
-            <Text style={styles.emptyText}>No scans found</Text>
+            <View style={styles.emptyIconBox}>
+              <Ionicons name="images-outline" size={48} color={COLORS.textTertiary} />
+            </View>
+            <Text style={styles.emptyText}>No screening cases found</Text>
+            <Text style={styles.emptySubtext}>Try adjusting filters or search query</Text>
           </View>
         }
       />
@@ -223,92 +260,78 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFBFC",
+    backgroundColor: COLORS.background,
   },
   centerContent: {
     justifyContent: "center",
     alignItems: "center",
   },
-  topSpacer: {
-    height: 60,
-  },
-  statsContainer: {
-    flexDirection: "row",
-    padding: 20,
+  registryHeaderTitleContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 60,
     paddingBottom: 16,
-    gap: 12,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
+    backgroundColor: COLORS.card,
   },
-  statBox: {
-    flex: 1,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  dangerBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.08)",
-    borderColor: "#FECACA",
-  },
-  safeBox: {
-    backgroundColor: "rgba(16, 185, 129, 0.08)",
-    borderColor: "#A7F3D0",
-  },
-  statValue: {
-    fontSize: 36,
+  registryHeaderTitle: {
+    fontSize: 26,
     fontWeight: "800",
-    color: "#111827",
-    marginBottom: 8,
+    color: COLORS.textPrimary,
     letterSpacing: -0.5,
   },
-  dangerText: {
-    color: "#EF4444",
-  },
-  safeText: {
-    color: "#10B981",
-  },
-  statLabel: {
-    fontSize: 12,
-    color: "#6B7280",
+  registryHeaderSubtitle: {
+    fontSize: 13,
+    color: COLORS.textTertiary,
     fontWeight: "600",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
+    marginTop: 4,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     marginHorizontal: 20,
+    marginTop: 16,
     paddingHorizontal: 16,
-    borderRadius: 14,
-    height: 54,
-    marginBottom: 18,
+    borderRadius: BORDER_RADIUS.sm,
+    height: 50,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   searchIcon: {
-    marginRight: 12,
-    color: "#9CA3AF",
+    marginRight: 10,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    color: "#111827",
-    fontWeight: "500",
+    fontSize: 15,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
   },
   filterContainer: {
     flexDirection: "row",
     paddingHorizontal: 20,
-    gap: 12,
-    marginBottom: 24,
+    gap: 8,
+    marginTop: 14,
+    marginBottom: 16,
+  },
+  filterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  filterChipActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  filterChipText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: COLORS.textSecondary,
+  },
+  filterChipTextActive: {
+    color: "#FFFFFF",
   },
   listContent: {
     paddingHorizontal: 20,
@@ -316,106 +339,100 @@ const styles = StyleSheet.create({
   },
   historyCard: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 12,
+    marginBottom: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  thumbnail: {
-    width: 80,
-    height: 80,
-    borderRadius: 12,
-    backgroundColor: "#F3F4F6",
-    marginRight: 16,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   historyInfo: {
     flex: 1,
+    marginLeft: 14,
   },
   historyHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
   },
   scanId: {
-    fontSize: 12,
-    color: "#0B5ED7",
+    fontSize: 14,
+    color: COLORS.textPrimary,
     fontWeight: "800",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
   },
   statusBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
-  statusDanger: {
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
+  badgeDanger: {
+    backgroundColor: COLORS.dangerLight,
   },
-  statusSafe: {
-    backgroundColor: "rgba(16, 185, 129, 0.1)",
+  badgeSuccess: {
+    backgroundColor: COLORS.successLight,
+  },
+  statusBadgeText: {
+    fontSize: 11,
+    fontWeight: "800",
+  },
+  textDanger: {
+    color: COLORS.danger,
+  },
+  textSuccess: {
+    color: COLORS.success,
   },
   patientName: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#111827",
-    marginBottom: 4,
-    letterSpacing: -0.3,
+    fontSize: 14,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    marginTop: 2,
   },
-  patientId: {
-    fontSize: 13,
-    color: "#6B7280",
-    marginBottom: 10,
+  scanDateText: {
+    fontSize: 11,
+    color: COLORS.textTertiary,
+    marginTop: 2,
     fontWeight: "500",
   },
   historyFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    marginTop: 8,
   },
-  dateTime: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  dateText: {
+  confidenceText: {
     fontSize: 12,
-    color: "#9CA3AF",
-    marginRight: 10,
-    fontWeight: "600",
+    fontWeight: "700",
+    color: COLORS.textSecondary,
   },
-  timeText: {
-    fontSize: 12,
-    color: "#9CA3AF",
-    fontWeight: "600",
-  },
-  confidence: {
-    fontSize: 14,
+  confidenceLabelSub: {
     fontWeight: "800",
-    color: "#0B5ED7",
-    letterSpacing: -0.3,
+    color: COLORS.primary,
+  },
+  chevron: {
+    marginLeft: 8,
   },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 80,
+    paddingVertical: 64,
+  },
+  emptyIconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
   },
   emptyText: {
     fontSize: 16,
-    color: "#9CA3AF",
-    marginTop: 16,
+    color: COLORS.textPrimary,
+    fontWeight: "800",
+  },
+  emptySubtext: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 4,
     fontWeight: "500",
   },
 });

@@ -2,31 +2,48 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { patientsAPI, scansAPI } from "../../services/api.client";
 import { Patient, Scan, ScanStatus } from "../../types/api";
 import { getErrorMessage } from "../../utils/errorHandler";
 import { useToast } from "../../hooks/useToast";
+import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../constants/Theme";
 
-const STATUS_COLORS: Record<ScanStatus, string> = {
-  UPLOADED: "#FFA500",
-  PROCESSING: "#1E90FF",
-  COMPLETED: "#4CAF50",
-  FAILED: "#D32F2F",
-};
-
-const STATUS_ICONS: Record<ScanStatus, string> = {
-  UPLOADED: "cloud-upload",
-  PROCESSING: "sync",
-  COMPLETED: "checkmark-circle",
-  FAILED: "close-circle",
+// Helper component to render chest X-ray thumbnails or placeholder mockups
+const XrayThumbnail = ({ uri, width = 64, height = 64 }: { uri?: string; width?: number; height?: number }) => {
+  if (uri) {
+    return (
+      <Image
+        source={{ uri }}
+        style={{ width, height, borderRadius: BORDER_RADIUS.sm, backgroundColor: "#0F172A" }}
+      />
+    );
+  }
+  return (
+    <View style={{
+      width,
+      height,
+      borderRadius: BORDER_RADIUS.sm,
+      backgroundColor: "#1E293B",
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: "#334155"
+    }}>
+      <Ionicons name="medical-outline" size={width * 0.4} color="#64748B" />
+      <Text style={{ fontSize: 8, color: "#64748B", marginTop: 4, fontWeight: "600", textAlign: "center" }}>
+        No Scan
+      </Text>
+    </View>
+  );
 };
 
 export default function PatientDetailScreen() {
@@ -51,7 +68,12 @@ export default function PatientDetailScreen() {
       ]);
 
       setPatient(patientData);
-      setScans(scansData);
+      
+      // Sort scans chronologically (most recent first)
+      const sortedScans = Array.isArray(scansData) 
+        ? [...scansData].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        : [];
+      setScans(sortedScans);
     } catch (error) {
       showError(getErrorMessage(error));
     } finally {
@@ -75,10 +97,21 @@ export default function PatientDetailScreen() {
     });
   };
 
-  const handleScanPress = (scanId: string) => {
+  const handleScanPress = (scan: Scan) => {
     router.push({
       pathname: "/analysis/results/[scanId]",
-      params: { scanId },
+      params: {
+        scanId: scan.id,
+        imageUri: scan.imageUrl || "",
+        patientId: patient?.idNumber || "N/A",
+        patientName: patient?.name || "Unknown Patient",
+        age: patient?.age?.toString() || "N/A",
+        sex: patient?.gender === "MALE" ? "Male" : "Female",
+        scanDate: new Date(scan.createdAt).toLocaleDateString(),
+        result: scan.result || "NORMAL",
+        confidence: (scan.confidence || 0).toString(),
+        heatmapUrl: scan.heatmapUrl || "",
+      }
     });
   };
 
@@ -91,79 +124,85 @@ export default function PatientDetailScreen() {
       year: "numeric",
       month: "short",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
-  const renderScanItem = ({ item }: { item: Scan }) => (
-    <TouchableOpacity
-      style={styles.scanCard}
-      onPress={() => handleScanPress(item.id)}
-    >
-      <View style={styles.scanHeader}>
-        <View style={styles.scanIcon}>
-          <Ionicons
-            name={STATUS_ICONS[item.status] as any}
-            size={20}
-            color={STATUS_COLORS[item.status]}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.scanTitle}>Chest X-ray Scan</Text>
-          <Text style={styles.scanDate}>{formatDate(item.createdAt)}</Text>
-        </View>
-        <View
-          style={[
-            styles.statusBadge,
-            { backgroundColor: `${STATUS_COLORS[item.status]}20` },
-          ]}
-        >
-          <Text
-            style={[
-              styles.statusBadgeText,
-              { color: STATUS_COLORS[item.status] },
-            ]}
-          >
-            {item.status}
-          </Text>
-        </View>
-      </View>
+  const getConfidenceLabel = (conf: number) => {
+    if (conf >= 90) return "High Confidence";
+    if (conf >= 70) return "Moderate Confidence";
+    return "Low Confidence";
+  };
 
-      {item.result && (
-        <View style={styles.resultSection}>
-          <Text style={styles.resultLabel}>Result:</Text>
-          <Text
-            style={[
-              styles.resultValue,
-              {
-                color: item.result === "PNEUMONIA" ? "#D32F2F" : "#4CAF50",
-              },
-            ]}
-          >
-            {item.result === "PNEUMONIA" ? "⚠ Pneumonia Detected" : "✓ Normal"}
-          </Text>
-          {item.confidence && (
-            <Text style={styles.confidenceText}>
-              Confidence: {(item.confidence * 100).toFixed(1)}%
-            </Text>
-          )}
+  const renderScanItem = ({ item, index }: { item: Scan; index: number }) => {
+    const isPneumonia = item.result === "PNEUMONIA";
+    const isLast = index === scans.length - 1;
+
+    return (
+      <View style={styles.timelineRow}>
+        {/* Timeline Indicator Line & Dots */}
+        <View style={styles.timelineIndicators}>
+          <View style={[
+            styles.timelineDot,
+            isPneumonia ? styles.dotDanger : styles.dotSuccess
+          ]} />
+          {!isLast && <View style={styles.timelineLine} />}
         </View>
-      )}
-    </TouchableOpacity>
-  );
+
+        {/* Timeline Case Content Card */}
+        <TouchableOpacity
+          style={styles.scanCard}
+          onPress={() => handleScanPress(item)}
+        >
+          <View style={styles.scanHeader}>
+            <XrayThumbnail uri={item.imageUrl} width={64} height={64} />
+            
+            <View style={styles.scanTextInfo}>
+              <View style={styles.scanDateRow}>
+                <Text style={styles.scanTitle}>Chest X-Ray Projective</Text>
+                <Text style={styles.scanDate}>{formatDate(item.createdAt)}</Text>
+              </View>
+              
+              <View style={styles.scanResultRow}>
+                <View style={[
+                  styles.resultBadge,
+                  isPneumonia ? styles.badgeDanger : styles.badgeSuccess
+                ]}>
+                  <Text style={[
+                    styles.resultText,
+                    isPneumonia ? styles.textDanger : styles.textSuccess
+                  ]}>
+                    {isPneumonia ? "Pneumonia Suspected" : "Normal"}
+                  </Text>
+                </View>
+                {item.confidence && (
+                  <Text style={styles.scanConfidence}>
+                    {item.confidence.toFixed(0)}% • <Text style={styles.confidenceLabelSub}>
+                      {getConfidenceLabel(item.confidence)}
+                    </Text>
+                  </Text>
+                )}
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={COLORS.textTertiary} />
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const EmptyScansView = () => (
     <View style={styles.emptyState}>
-      <Ionicons name="document-outline" size={48} color="#C7C7CC" />
-      <Text style={styles.emptyText}>No scans yet</Text>
+      <View style={styles.emptyIconBox}>
+        <Ionicons name="images-outline" size={48} color={COLORS.textTertiary} />
+      </View>
+      <Text style={styles.emptyText}>No clinical scans found</Text>
       <Text style={styles.emptySubtext}>
-        Upload a chest X-ray to get started
+        Upload a chest X-ray to start the EMR progression history
       </Text>
     </View>
   );
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={styles.container}>
         <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
@@ -171,14 +210,14 @@ export default function PatientDetailScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Patient Details</Text>
+          <Text style={styles.headerTitle}>Patient EMR</Text>
           <View style={styles.placeholder} />
         </View>
 
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading...</Text>
+          <Text style={styles.loadingText}>Loading details...</Text>
         </View>
       </View>
     );
@@ -192,9 +231,9 @@ export default function PatientDetailScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Ionicons name="arrow-back" size={24} color="#0066CC" />
+            <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Patient Details</Text>
+          <Text style={styles.headerTitle}>Patient EMR</Text>
           <View style={styles.placeholder} />
         </View>
 
@@ -207,14 +246,15 @@ export default function PatientDetailScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Top Header */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Ionicons name="arrow-back" size={24} color="#0066CC" />
+          <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Patient Details</Text>
+        <Text style={styles.headerTitle}>Patient EMR</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -225,14 +265,15 @@ export default function PatientDetailScreen() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <>
+            {/* Patient Credentials Card */}
             <View style={styles.patientCard}>
               <View style={styles.patientHeader}>
                 <View style={styles.patientAvatar}>
-                  <Ionicons name="person" size={32} color="#0066CC" />
+                  <Ionicons name="person-outline" size={28} color={COLORS.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.patientName}>{patient.name}</Text>
-                  <Text style={styles.patientId}>{patient.idNumber}</Text>
+                  <Text style={styles.patientId}>Record ID: {patient.idNumber}</Text>
                 </View>
               </View>
 
@@ -240,14 +281,14 @@ export default function PatientDetailScreen() {
                 <View style={styles.detailRow}>
                   <View style={styles.detailItem}>
                     <Text style={styles.detailLabel}>Age</Text>
-                    <Text style={styles.detailValue}>{patient.age}</Text>
+                    <Text style={styles.detailValue}>{patient.age} yrs</Text>
                   </View>
                   <View
                     style={[
                       styles.detailItem,
                       {
                         borderLeftWidth: 1,
-                        borderLeftColor: "#E5E5EA",
+                        borderLeftColor: COLORS.border,
                         paddingLeft: 16,
                       },
                     ]}
@@ -261,6 +302,7 @@ export default function PatientDetailScreen() {
               </View>
             </View>
 
+            {/* Quick Summary Grid */}
             <View style={styles.statsContainer}>
               <View style={styles.statBox}>
                 <Text style={styles.statNumber}>{scans.length}</Text>
@@ -273,7 +315,7 @@ export default function PatientDetailScreen() {
                 <Text style={styles.statLabel}>Completed</Text>
               </View>
               <View style={styles.statBox}>
-                <Text style={styles.statNumber}>
+                <Text style={[styles.statNumber, styles.textDanger]}>
                   {
                     scans.filter(
                       (s) =>
@@ -285,16 +327,17 @@ export default function PatientDetailScreen() {
               </View>
             </View>
 
+            {/* Action Trigger */}
             <TouchableOpacity
               style={styles.uploadButton}
               onPress={handleUploadScan}
             >
-              <Ionicons name="cloud-upload" size={20} color="#FFFFFF" />
-              <Text style={styles.uploadButtonText}>Upload New Scan</Text>
+              <Ionicons name="add" size={20} color="#FFFFFF" />
+              <Text style={styles.uploadButtonText}>Analyze New Scan</Text>
             </TouchableOpacity>
 
             {scans.length > 0 && (
-              <Text style={styles.sectionTitle}>Scan History</Text>
+              <Text style={styles.sectionTitle}>Disease Progression Timeline</Text>
             )}
           </>
         }
@@ -312,7 +355,7 @@ export default function PatientDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F7",
+    backgroundColor: COLORS.background,
   },
   header: {
     flexDirection: "row",
@@ -320,17 +363,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingBottom: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.card,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E5EA",
+    borderBottomColor: COLORS.border,
+    ...SHADOWS.light,
   },
   backButton: {
     padding: 8,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
   },
   placeholder: {
     width: 40,
@@ -346,17 +391,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 40,
   },
   loadingText: {
-    fontSize: 16,
-    color: "#8E8E93",
+    fontSize: 15,
+    color: COLORS.textSecondary,
+    fontWeight: "600",
   },
   patientCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     marginBottom: 16,
-    gap: 16,
+    ...SHADOWS.light,
   },
   patientHeader: {
     flexDirection: "row",
@@ -364,27 +413,29 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   patientAvatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#E3F2FD",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.primaryLight,
     justifyContent: "center",
     alignItems: "center",
   },
   patientName: {
     fontSize: 18,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
   },
   patientId: {
-    fontSize: 14,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: COLORS.textTertiary,
     marginTop: 4,
+    fontWeight: "600",
   },
   patientDetails: {
     borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
+    borderTopColor: COLORS.border,
     paddingTop: 16,
+    marginTop: 16,
   },
   detailRow: {
     flexDirection: "row",
@@ -394,16 +445,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   detailLabel: {
-    fontSize: 12,
-    color: "#8E8E93",
+    fontSize: 11,
+    color: COLORS.textTertiary,
     textTransform: "uppercase",
-    fontWeight: "600",
+    fontWeight: "700",
     marginBottom: 4,
   },
   detailValue: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 15,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
   },
   statsContainer: {
     flexDirection: "row",
@@ -412,118 +463,175 @@ const styles = StyleSheet.create({
   },
   statBox: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
     paddingVertical: 12,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#0066CC",
+    fontSize: 22,
+    fontWeight: "800",
+    color: COLORS.primary,
   },
   statLabel: {
     fontSize: 12,
-    color: "#8E8E93",
+    color: COLORS.textSecondary,
     marginTop: 4,
+    fontWeight: "600",
   },
   uploadButton: {
     flexDirection: "row",
-    backgroundColor: "#0066CC",
-    paddingVertical: 12,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: BORDER_RADIUS.sm,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    marginBottom: 20,
+    gap: 6,
+    marginBottom: 24,
+    ...SHADOWS.light,
   },
   uploadButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "800",
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
-    marginBottom: 12,
+    fontSize: 15,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    marginBottom: 16,
+    letterSpacing: -0.2,
+  },
+  timelineRow: {
+    flexDirection: "row",
+    minHeight: 100,
+  },
+  timelineIndicators: {
+    width: 24,
+    alignItems: "center",
+    marginRight: 10,
+  },
+  timelineDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: COLORS.primary,
+    zIndex: 10,
+    marginTop: 24,
+  },
+  dotDanger: {
+    backgroundColor: COLORS.danger,
+    borderWidth: 2.5,
+    borderColor: COLORS.dangerLight,
+  },
+  dotSuccess: {
+    backgroundColor: COLORS.success,
+    borderWidth: 2.5,
+    borderColor: COLORS.successLight,
+  },
+  timelineLine: {
+    width: 2,
+    position: "absolute",
+    top: 36,
+    bottom: 0,
+    backgroundColor: COLORS.border,
+    zIndex: 5,
   },
   scanCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    flex: 1,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.md,
+    padding: 12,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#E5E5EA",
+    borderColor: COLORS.border,
+    ...SHADOWS.light,
   },
   scanHeader: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
-  scanIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: "#F5F5F7",
-    justifyContent: "center",
+  scanTextInfo: {
+    flex: 1,
+  },
+  scanDateRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
   },
   scanTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 14,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
   },
   scanDate: {
-    fontSize: 12,
-    color: "#8E8E93",
-    marginTop: 4,
+    fontSize: 11,
+    color: COLORS.textTertiary,
+    fontWeight: "600",
   },
-  statusBadge: {
+  scanResultRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 6,
+    gap: 8,
+  },
+  resultBadge: {
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
-  statusBadgeText: {
-    fontSize: 12,
-    fontWeight: "600",
+  badgeDanger: {
+    backgroundColor: COLORS.dangerLight,
   },
-  resultSection: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E5EA",
-    gap: 4,
+  badgeSuccess: {
+    backgroundColor: COLORS.successLight,
   },
-  resultLabel: {
-    fontSize: 12,
-    color: "#8E8E93",
-    fontWeight: "600",
+  resultText: {
+    fontSize: 10,
+    fontWeight: "800",
   },
-  resultValue: {
-    fontSize: 16,
-    fontWeight: "bold",
+  textDanger: {
+    color: COLORS.danger,
   },
-  confidenceText: {
-    fontSize: 12,
-    color: "#8E8E93",
-    marginTop: 4,
+  textSuccess: {
+    color: COLORS.success,
+  },
+  scanConfidence: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: "700",
+  },
+  confidenceLabelSub: {
+    color: COLORS.primary,
   },
   emptyState: {
     alignItems: "center",
     paddingVertical: 48,
-    gap: 12,
+  },
+  emptyIconBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primaryLight,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
   },
   emptyText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1C1C1E",
+    fontSize: 15,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
   },
   emptySubtext: {
-    fontSize: 14,
-    color: "#8E8E93",
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+    fontWeight: "600",
+    marginTop: 4,
   },
 });

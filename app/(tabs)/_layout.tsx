@@ -52,9 +52,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Dashboard",
+          title: "Workspace",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" size={size} color={color} />
+            <Ionicons name="briefcase-outline" size={size} color={color} />
           ),
         }}
       />
@@ -62,9 +62,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="scan"
         options={{
-          title: "New Scan",
+          title: "Analyze",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="lungs" size={size} color={color} />
+            <Ionicons name="scan-outline" size={size} color={color} />
           ),
         }}
       />
@@ -72,9 +72,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: "History",
+          title: "Cases",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="time-outline" size={size} color={color} />
+            <Ionicons name="images-outline" size={size} color={color} />
           ),
         }}
       />

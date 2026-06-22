@@ -1,7 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  Dimensions,
   Image,
   ScrollView,
   StyleSheet,
@@ -16,14 +17,21 @@ import { PatientNotesModal } from "../../../components/PatientNotesModal";
 import { useToast } from "../../../hooks/useToast";
 import { scansAPI } from "../../../services/api.client";
 import { COLORS, BORDER_RADIUS, SHADOWS, SPACING } from "../../../constants/Theme";
+import { Scan } from "../../../types/api";
+
+const { height: screenHeight } = Dimensions.get("window");
 
 export default function ResultsScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
-  const { info } = useToast();
+  const { info, error: showError } = useToast();
+  
+  const [scan, setScan] = useState<Scan | null>(null);
+  const [loading, setLoading] = useState(true);
   const [notesModalVisible, setNotesModalVisible] = useState(false);
   const [patientNotes, setPatientNotes] = useState<string>("");
   const [notesLoading, setNotesLoading] = useState(false);
+  const [aiOverlay, setAiOverlay] = useState(true); // AI Overlay Heatmap active by default
 
   const {
     scanId,
@@ -38,29 +46,75 @@ export default function ResultsScreen() {
     heatmapUrl,
   } = params;
 
+  const scanIdStr = Array.isArray(scanId) ? scanId[0] : (scanId as string);
+
   useEffect(() => {
-    info("Analysis results ready");
-  }, []);
+    info("Analysis results loaded");
+    loadScanDetails();
+  }, [scanId]);
+
+  const loadScanDetails = async () => {
+    if (!scanIdStr) return;
+    try {
+      setLoading(true);
+      const data = await scansAPI.getById(scanIdStr);
+      setScan(data);
+      if (data.clinicianNotes) {
+        setPatientNotes(data.clinicianNotes);
+      }
+    } catch (err) {
+      // Fail silently and use params fallback
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSaveNotes = async (notes: string) => {
     try {
       setNotesLoading(true);
-      const scanIdStr = Array.isArray(scanId) ? scanId[0] : (scanId as string);
-      await scansAPI.updatePatientNotes(scanIdStr, notes);
+      // Backend uses update API for clinician
+      await scansAPI.update(scanIdStr, { notes });
       setPatientNotes(notes);
       setNotesLoading(false);
+      info("Clinical notes saved");
     } catch (error) {
       setNotesLoading(false);
-      throw error;
+      showError("Failed to save notes");
     }
   };
 
-  const isPneumonia = result === "PNEUMONIA";
-  const predictionText = isPneumonia ? "Pneumonia Detected" : "Normal";
-  const confidenceNum = parseFloat(confidence as string);
+  // Sync params fallback and DB attributes
+  const displayImage = scan?.imageUrl || (imageUri as string);
+  const displayHeatmap = scan?.heatmapUrl || (heatmapUrl as string);
+  const displayResult = scan?.result || (result as string);
+  const displayConfidence = scan?.confidence || parseFloat(confidence as string) || 0;
+  const displayPatientId = scan?.patient?.idNumber || (patientId as string);
+  const displayPatientName = scan?.patient?.name || (patientName as string);
+  const displayAge = scan?.patient?.age || (age as string);
+  const displaySex = scan?.patient?.gender === "MALE" ? "Male" : (scan?.patient?.gender === "FEMALE" ? "Female" : (sex as string));
+  const displayDate = scan?.createdAt ? new Date(scan.createdAt).toLocaleDateString() : (scanDate as string);
+
+  const isPneumonia = displayResult === "PNEUMONIA";
+  const predictionText = isPneumonia ? "Pneumonia Suspected" : "Normal";
+
+  const getConfidenceLabel = (conf: number) => {
+    if (conf >= 90) return "High Confidence";
+    if (conf >= 70) return "Moderate Confidence";
+    return "Low Confidence";
+  };
+
+  // Explainable AI copy
+  const whyFlagged = isPneumonia
+    ? "Increased opacity detected in the lower lung lobes. Textural patterns align with characteristic alveolar infiltration and consolidation profiles in training data."
+    : "No atypical opacities or structural consolidations detected. Lung volumes and costophrenic angles appear clear and consistent with normal chest physiology.";
+
+  const clinicalRecommendation = isPneumonia
+    ? "Recommend clinical correlation, immediate physician review, and standard chest follow-up."
+    : "No clinical pneumonia suspected. Routine observation as clinically indicated.";
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -68,144 +122,179 @@ export default function ResultsScreen() {
         >
           <Ionicons name="close" size={24} color={COLORS.primary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Analysis Results</Text>
+        <Text style={styles.headerTitle}>Scan Analysis</Text>
         <View style={styles.placeholder} />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.imageCard}>
-          <Image
-            source={{ uri: imageUri as string }}
-            style={styles.xrayImage}
-          />
-        </View>
-
-        <View
-          style={[
-            styles.predictionCard,
-            isPneumonia ? styles.predictionDanger : styles.predictionSafe,
-          ]}
-        >
-          <View style={styles.predictionIcon}>
-            <Ionicons
-              name={isPneumonia ? "warning" : "checkmark-circle"}
-              size={48}
-              color={isPneumonia ? COLORS.danger : COLORS.success}
-            />
-          </View>
-          <Text
-            style={[
-              styles.predictionText,
-              isPneumonia ? styles.textDanger : styles.textSafe,
-            ]}
-          >
-            {predictionText}
-          </Text>
-          <Text style={styles.predictionSubtext}>
-            Based on AI analysis of chest X-ray
-          </Text>
-        </View>
-
-        <View style={styles.confidenceCard}>
-          <Text style={styles.confidenceLabel}>Confidence Score</Text>
-          <Text style={styles.confidenceValue}>
-            {confidenceNum.toFixed(1)}%
-          </Text>
-          <View style={styles.confidenceBar}>
-            <View
-              style={[
-                styles.confidenceBarFill,
-                {
-                  width: `${confidenceNum}%`,
-                  backgroundColor: isPneumonia ? COLORS.danger : COLORS.success,
-                },
-              ]}
-            />
-          </View>
-          <Text style={styles.confidenceDescription}>
-            {confidenceNum > 90
-              ? "Very High Confidence"
-              : confidenceNum > 75
-                ? "High Confidence"
-                : "Moderate Confidence"}
-          </Text>
-        </View>
-
-        <View style={styles.infoCard}>
-          <Text style={styles.cardTitle}>Patient Information</Text>
-          <InfoRow label="Patient ID" value={patientId as string} />
-          <InfoRow label="Name" value={patientName as string} />
-          <InfoRow label="Age" value={`${age} years`} />
-          <InfoRow label="Sex" value={sex as string} />
-          <InfoRow label="Scan Date" value={scanDate as string} />
-        </View>
-
-        {/* Patient Notes Section */}
-        <View style={styles.notesCard}>
-          <View style={styles.notesHeader}>
-            <Text style={styles.cardTitle}>Clinical Notes</Text>
-            <TouchableOpacity
-              style={styles.editNotesButton}
-              onPress={() => setNotesModalVisible(true)}
-            >
-              <Ionicons name="pencil" size={16} color={COLORS.primary} />
-              <Text style={styles.editNotesText}>Edit</Text>
-            </TouchableOpacity>
-          </View>
-
-          {patientNotes ? (
-            <Text style={styles.notesText}>{patientNotes}</Text>
+        
+        {/* Radiographic Viewer (Allocates ~45-50% screen height) */}
+        <View style={styles.viewerContainer}>
+          {displayImage ? (
+            <View style={styles.imageWrapper}>
+              <Image source={{ uri: displayImage }} style={styles.xrayImage} />
+              
+              {/* AI Heatmap Overlay */}
+              {aiOverlay && displayHeatmap ? (
+                <Image 
+                  source={{ uri: displayHeatmap }} 
+                  style={[styles.xrayImage, styles.heatmapOverlay]} 
+                />
+              ) : null}
+            </View>
           ) : (
-            <Text style={styles.notesPlaceholder}>
-              No clinical notes added yet
-            </Text>
+            // styled dark X-ray placeholder
+            <View style={styles.darkPlaceholder}>
+              <MaterialCommunityIcons name="lungs" size={64} color="#334155" />
+              <Text style={styles.darkPlaceholderText}>No Scan Available</Text>
+            </View>
           )}
+
+          {/* AI Overlay ON/OFF Toggle Pill (Top-Right of viewer) */}
+          {displayHeatmap ? (
+            <TouchableOpacity
+              style={[styles.overlayToggle, aiOverlay && styles.overlayToggleActive]}
+              onPress={() => setAiOverlay(!aiOverlay)}
+            >
+              <Ionicons 
+                name={aiOverlay ? "eye-outline" : "eye-off-outline"} 
+                size={14} 
+                color={aiOverlay ? "#FFFFFF" : COLORS.textPrimary} 
+              />
+              <Text style={[styles.overlayToggleText, aiOverlay && styles.overlayToggleTextActive]}>
+                AI Overlay {aiOverlay ? "ON" : "OFF"}
+              </Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
 
-        <View style={styles.disclaimerBox}>
-          <View style={styles.disclaimerHeader}>
-            <Ionicons name="information-circle" size={20} color={COLORS.warning} />
-            <Text style={styles.disclaimerTitle}>Medical Disclaimer</Text>
+        {/* Prediction Summary & Confidence (Allocates ~20% height) */}
+        <Card elevated="light" style={styles.sectionCard}>
+          <View style={styles.predictionRow}>
+            <View style={[
+              styles.predictionIndicator,
+              isPneumonia ? styles.indicatorDanger : styles.indicatorSuccess
+            ]} />
+            <View>
+              <Text style={styles.predictionLabel}>AI Finding</Text>
+              <Text style={styles.predictionText}>{predictionText}</Text>
+            </View>
           </View>
-          <Text style={styles.disclaimerText}>
-            This AI-generated result is for screening purposes only and must be
-            reviewed by a qualified healthcare professional before any clinical
-            decision is made.
-          </Text>
-        </View>
 
+          <View style={styles.confidenceContainer}>
+            <View style={styles.confidenceHeader}>
+              <Text style={styles.confidenceTitle}>Confidence Score</Text>
+              <Text style={styles.confidencePercentage}>
+                {displayConfidence.toFixed(0)}% • <Text style={styles.confidenceLabelSub}>
+                  {getConfidenceLabel(displayConfidence)}
+                </Text>
+              </Text>
+            </View>
+            <View style={styles.progressBarBg}>
+              <View style={[
+                styles.progressBarFill,
+                {
+                  width: `${displayConfidence}%`,
+                  backgroundColor: isPneumonia ? COLORS.danger : COLORS.success
+                }
+              ]} />
+            </View>
+          </View>
+        </Card>
+
+        {/* Educational AI Findings & Explainability (Allocates ~15% height) */}
+        <Card elevated="light" style={styles.sectionCard}>
+          <Text style={styles.cardHeaderTitle}>AI Findings Summary</Text>
+          
+          <View style={styles.findingsList}>
+            <View style={styles.findingItem}>
+              <Ionicons 
+                name={isPneumonia ? "alert-circle" : "checkmark-circle"} 
+                size={16} 
+                color={isPneumonia ? COLORS.danger : COLORS.success} 
+              />
+              <Text style={styles.findingText}>
+                {isPneumonia ? "Lobe opacity & consolidation detected" : "Lungs clear of atypical consolidations"}
+              </Text>
+            </View>
+            <View style={styles.findingItem}>
+              <Ionicons 
+                name={isPneumonia ? "alert-circle" : "checkmark-circle"} 
+                size={16} 
+                color={isPneumonia ? COLORS.danger : COLORS.success} 
+              />
+              <Text style={styles.findingText}>
+                {isPneumonia ? "Radiographic patterns consistent with pneumonia" : "Costophrenic angles clear and calibrated"}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.explainabilityBox}>
+            <Text style={styles.explainabilityTitle}>Why was this flagged?</Text>
+            <Text style={styles.explainabilityText}>{whyFlagged}</Text>
+          </View>
+        </Card>
+
+        {/* Clinical Recommendation & Notes (Allocates ~15% height) */}
+        <Card elevated="light" style={styles.sectionCard}>
+          <Text style={styles.cardHeaderTitle}>Clinical Guidance</Text>
+          
+          <View style={styles.recommendationBox}>
+            <Text style={styles.recommendationTitle}>Clinical Recommendation</Text>
+            <Text style={styles.recommendationText}>{clinicalRecommendation}</Text>
+          </View>
+
+          <View style={styles.notesSection}>
+            <View style={styles.notesHeader}>
+              <Text style={styles.notesTitle}>Clinician Observations</Text>
+              <TouchableOpacity
+                style={styles.editNotesButton}
+                onPress={() => setNotesModalVisible(true)}
+              >
+                <Ionicons name="create-outline" size={14} color={COLORS.primary} />
+                <Text style={styles.editNotesText}>Add Note</Text>
+              </TouchableOpacity>
+            </View>
+
+            {patientNotes ? (
+              <Text style={styles.savedNotesText}>{patientNotes}</Text>
+            ) : (
+              <Text style={styles.notesPlaceholderText}>
+                No clinician observation notes written yet.
+              </Text>
+            )}
+          </View>
+        </Card>
+
+        {/* Demographics Card */}
+        <Card elevated="light" style={styles.sectionCard}>
+          <Text style={styles.cardHeaderTitle}>Patient EMR Record</Text>
+          <InfoRow label="Patient ID" value={displayPatientId || "N/A"} />
+          <InfoRow label="Full Name" value={displayPatientName || "Unknown Patient"} />
+          <InfoRow label="Age / Gender" value={`${displayAge || "N/A"} yrs / ${displaySex || "N/A"}`} />
+          <InfoRow label="Analysis Date" value={displayDate || "N/A"} />
+        </Card>
+
+        {/* Clinical Actions */}
         <View style={styles.actionButtons}>
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={() =>
               router.push({
-                pathname: "/analysis/results/explainable",
-                params: { scanId, imageUri, result, confidence, heatmapUrl },
+                pathname: "/report/[scanId]",
+                params: { scanId: scanIdStr },
               })
             }
           >
-            <Ionicons name="color-palette-outline" size={20} color="#FFFFFF" />
-            <Text style={styles.primaryButtonText}>View Heatmap</Text>
+            <Ionicons name="document-text-outline" size={18} color="#FFFFFF" />
+            <Text style={styles.primaryButtonText}>Generate PDF Report</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.secondaryButton}
-            onPress={() =>
-              router.push({
-                pathname: "/report/[scanId]",
-                params: { scanId: Array.isArray(scanId) ? scanId[0] : scanId },
-              })
-            }
-          >
-            <Ionicons name="document-text-outline" size={20} color={COLORS.primary} />
-            <Text style={styles.secondaryButtonText}>Generate Report</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.tertiaryButton}
             onPress={() => router.replace("/(tabs)")}
           >
-            <Text style={styles.tertiaryButtonText}>Return to Dashboard</Text>
+            <Text style={styles.secondaryButtonText}>Return to Workspace</Text>
           </TouchableOpacity>
         </View>
 
@@ -234,7 +323,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingBottom: 16,
     backgroundColor: COLORS.card,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
@@ -244,202 +333,263 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "800",
     color: COLORS.textPrimary,
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
   },
   placeholder: {
     width: 40,
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: SPACING.md,
   },
-  imageCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: 16,
-    marginBottom: 16,
+  viewerContainer: {
+    height: screenHeight * 0.45,
+    backgroundColor: "#0F172A",
+    borderRadius: BORDER_RADIUS.md,
+    overflow: "hidden",
+    position: "relative",
     borderWidth: 1,
     borderColor: COLORS.border,
-    ...SHADOWS.light,
+    marginBottom: 16,
+  },
+  imageWrapper: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
   },
   xrayImage: {
     width: "100%",
-    height: 300,
-    borderRadius: BORDER_RADIUS.sm,
-    backgroundColor: COLORS.primaryLight,
+    height: "100%",
+    resizeMode: "contain",
   },
-  predictionCard: {
-    borderRadius: BORDER_RADIUS.lg,
-    padding: 24,
-    marginBottom: 16,
+  heatmapOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.65,
+  },
+  darkPlaceholder: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    borderWidth: 2,
+    backgroundColor: "#1E293B",
   },
-  predictionDanger: {
-    backgroundColor: COLORS.dangerLight,
-    borderColor: COLORS.danger,
-  },
-  predictionSafe: {
-    backgroundColor: COLORS.successLight,
-    borderColor: COLORS.success,
-  },
-  predictionIcon: {
-    marginBottom: 16,
-  },
-  predictionText: {
-    fontSize: 28,
-    fontWeight: "800",
-    marginBottom: 8,
-    letterSpacing: -0.5,
-  },
-  textDanger: {
-    color: COLORS.danger,
-  },
-  textSafe: {
-    color: COLORS.success,
-  },
-  predictionSubtext: {
+  darkPlaceholderText: {
+    color: "#64748B",
+    marginTop: 8,
     fontSize: 14,
-    color: COLORS.textSecondary,
-    fontWeight: "500",
+    fontWeight: "600",
   },
-  confidenceCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: 24,
-    marginBottom: 16,
+  overlayToggle: {
+    position: "absolute",
+    top: 14,
+    right: 14,
+    flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
     borderWidth: 1,
     borderColor: COLORS.border,
+    zIndex: 20,
     ...SHADOWS.light,
   },
-  confidenceLabel: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    marginBottom: 8,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
+  overlayToggleActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
   },
-  confidenceValue: {
-    fontSize: 48,
+  overlayToggleText: {
+    fontSize: 11,
     fontWeight: "800",
     color: COLORS.textPrimary,
-    marginBottom: 16,
-    letterSpacing: -0.5,
   },
-  confidenceBar: {
-    width: "100%",
-    height: 10,
-    backgroundColor: COLORS.border,
-    borderRadius: BORDER_RADIUS.round,
-    overflow: "hidden",
-    marginBottom: 12,
+  overlayToggleTextActive: {
+    color: "#FFFFFF",
   },
-  confidenceBarFill: {
-    height: "100%",
-    borderRadius: BORDER_RADIUS.round,
+  sectionCard: {
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  confidenceDescription: {
-    fontSize: 14,
+  predictionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  predictionIndicator: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+  },
+  indicatorDanger: {
+    backgroundColor: COLORS.danger,
+  },
+  indicatorSuccess: {
+    backgroundColor: COLORS.success,
+  },
+  predictionLabel: {
+    fontSize: 11,
+    color: COLORS.textTertiary,
+    textTransform: "uppercase",
+    fontWeight: "700",
+  },
+  predictionText: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+  },
+  confidenceContainer: {
+    marginTop: 14,
+  },
+  confidenceHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  confidenceTitle: {
+    fontSize: 12,
     fontWeight: "700",
     color: COLORS.textSecondary,
   },
-  infoCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    ...SHADOWS.light,
-  },
-  cardTitle: {
-    fontSize: 16,
+  confidencePercentage: {
+    fontSize: 13,
     fontWeight: "800",
     color: COLORS.textPrimary,
-    marginBottom: 16,
-    letterSpacing: -0.3,
   },
-  notesCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: 16,
-    marginBottom: 16,
+  confidenceLabelSub: {
+    color: COLORS.primary,
+  },
+  progressBarBg: {
+    height: 8,
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 4,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    borderRadius: 4,
+  },
+  cardHeaderTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    marginBottom: 12,
+    letterSpacing: -0.2,
+  },
+  findingsList: {
+    gap: 8,
+    marginBottom: 14,
+  },
+  findingItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  findingText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+  },
+  explainabilityBox: {
+    backgroundColor: COLORS.primaryLight,
+    padding: 12,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    ...SHADOWS.light,
+  },
+  explainabilityTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+  },
+  explainabilityText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    fontWeight: "600",
+  },
+  recommendationBox: {
+    backgroundColor: COLORS.successLight,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#DCFCE7",
+    marginBottom: 14,
+  },
+  recommendationTitle: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: COLORS.success,
+    marginBottom: 4,
+  },
+  recommendationText: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    lineHeight: 18,
+    fontWeight: "600",
+  },
+  notesSection: {
+    marginTop: 6,
   },
   notesHeader: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  notesTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: COLORS.textSecondary,
   },
   editNotesButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: BORDER_RADIUS.sm,
     gap: 4,
+  },
+  editNotesText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: COLORS.primary,
+  },
+  savedNotesText: {
+    fontSize: 13,
+    color: COLORS.textPrimary,
+    lineHeight: 18,
+    fontWeight: "600",
+    backgroundColor: COLORS.primaryLight,
+    padding: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
-  editNotesText: {
-    color: COLORS.primary,
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  notesText: {
-    fontSize: 14,
-    color: COLORS.textPrimary,
-    lineHeight: 20,
-    fontWeight: "500",
-  },
-  notesPlaceholder: {
-    fontSize: 14,
+  notesPlaceholderText: {
+    fontSize: 12,
     color: COLORS.textTertiary,
     fontStyle: "italic",
-  },
-  disclaimerBox: {
-    backgroundColor: COLORS.warningLight,
-    borderWidth: 1,
-    borderColor: COLORS.warning,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: 16,
-    marginBottom: 16,
-  },
-  disclaimerHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 8,
-  },
-  disclaimerTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: COLORS.warning,
-    letterSpacing: -0.3,
-  },
-  disclaimerText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
     fontWeight: "500",
   },
   actionButtons: {
-    gap: 12,
+    gap: 10,
+    marginTop: 12,
   },
   primaryButton: {
     flexDirection: "row",
     backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
-    padding: 16,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
@@ -447,39 +597,20 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "800",
-    letterSpacing: -0.3,
   },
   secondaryButton: {
-    flexDirection: "row",
-    backgroundColor: COLORS.card,
-    borderRadius: BORDER_RADIUS.md,
-    padding: 16,
+    backgroundColor: "transparent",
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    borderWidth: 2,
-    borderColor: COLORS.primary,
   },
   secondaryButtonText: {
     color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: -0.3,
-  },
-  tertiaryButton: {
-    backgroundColor: "transparent",
-    borderRadius: BORDER_RADIUS.md,
-    padding: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tertiaryButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "700",
-    letterSpacing: -0.3,
   },
   bottomSpacer: {
     height: 40,

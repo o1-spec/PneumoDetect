@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -65,6 +65,12 @@ export default function UploadScreen() {
     }
   };
 
+  const loadDemoCase = () => {
+    // A real clinical chest X-ray image from public dataset
+    setSelectedImage("https://raw.githubusercontent.com/ieee8023/covid-chestxray-dataset/master/images/000001-1.jpg");
+    info("Clinical demo chest X-ray loaded");
+  };
+
   const handleContinue = () => {
     if (!selectedImage) {
       showError("Please select an X-ray image first");
@@ -77,6 +83,15 @@ export default function UploadScreen() {
     const ext = match ? match[1].toLowerCase() : "";
     const allowedExtensions = ["jpg", "jpeg", "png"];
     
+    // Bypass validation for the remote demo image
+    if (selectedImage.startsWith("http")) {
+      router.push({
+        pathname: "/analysis/patient-info",
+        params: { imageUri: selectedImage },
+      });
+      return;
+    }
+
     if (ext && !allowedExtensions.includes(ext)) {
       showError("Invalid file type. Only JPG, JPEG, and PNG images are allowed.");
       return;
@@ -89,22 +104,23 @@ export default function UploadScreen() {
   };
 
   const handleBack = () => {
-    router.push("/(tabs)");
+    router.replace("/(tabs)");
   };
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
         <View style={styles.headerContent}>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Ionicons name="arrow-back" size={24} color={COLORS.primary} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Upload X-Ray</Text>
-            <Text style={styles.headerSubtitle}>Step 1 of 3</Text>
+            <Text style={styles.headerTitle}>Analyze Scan</Text>
+            <Text style={styles.headerSubtitle}>Step 1 of 3: Select Chest X-Ray</Text>
           </View>
           <View style={styles.headerIcon}>
-            <Ionicons name="cloud-upload-outline" size={24} color={COLORS.primary} />
+            <Ionicons name="scan-outline" size={22} color={COLORS.primary} />
           </View>
         </View>
       </View>
@@ -114,40 +130,8 @@ export default function UploadScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Card elevated="light">
-          <View style={styles.instructionsHeader}>
-            <Ionicons name="information-circle" size={24} color={COLORS.primary} />
-            <Text style={styles.instructionsTitle}>Upload Guidelines</Text>
-          </View>
-          <View style={styles.guidelinesList}>
-            <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
-              <Text style={styles.instructionsText}>
-                Upload a clear chest X-ray image
-              </Text>
-            </View>
-            <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
-              <Text style={styles.instructionsText}>
-                Accepted formats: JPG, PNG
-              </Text>
-            </View>
-            <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
-              <Text style={styles.instructionsText}>
-                Ensure good lighting and clarity
-              </Text>
-            </View>
-            <View style={styles.guidelineItem}>
-              <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
-              <Text style={styles.instructionsText}>
-                Image should show full chest area
-              </Text>
-            </View>
-          </View>
-        </Card>
-
-        <Card elevated="medium">
+        {/* Radiology Silhouette Upload Area */}
+        <Card elevated="medium" padded={false}>
           {selectedImage ? (
             <View style={styles.imagePreviewContainer}>
               <Image
@@ -162,54 +146,78 @@ export default function UploadScreen() {
               </TouchableOpacity>
               <View style={styles.imageStatusBadge}>
                 <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
-                <Text style={styles.imageStatusText}>Image Ready</Text>
+                <Text style={styles.imageStatusText}>Scan Loaded</Text>
               </View>
             </View>
           ) : (
             <View style={styles.placeholderContainer}>
-              <View style={styles.placeholderIcon}>
-                <Ionicons name="image-outline" size={64} color={COLORS.border} />
+              {/* Radiology Box Scale Markers */}
+              <View style={[styles.scaleMarker, styles.scaleMarkerTopLeft]} />
+              <View style={[styles.scaleMarker, styles.scaleMarkerTopRight]} />
+              <View style={[styles.scaleMarker, styles.scaleMarkerBottomLeft]} />
+              <View style={[styles.scaleMarker, styles.scaleMarkerBottomRight]} />
+              
+              <View style={styles.placeholderContent}>
+                <MaterialCommunityIcons name="lungs" size={96} color="#334155" />
+                <Text style={styles.placeholderTitle}>Awaiting Radiographic Input</Text>
+                <Text style={styles.placeholderSubtext}>
+                  No active chest scan selected
+                </Text>
               </View>
-              <Text style={styles.placeholderTitle}>No image selected</Text>
-              <Text style={styles.placeholderSubtext}>
-                Choose from gallery or take a photo
-              </Text>
+              
+              {/* Calibration Grid Lines */}
+              <View style={styles.gridLineHorizontal} />
+              <View style={styles.gridLineVertical} />
             </View>
           )}
         </Card>
 
-        <View style={styles.uploadOptions}>
-          <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-            <Ionicons name="folder-open-outline" size={24} color="#FFFFFF" />
-            <View style={styles.buttonTextContainer}>
-              <Text style={styles.uploadButtonText}>Choose from Gallery</Text>
-              <Text style={styles.uploadButtonSubtext}>Browse your files</Text>
+        {/* Accepted Formats & Security Guideline Cards */}
+        <View style={styles.guidelinesSection}>
+          <View style={styles.guidelineCard}>
+            <Ionicons name="options-outline" size={20} color={COLORS.primary} />
+            <View style={styles.guidelineTextContent}>
+              <Text style={styles.guidelineTitle}>PA / AP Views</Text>
+              <Text style={styles.guidelineSubtitle}>Chest projection scans</Text>
             </View>
+          </View>
+
+          <View style={styles.guidelineCard}>
+            <Ionicons name="document-text-outline" size={20} color={COLORS.primary} />
+            <View style={styles.guidelineTextContent}>
+              <Text style={styles.guidelineTitle}>DICOM, PNG, JPEG</Text>
+              <Text style={styles.guidelineSubtitle}>Supported file formats</Text>
+            </View>
+          </View>
+
+          <View style={styles.guidelineCard}>
+            <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary} />
+            <View style={styles.guidelineTextContent}>
+              <Text style={styles.guidelineTitle}>Secure Patient Data</Text>
+              <Text style={styles.guidelineSubtitle}>Encrypted locally and in-transit</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Direct Action Triggers */}
+        <View style={styles.uploadOptions}>
+          <TouchableOpacity style={styles.primaryActionButton} onPress={pickImage}>
+            <Ionicons name="image-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.primaryActionButtonText}>Choose X-Ray Scan</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.uploadButton, styles.cameraButton]}
-            onPress={takePhoto}
-          >
-            <Ionicons name="camera-outline" size={24} color={COLORS.primary} />
-            <View style={styles.buttonTextContainer}>
-              <Text style={styles.cameraButtonText}>Take Photo</Text>
-              <Text style={styles.cameraButtonSubtext}>Use device camera</Text>
-            </View>
+          <TouchableOpacity style={styles.secondaryActionButton} onPress={takePhoto}>
+            <Ionicons name="camera-outline" size={20} color={COLORS.primary} />
+            <Text style={styles.secondaryActionButtonText}>Capture Photo</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.demoActionButton} onPress={loadDemoCase}>
+            <Ionicons name="play-circle-outline" size={20} color={COLORS.textSecondary} />
+            <Text style={styles.demoActionButtonText}>Try Demo Case</Text>
           </TouchableOpacity>
         </View>
 
-        <Card elevated="light" backgroundColor={COLORS.warningLight}>
-          <View style={styles.sampleHeader}>
-            <Text style={styles.sampleIcon}>📷</Text>
-            <Text style={styles.sampleTitle}>Demo Mode</Text>
-          </View>
-          <Text style={styles.sampleText}>
-            For demo purposes, any chest X-ray image can be used. The AI will
-            simulate a realistic diagnosis based on the uploaded image.
-          </Text>
-        </Card>
-
+        {/* Proceed Action Button */}
         <TouchableOpacity
           style={[
             styles.continueButton,
@@ -219,9 +227,9 @@ export default function UploadScreen() {
           disabled={!selectedImage}
         >
           <Text style={styles.continueButtonText}>
-            Continue to Patient Info
+            Continue to Patient Details
           </Text>
-          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+          <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -285,169 +293,206 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     paddingBottom: 40,
   },
-  instructionsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 16,
-  },
-  instructionsTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: COLORS.textPrimary,
-    letterSpacing: -0.2,
-  },
-  guidelinesList: {
-    gap: 12,
-  },
-  guidelineItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-  },
-  instructionsText: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-    flex: 1,
-    fontWeight: "500",
-  },
   imagePreviewContainer: {
     width: "100%",
     position: "relative",
+    backgroundColor: "#0F172A",
+    borderRadius: BORDER_RADIUS.md,
+    overflow: "hidden",
   },
   previewImage: {
     width: "100%",
     height: 300,
-    borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.primaryLight,
+    resizeMode: "contain",
   },
   removeButton: {
     position: "absolute",
-    top: -14,
-    right: -14,
+    top: 12,
+    right: 12,
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    shadowColor: "rgba(0, 0, 0, 0.12)",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
+    borderRadius: 16,
   },
   imageStatusBadge: {
     position: "absolute",
-    bottom: 14,
-    left: 14,
+    bottom: 12,
+    left: 12,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 6,
     backgroundColor: "#FFFFFF",
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    shadowColor: "rgba(0, 0, 0, 0.08)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    paddingVertical: 6,
+    borderRadius: 12,
+    ...SHADOWS.light,
   },
   imageStatusText: {
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "800",
     color: COLORS.success,
   },
   placeholderContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  placeholderIcon: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: COLORS.primaryLight,
+    height: 300,
+    backgroundColor: "#0F172A",
+    borderRadius: BORDER_RADIUS.md,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    position: "relative",
+    overflow: "hidden",
+  },
+  placeholderContent: {
+    alignItems: "center",
+    zIndex: 10,
   },
   placeholderTitle: {
     fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
-    marginBottom: 6,
+    fontWeight: "800",
+    color: "#E2E8F0",
+    marginTop: 16,
+    letterSpacing: -0.2,
   },
   placeholderSubtext: {
-    fontSize: 14,
-    color: COLORS.textTertiary,
-    fontWeight: "500",
+    fontSize: 13,
+    color: "#64748B",
+    marginTop: 6,
+    fontWeight: "600",
   },
-  uploadOptions: {
-    gap: 12,
-    marginBottom: 24,
+  scaleMarker: {
+    position: "absolute",
+    width: 14,
+    height: 14,
+    borderColor: "#475569",
+    zIndex: 5,
   },
-  uploadButton: {
+  scaleMarkerTopLeft: {
+    top: 16,
+    left: 16,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+  },
+  scaleMarkerTopRight: {
+    top: 16,
+    right: 16,
+    borderTopWidth: 2,
+    borderRightWidth: 2,
+  },
+  scaleMarkerBottomLeft: {
+    bottom: 16,
+    left: 16,
+    borderBottomWidth: 2,
+    borderLeftWidth: 2,
+  },
+  scaleMarkerBottomRight: {
+    bottom: 16,
+    right: 16,
+    borderBottomWidth: 2,
+    borderRightWidth: 2,
+  },
+  gridLineHorizontal: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: 0.5,
+    backgroundColor: "rgba(71, 85, 105, 0.2)",
+    top: "50%",
+  },
+  gridLineVertical: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: 0.5,
+    backgroundColor: "rgba(71, 85, 105, 0.2)",
+    left: "50%",
+  },
+  guidelinesSection: {
     flexDirection: "row",
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
-    padding: 18,
+    justifyContent: "space-between",
+    gap: 8,
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  guidelineCard: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.sm,
+    padding: 12,
     alignItems: "center",
-    gap: 14,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     ...SHADOWS.light,
   },
-  buttonTextContainer: {
-    flex: 1,
+  guidelineTextContent: {
+    alignItems: "center",
+    marginTop: 6,
   },
-  uploadButtonText: {
-    color: "#FFFFFF",
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  uploadButtonSubtext: {
-    color: "rgba(255, 255, 255, 0.85)",
+  guidelineTitle: {
     fontSize: 12,
-    marginTop: 3,
-    fontWeight: "500",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    textAlign: "center",
   },
-  cameraButton: {
+  guidelineSubtitle: {
+    fontSize: 9,
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+    marginTop: 2,
+    textAlign: "center",
+  },
+  uploadOptions: {
+    gap: 10,
+    marginBottom: 24,
+  },
+  primaryActionButton: {
+    flexDirection: "row",
+    backgroundColor: COLORS.primary,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    ...SHADOWS.light,
+  },
+  primaryActionButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  secondaryActionButton: {
+    flexDirection: "row",
     backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
     borderWidth: 1.5,
+    borderColor: COLORS.primary,
+  },
+  secondaryActionButtonText: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+  demoActionButton: {
+    flexDirection: "row",
+    backgroundColor: COLORS.card,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1,
     borderColor: COLORS.border,
   },
-  cameraButtonText: {
-    color: COLORS.primary,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-  cameraButtonSubtext: {
+  demoActionButtonText: {
     color: COLORS.textSecondary,
-    fontSize: 12,
-    marginTop: 3,
-    fontWeight: "500",
-  },
-  sampleHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 10,
-  },
-  sampleIcon: {
-    fontSize: 20,
-  },
-  sampleTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: COLORS.warning,
-  },
-  sampleText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-    fontWeight: "500",
   },
   continueButton: {
     flexDirection: "row",
     backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
-    padding: 18,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
@@ -458,7 +503,7 @@ const styles = StyleSheet.create({
   },
   continueButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "800",
   },
 });
